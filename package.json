@@ -16,7 +16,8 @@
 	},
 	"type": "module",
 	"dependencies": {
-		"@picocss/pico": "^2.0.6",
-		"axios": "^1.6.8"
+		"@material/web": "^1.4.1",
+		"axios": "^1.6.8",
+		"svelte-markdown": "^0.4.1"
 	}
 }

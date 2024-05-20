@@ -4,14 +4,16 @@ import axios from 'axios';
 import { params } from '$lib/data/modelparams';
 import { env } from '$env/dynamic/public'
 
-export const openAiSimpleChat = async (modellInfo) => {
+export const multimodalOpenAi = async (userParams) => {
     // Template API-call
-    let payload = params[modellInfo.valgtModell];
-    payload.message = modellInfo.message;
-    payload.kontekst = modellInfo.kontekst;
-    console.log(payload);
+    let payload = params[userParams.valgtModell];
+    payload.message = userParams.message;
+    payload.messageHistory = userParams.messageHistory;
+    payload.kontekst = userParams.kontekst;
+    payload.bilde_base64String = userParams.base64String;
+    console.log("Pæylød: ", payload);
 
-    const response = await axios.post(env.PUBLIC_LOCAL_OPENAICHAT , payload)
+    const response = await axios.post(env.PUBLIC_LOCAL_OPENAIMULTI , payload)
     console.log(response, env.PUBLIC_TEST ); // Tester env-handling
     return response.data.choices[0].message.content;
 }
@@ -46,9 +48,9 @@ export const openAiAssistant = async (modellInfo) => {
 export const visionOpenAi = async (modellInfo) => {
     // Template API-call
     let payload = {
-        "model": "gpt-4-turbo",
+        "model": "gpt-4o",
         "question": modellInfo.message,
-        "bilde_url": modellInfo.kontekst
+        "bilde_url": modellInfo.base64String
       }
 
     $: console.log(payload);

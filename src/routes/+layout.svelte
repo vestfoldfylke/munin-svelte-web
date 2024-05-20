@@ -1,5 +1,5 @@
 <script>
-    import "@picocss/pico/css/pico.min.css";
+    //import "@material/web";
 </script>
 
 <nav>
@@ -16,5 +16,9 @@
 	nav {
 		padding: 1rem;
 	}
+	nav ul li {
+    display: inline;
+    padding-right: 1rem; /* Add some space between the items */
+}
 </style>
 <slot />

@@ -1,9 +1,10 @@
 <script>
 	// logic goes here
+	import '@material/web/button/elevated-button';
 </script>
 
 <!-- markup (zero or more items) goes here -->
-<h1>Jeg er en komponent</h1>
+<md-elevated-button>Click me</md-elevated-button>
 
 <style>
 	/* styles go here */

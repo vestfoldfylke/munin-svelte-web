@@ -1,73 +1,105 @@
 <script>
-    import Testcomp from '$lib/components/Testcomp.svelte'; 
-    import { openAiSimpleChat, openAiAssistant, noraChat, visionOpenAi } from '$lib/services/openAiTools';
+    import { multimodalOpenAi, noraChat, openAiAssistant, visionOpenAi } from '$lib/services/openAiTools';
+    import SvelteMarkdown from 'svelte-markdown'
+    import '@material/web/button/elevated-button';
+    import '@material/web/textfield/filled-text-field';
 
-    const params = {
+    
+    let selectedFiles = [];
+    let respons = "Her kommer svaret fra Hugin...";
+  
+    const userParams = {
         "message": "",
+        "messageHistory": [],
         "kontekst": "",
-        "valgtModell": "option1"
+        "valgtModell": "option1", // Settes til default
+        "base64String": ""
     }
 
-    let respons = "Her kommer svaret fra Hugin...";
-
-
-    function modellValg(event) {
-        params.valgtModell = event.target.value;
+    function valgtModell(event) {
+        userParams.valgtModell = event.target.value;
         console.log("Hællæ");
     }
 
-    async function minFunksjon() {
-        if (params.valgtModell === "option1") {
-            let r = await openAiSimpleChat(params);
+    // Kaller på riktig modell basert på brukerens valg
+    async function brukervalg() {
+        if (userParams.valgtModell === "option1") {
+            userParams.messageHistory.push({"role": "user", "content": userParams.message});
+            let r = await multimodalOpenAi(userParams);
+            userParams.messageHistory.push( {"role": "assistant", "content": r});
+            console.log(userParams);
             respons = r;
-        } else if (params.valgtModell === "option2") {
-            console.log(params);
-            let r = await openAiSimpleChat(params);
+        } else if (userParams.valgtModell === "option2") {
+            console.log(userParams);
+            let r = await noraChat(userParams);
             respons = r;
-        } else if (params.valgtModell === "option3") {
-            console.log(params);
-            let r = await noraChat(params);
+        } else if (userParams.valgtModell === "option3") {
+            console.log(userParams);
+            let r = await openAiAssistant(userParams);
             respons = r;
-        } else if (params.valgtModell === "option4") {
-            console.log(params);
-            let r = await openAiAssistant(params);
-            respons = r;
-        } else if (params.valgtModell === "option5") {
-            console.log(params);
-            let r = await visionOpenAi(params);
+        } else if (userParams.valgtModell === "option4") {
+            console.log(userParams);
+            let r = await visionOpenAi(userParams);
             respons = r;
         }
     }
+
+    // Konverterer opplastet fil til base64
+    function handleFileSelect() {
+        console.log("Hællææææææ");
+        const file = selectedFiles[0];
+        if (file) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            if ( reader.result.startsWith("data:image")){
+                console.log("Bilde");
+                userParams.base64String = reader.result;
+            } else if ( reader.result.startsWith("data:application/pdf")){
+                console.log("pdf");
+            } else {
+                console.log("Noe andre greier");
+                userParams.base64String = "";
+            }
+            // userParams.base64String = reader.result;
+            console.log(reader.result);
+        };
+        reader.readAsDataURL(file);
+        }
+    }
 </script>
+
 <div class="right">
-    <select on:change={modellValg}>
-        <option value="option1" default>GPT 3.5</option>
-        <option value="option2">GPT4</option>
-        <option value="option3">Nora</option>
-        <option value="option4">Matematikkens byggesteiner</option>
-        <option value="option5">Vision</option>
+    <select on:change={ valgtModell }>
+        <option value="option1" default>GPT-4o</option>
+        <option value="option2">Nora</option>
+        <option value="option3">Matematikkens byggesteiner</option>
+        <option value="option4">Vision</option>
     </select>
 
     <div class="boxy">
-        <textarea placeholder="Her kan du skrive innhold som er relevant for modellen. F.eks. kontekt eller url."  bind:value={params.kontekst} rows="4" cols="50"></textarea>
+        <textarea placeholder="Her kan du skrive innhold som er relevant for modellen. F.eks. kontekt eller url."  bind:value={userParams.kontekst} rows="4" cols="50"></textarea>
     </div>
 </div>
-
 
 <div class="container center">
     <div class="output">
-        { respons }
-
+        <img class="uploadedImage" src={ userParams.base64String } alt="">
+        <br>
+            <SvelteMarkdown source={ respons } />
     </div>
-    <form role="search">
-        <input name="askHugin" type="text" autocomplete="off" placeholder="Spør Hugin" bind:value={ params.message }/>
-        <input type="submit" on:click={minFunksjon} value="Spør Hugin" />
-    </form>
+
+    <input name="askHugin" type="text" autocomplete="off" placeholder="Spør Hugin" size="50" bind:value={ userParams.message }/>
+    <input type="button" on:click={ brukervalg } value="Spør Hugin" />
+    <input type="file" bind:files={ selectedFiles } on:change={ handleFileSelect } />
 </div>
 
 
-
 <style>
+
+.uploadedImage {
+    width: 400px;
+    height: auto;
+}
 
 .boxy {
     padding: 10px;
