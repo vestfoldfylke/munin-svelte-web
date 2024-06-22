@@ -1,39 +1,28 @@
 <script>
-    import Testcomp from "../lib/components/Testcomp.svelte";
-    let name = "Hugin";
-</script>
-
-<main>
-    <div class="infoBox">
-        <h1>Velkommen til {name}!</h1>
-        <Testcomp />
-        <p>Takk for at du valgte {name} som din KI-tjeneste.</p>
-        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus. Suspendisse lectus tortor, dignissim sit amet, adipiscing nec, ultricies sed, dolor. Cras elementum ultrices diam. Maecenas ligula massa, varius a, semper congue, euismod non, mi. Proin porttitor, orci nec nonummy molestie, enim est eleifend mi, non fermentum diam nisl sit amet erat. Duis semper. Duis arcu massa, scelerisque vitae, consequat in, pretium a, enim. Pellentesque congue. Ut in risus volutpat libero pharetra tempor. Cras vestibulum bibendum augue. Praesent egestas leo in pede. Praesent blandit odio eu enim. Pellentesque sed dui ut augue blandit sodales. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Aliquam nibh. Mauris ac mauris sed pede pellentesque fermentum. Maecenas adipiscing ante non diam sodales hendrerit.</p>
+    import InfoBox from '$lib/components/InfoBox.svelte'
+    import chat from '$lib/images/chat.png'
+    import doc from '$lib/images/doc.png'
+    import ravner from '$lib/images/ravner.jpg'
+    import CardButton from '$lib/components/CardButton.svelte'
+  </script>
+  
+  <main>
+      <div class="centerstuff">
+          <h1>Hugin og Munin - En KI-tjeneste for Vestfold og Telemark fylkeskommune</h1>
+      </div>
+      <div class="centerstuff">
+        <CardButton header={'Om tjenesten'} imgPath={ravner} imgAlt={'Bilde av Hugin og Munin'} gotoPath={'/about'} paragraph={'Trykk her for å lese mer om tjenesten'} boolValue={true}/>
+        <CardButton header={'Chat'} imgPath={chat} imgAlt={'Ikon bilde av en snakkebobble'} gotoPath={'/homeSchool'} paragraph={'Trykk her for chatbotter'} boolValue={true}/>
+        <CardButton header={'Dokumentspørring'} imgPath={doc} imgAlt={'Ikon bilde av et dokument'} gotoPath={'/docQuery'} paragraph={'Trykk her hvis du vil bruke KI til spørre og jobbe med egne dokumenter.'} boolValue={true}/>
     </div>
-</main>
-
-<style>
-    main {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        height: 100vh;
-        text-align: center;
-    }
-
-    h1 {
-        font-size: 2.5rem;
-        margin-bottom: 1rem;
-    }
-
-    p {
-        margin-bottom: 0.5rem;
-    }
-
-    .infoBox {
-        padding: 1rem;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-        margin-bottom: 1rem;
-    }
-</style>
+  </main>
+  
+  
+  <style>
+     .centerstuff {
+          display: flex;
+          flex-direction: row;
+          flex-wrap: wrap;
+          justify-content: center;
+      }
+  </style>
