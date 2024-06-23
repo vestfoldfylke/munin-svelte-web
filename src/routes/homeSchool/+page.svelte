@@ -55,6 +55,12 @@
             respons = await openAiAssistant(userParams);
             userParams.messageHistory.push( {"role": "assistant", "content": respons});
             userParams.message = ""; // Trenger denne for å oppdatere feltet etter respons?? Sjekk denne
+          } else if (userParams.valgtModell === "option4") {
+            userParams.messageHistory.push({"role": "user", "content": userParams.message});
+            userParams.base64String = ""; // Nullstiller inputfeltet
+            respons = await openAiAssistant(userParams);
+            userParams.messageHistory.push( {"role": "assistant", "content": respons});
+            userParams.message = ""; // Trenger denne for å oppdatere feltet etter respons?? Sjekk denne
           }
         }
 
@@ -93,6 +99,7 @@
     <option value="option1" default>GPT-4o</option>
     <option value="option2">Nora</option>
     <option value="option3">Matematikkens byggesteiner</option>
+    <option value="option4">NDLA Religion</option>
   </select>
 
   <!-- Her kan vi legge til en kontekstvelger for brukeren

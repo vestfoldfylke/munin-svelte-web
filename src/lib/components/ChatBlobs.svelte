@@ -16,6 +16,7 @@
         display: flex;
         flex-direction: row-reverse;
         margin: 0.5rem;
+        border-radius: 10px 10px 0 10px;
     }
 
     .assistant {

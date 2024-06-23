@@ -11,6 +11,6 @@ export const modelinfo = {
         "description": "Matematikkekseperten er en assistent som kun forholder seg til læreboka Matematikkens byggesteiner. Alle responser er basert på innholdet i denne boka. <h1>Hei</h1> ",
     },
     "option4": {
-        "description": "Flytterisebotten",
+        "description": "NDLA Religion er en assistent som forholder seg NDLA sine ressurser om religion. Alle responser er basert på innholdet i disse ressursene. I tillegg til læringsressursene fra NDLA, er assistenten instruert til å respondere i henhold til læreplanen i faget. (REL01-02)",
     },
 }
