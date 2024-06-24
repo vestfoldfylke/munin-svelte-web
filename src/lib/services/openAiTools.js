@@ -50,7 +50,7 @@ export const openAiAssistant = async (modellInfo) => {
 export const docQueryOpenAi = async (filliste, up) => {
     // Template API-call
     const payload = {
-      assistant_id: "",
+      assistant_id: "asst_Rey678W0eAv6ZXl7uGzTMkL4",
       new_thread: true,
       thread_id: "", 
       filer: filliste,
@@ -76,8 +76,8 @@ export const docQueryOpenAi = async (filliste, up) => {
   });
   payload.thread_id = r.data.thread_id;
   payload.new_thread = "false";
-  console.log("Thread_id: ", r.data.thread_id);
-  console.log("Responsen er: ", r.data.messages[1].content[0].text.value);
+  console.log("Thread_id: ", JSON.stringify(r));
+  // console.log("Responsen er: ", r.data.messages[1].content[0].text.value);
   //return r.data.messages[1].content[0].text.value;
   //console.log("Sånn:", JSON.stringify(r));
   return JSON.stringify(r);

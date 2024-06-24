@@ -21,6 +21,7 @@
   async function sporDokument() {
     try {
       docQueryOpenAi(files, userParams).then((response) => {
+        console.log("TestRRR:", JSON.parse(response).status);
         console.log("Response: ", JSON.parse(response).data.messages[1].content[0].text.value);
         svar = JSON.parse(response).data.messages[1].content[0].text.value;
       });
