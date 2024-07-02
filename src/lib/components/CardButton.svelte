@@ -1,6 +1,6 @@
 <script>
     import { goto } from '$app/navigation';
-    import IconSpinner from './Icons/IconSpinner.svelte';
+    import IconSpinner from './IconSpinner.svelte'
 
     // Props
     export let header = 'header'
@@ -8,6 +8,7 @@
     export let imgAlt = 'alt'
     export let gotoPath = 'urlPath'
     export let paragraph = 'some text'
+    export let image = false
     export let boolValue = false
     export let loading = false
     export let func
@@ -19,7 +20,13 @@
             <IconSpinner width="80px"/>
         </div>
     {:else}
-        <img src={imgPath} alt={imgAlt}/>
+        {#if image}
+            <img src={imgPath} alt={imgAlt}/>
+        {:else}
+            <div class="mainSlot">
+                <slot></slot>
+            </div>
+        {/if}
     {/if}
     <div class="container">
         <h3><b>{header}</b></h3>
@@ -75,6 +82,14 @@
 
     button {
         all:unset
+    }
+
+    .mainSlot {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-top: bottom;
+        padding: 50px;
     }
 
     @media only screen and (max-width: 768px) {

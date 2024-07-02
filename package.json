@@ -20,6 +20,7 @@
 		"@material/web": "^1.4.1",
 		"axios": "^1.6.8",
 		"json": "^11.0.0",
+		"jwt-decode": "^4.0.0",
 		"stream": "^0.0.2",
 		"svelte-markdown": "^0.4.1"
 	}
