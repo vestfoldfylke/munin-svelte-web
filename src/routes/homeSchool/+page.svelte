@@ -2,11 +2,12 @@
     import { multimodalOpenAi, noraChat, openAiAssistant } from '$lib/services/openAiTools';
     import { modelinfo } from '$lib/data/modelinfo'; // Tekstbeskrivelser om valgt modell
     import ChatBlobs from '$lib/components/ChatBlobs.svelte'; // Komponent for å vise chatmeldinger
-    // import ChatMessage from '../../lib/components/ChatMessage.svelte'; // Komponent for å vise chatmeldinger alt 2
-    // import InputElement from '$lib/components/InputElement.svelte';
+    // import GPT4o from '$lib/images/GPT4o.png'; // Bilde av valgt modell
+    import ModelInfo from '../../lib/components/ModelInfo.svelte';
     import '@material/web/button/elevated-button';
-    // import '@material/web/textfield/filled-text-field';
     import { onMount, afterUpdate } from 'svelte';
+    import IconSpinner from '$lib/components/icons/IconSpinner.svelte';
+    import Spesialistvelger from '$lib/components/Spesialistvelger.svelte';
 
     // Modell-parametere og payload
     const userParams = {
@@ -16,15 +17,18 @@
         "kontekst": "",
         "valgtModell": "option1", // Default modell GPT-4o
         "base64String": "",
-        "temperatur": 0.7 // Default temperatur
+        "temperatur": 0.7, // Default temperatur
+        "synligKontekst": true,
     }
 
-    // Variabler for håndtering av data og innhold
+    // Variabler for håndtering av data og innhold i frontend
     let outputElement;
     let tekstFraPdf = ""; // Brukes ikke....
     let selectedFiles = [];
     let respons = "Velkommen til Hugin! Hva kan jeg hjelpe deg med i dag?";
-    let infoBox = modelinfo[userParams.valgtModell].description;
+    let modelinfoModell = modelinfo[userParams.valgtModell].navn;
+    let modelinfoBeskrivelse = modelinfo[userParams.valgtModell].description;
+    let illustrasjonsbilde = modelinfo[userParams.valgtModell].illustrasjonsbilde;
 
     // Fester scroll til bunnen av chatvinduet
     function scrollToBottom() {
@@ -34,10 +38,13 @@
     // Håndterer valg av modell og oppdaterere modellinformasjon på siden
     function valgtModell(event) {
         userParams.valgtModell = event.target.value;
-        infoBox = modelinfo[userParams.valgtModell].description;
+        modelinfoModell = modelinfo[userParams.valgtModell].navn;
+        modelinfoBeskrivelse = modelinfo[userParams.valgtModell].description;
+        userParams.synligKontekst = modelinfo[userParams.valgtModell].synligKontekst;
+
     }
 
-    // Kaller på riktig modell basert på brukerens valg
+    // Kaller på valgt modell med tilhørende parametre basert på brukerens valg
     async function brukervalg() {
         if (userParams.valgtModell === "option1") {
             userParams.messageHistory.push({"role": "user", "content": userParams.message});
@@ -47,6 +54,7 @@
             userParams.message = ""; // Trenger denne for å oppdatere feltet etter respons?? Sjekk denne
         } else if (userParams.valgtModell === "option2") {
             console.log(userParams);
+            userParams.synligKontekst = false;
             let r = await noraChat(userParams);
             respons = r;
         } else if (userParams.valgtModell === "option3") {
@@ -102,30 +110,23 @@
     <option value="option4">NDLA Religion</option>
   </select>
 
-  <!-- Her kan vi legge til en kontekstvelger for brukeren
-  <select class="kontekstSelect" on:change={}>
-    <option value="option1" default>Ingen kontekst</option>
-    <option value="option2">Pythoneksperten</option>
-    <option value="option3">Norsklæreren</option>
-  </select>
-  -->
-
   <div class="boxy" id="testBox">
-    <h3>Informasjon om KI-modellen</h3>
-    <p class="infoBoxText">{infoBox}</p>
-
-    <textarea placeholder="Her kan du legge inn kontekst til språkmodellen." bind:value={ userParams.kontekst } rows="4" cols="auto" ></textarea>
+    <ModelInfo modelinfo={modelinfoModell} infoText={modelinfoBeskrivelse} />
+    {#key userParams.synligKontekst}
+    {#if userParams.synligKontekst}
+      <textarea placeholder="Her kan du legge inn kontekst til språkmodellen." bind:value={ userParams.kontekst } rows="4" cols="auto"></textarea>
+      <label for="temperatur">Temperatur: </label>
+      <input type="range" id="temperatur" name="temperatur" min="0" max="2" step="0.1" bind:value={userParams.temperatur} />
+      {userParams.temperatur}
+    {/if}
+    {/key}
   </div>
-  <label for="temperatur">Temperatur: </label>
-  <input type="range" id="temperatur" name="temperatur" min="0" max="2" step="0.1" bind:value={userParams.temperatur} />
-  {userParams.temperatur}
 </div>
 
 <div class="container center">
-  
   <div class="output" bind:this={outputElement}>
     {#await respons}
-      <p>Laster...</p>
+      <IconSpinner />Vises ikke???? Sjekk DEFAULT_TOKEN_RENEWAL_OFFSET_SEC.
     {:then resultat}
       <img src={userParams.base64String} class="uploadedImage" alt="" />
       {#each userParams.messageHistory as chatMessage}
@@ -140,8 +141,6 @@
   <input class="sendButton" type="button" on:click={brukervalg} value="Spør Hugin" />
   <input type="file" bind:files={selectedFiles} on:change={handleFileSelect} accept=".jpg, .jpeg, .png, .bmp"/>
 </div>
-
-
 
 <style>
   textarea {
@@ -166,9 +165,6 @@
     margin-bottom: 10px;
   }
 
-  .infoBoxText {
-    padding: auto;
-  }
 
   .center {
     float: left;
@@ -204,7 +200,14 @@
     border-radius: 5px;
     cursor: pointer;
     color: black;
-
   }
+
+  .modellSelect {
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    background-color: #f5f5f5;
+    width: 10rem;
+    }
 
 </style>
