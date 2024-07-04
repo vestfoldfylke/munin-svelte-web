@@ -6,6 +6,8 @@
     import ModelInfo from '../../lib/components/ModelInfo.svelte';
     import '@material/web/button/elevated-button';
     import { onMount, afterUpdate } from 'svelte';
+    import { getHuginToken } from '../../lib/useApi';
+    import IconSpinner from '../../lib/components/IconSpinner.svelte';
     import IconSpinner from '$lib/components/icons/IconSpinner.svelte';
     import Spesialistvelger from '$lib/components/Spesialistvelger.svelte';
 
@@ -21,14 +23,12 @@
         "synligKontekst": true,
     }
 
-    // Variabler for håndtering av data og innhold i frontend
+    // Variabler for håndtering av data og innhold
     let outputElement;
     let tekstFraPdf = ""; // Brukes ikke....
     let selectedFiles = [];
     let respons = "Velkommen til Hugin! Hva kan jeg hjelpe deg med i dag?";
-    let modelinfoModell = modelinfo[userParams.valgtModell].navn;
-    let modelinfoBeskrivelse = modelinfo[userParams.valgtModell].description;
-    let illustrasjonsbilde = modelinfo[userParams.valgtModell].illustrasjonsbilde;
+    let infoBox = modelinfo[userParams.valgtModell].description;
 
     // Fester scroll til bunnen av chatvinduet
     function scrollToBottom() {
@@ -96,6 +96,14 @@
         }
     }
 
+    const onKeyPress = async e => {
+      if (e.charCode === 13) {
+          // isEnterPressed = true
+          scrollToBottom()
+          brukervalg()
+      }
+    }
+
     // Sørger for at chatvinduet scroller til bunnen ved oppdatering
     // onMount(scrollToBottom);
     afterUpdate(scrollToBottom);
@@ -110,23 +118,30 @@
     <option value="option4">NDLA Religion</option>
   </select>
 
+  <!-- Her kan vi legge til en kontekstvelger for brukeren
+  <select class="kontekstSelect" on:change={}>
+    <option value="option1" default>Ingen kontekst</option>
+    <option value="option2">Pythoneksperten</option>
+    <option value="option3">Norsklæreren</option>
+  </select>
+  -->
+
   <div class="boxy" id="testBox">
-    <ModelInfo modelinfo={modelinfoModell} infoText={modelinfoBeskrivelse} />
-    {#key userParams.synligKontekst}
-    {#if userParams.synligKontekst}
-      <textarea placeholder="Her kan du legge inn kontekst til språkmodellen." bind:value={ userParams.kontekst } rows="4" cols="auto"></textarea>
-      <label for="temperatur">Temperatur: </label>
-      <input type="range" id="temperatur" name="temperatur" min="0" max="2" step="0.1" bind:value={userParams.temperatur} />
-      {userParams.temperatur}
-    {/if}
-    {/key}
+    <h3>Informasjon om KI-modellen</h3>
+    <p class="infoBoxText">{infoBox}</p>
+
+    <textarea placeholder="Her kan du legge inn kontekst til språkmodellen." bind:value={ userParams.kontekst } rows="4" cols="auto" ></textarea>
   </div>
+  <label for="temperatur">Temperatur: </label>
+  <input type="range" id="temperatur" name="temperatur" min="0" max="2" step="0.1" bind:value={userParams.temperatur} />
+  {userParams.temperatur}
 </div>
 
 <div class="container center">
+  
   <div class="output" bind:this={outputElement}>
     {#await respons}
-      <IconSpinner />Vises ikke???? Sjekk DEFAULT_TOKEN_RENEWAL_OFFSET_SEC.
+      <p>Laster...</p>
     {:then resultat}
       <img src={userParams.base64String} class="uploadedImage" alt="" />
       {#each userParams.messageHistory as chatMessage}
@@ -142,7 +157,17 @@
   <input type="file" bind:files={selectedFiles} on:change={handleFileSelect} accept=".jpg, .jpeg, .png, .bmp"/>
 </div>
 
+
+
 <style>
+  main {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-items: center;
+    margin: 20px;
+  }
   textarea {
     padding: 10px;
     display: block;
@@ -158,30 +183,75 @@
     height: auto;
   }
 
+  .boxyHeader {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
   .boxy {
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 5px;
     margin-bottom: 10px;
+    margin-top: 10px;
+  }
+
+  .material-symbols-outlined {
+    font-size: 1.5rem;
+  }
+
+  label .material-symbols-outlined {
+    cursor: pointer;
+    background-color: var(--gress-10);
+    font-size: 1.8rem;
+    border-radius: 5px;
+    padding: 10px;
+    margin: 10px;
+  }
+
+  label .material-symbols-outlined:hover {
+    background-color: var(--gress-50);
   }
 
 
-  .center {
-    float: left;
-    width: 60%;
-    margin-left: 50px;
+  .userInteractionField {
+    display: flex;
+    width: 100%;
+    border: 1px solid #ccc;
   }
+  .userInteractionField button {
+    transition: transform .7s ease-in-out;
+  }
+  .userInteractionField button:hover {
+    transform: rotate(360deg);
+  }
+
+  input[type=text] {
+    all: unset;
+    width: 80%;
+    padding: 15px 20px;
+    margin: 8px 5px;
+    border-right: 1px solid #ccc;
+  }
+
+  input[type=file] {
+    display: none;
+  }
+
 
   .output {
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 5px;
     margin-bottom: 10px;
-    height: 600px;
+    height: 55vw;
+    max-height: 1440px;
+    width: 100%;
     overflow-y: scroll;
   }
 
-  .right {
+  /* .right {
     float: right;
     width: 30%;
     padding: 10px;
@@ -189,25 +259,26 @@
     border: 1px solid #ccc;
     border-radius: 5px;
     margin-bottom: 10px;
+  } */
+
+  .modelTampering {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 5px;
+    margin-bottom: 10px;
+    width: 100%;
   }
 
   .sendButton {
-    padding: 10px;
-    margin-top: 10px;
+    padding: 15px;
+    margin: 8px;
     background-color: var(--gress-10);
     color: white;
     border: none;
     border-radius: 5px;
     cursor: pointer;
     color: black;
-  }
 
-  .modellSelect {
-    padding: 10px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-    background-color: #f5f5f5;
-    width: 10rem;
-    }
+  }
 
 </style>

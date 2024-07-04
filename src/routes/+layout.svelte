@@ -1,13 +1,14 @@
 <script>
   import "../app.css"; // Add global css (and make it hot reload)
-  import logo_tfk from "$lib/images/TFK_logo.png";
-  import logo_vfk from "$lib/images/VFK_logo.png";
+  import logo from "$lib/images/TFK_logo.png";
   import { goto } from "$app/navigation";
   import { page } from "$app/stores";
   import { onMount } from "svelte";
   import { getMsalClient, login, logout } from "../lib/auth/msal-auth";
   import { getHuginToken } from "../lib/useApi";
-  const appTitle = "Hugin og Munin";
+  import IconSpinner from "../lib/components/IconSpinner.svelte";
+
+  const appTitle = import.meta.env.VITE_APP_NAME
 
   // Variabel som får "kontoobjektet" fra innlogget bruker fra MSAL
   let account = null;
@@ -17,7 +18,7 @@
       const msalClient = await getMsalClient();
       if (msalClient.getActiveAccount()) {
         account = msalClient.getActiveAccount();
-        // console.log(await getHuginToken());
+        // console.log(await getHuginToken(true));
       }
       if (!account) {
         const loginResponse = await login(false, $page.url.pathname); // Sends you to ms auth, and redirects you back here with the msalClient set with active account
@@ -34,7 +35,7 @@
     authenticate();
 
     return () => {
-      console.log("Destroyyyy");
+      // console.log("Destroyyyy");
       // on destroy (probs just wipe state)
     };
   });
@@ -42,26 +43,33 @@
 
 <!-- If the account is not loaded, show a loading message. -->
 {#if !account}
-  <p>Loading...</p>
+  <div class="loading">
+    <IconSpinner width={"32px"} />
+  </div>
 {:else}
-  <div class="topbar">
-    <div class="toptop">
-      <div>
-        <a href="/"><img class="logo" src={logo_tfk} alt="Hugin og Munin" style="margin-right: 50px;"/></a>
-        <a href="/"><img class="logo" src={logo_vfk} alt="Hugin og Munin" /></a>
-      </div>
-      <a href="/" title="Gå til forsiden" class="appTitle"><h1>{ appTitle }</h1></a>
-      <div class="topbarOptions">
-        <button class="link" on:click={() => { goto("/") }}>
-          <span class="material-symbols-outlined">logout</span>Hjem / Logg ut</button>
-        <button class="link" on:click={() => { goto("/homeSchool") }}><span class="material-symbols-outlined">chat</span>Hugin</button>
+  {#await getHuginToken(true)}
+    <div class="loading">
+      <IconSpinner width={"32px"} />
+    </div> 
+  {:then}
+    <div class="topbar">
+      <div class="toptop">
+        <div>
+          <a href="/"><img class="logo" src={logo} alt="Hugin og Munin" style="margin-right: 50px;"/></a>
+        </div>
+        <a href="/" title="Gå til forsiden" class="appTitle"><h1>{ appTitle }</h1></a>
+        <div class="topbarOptions">
+          <button class="link" on:click={() => { goto("/") }}>
+            <span class="material-symbols-outlined">logout</span>Hjem / Logg ut</button>
+          <button class="link" on:click={() => { goto("/homeSchool") }}><span class="material-symbols-outlined">chat</span>{import.meta.env.VITE_APP_NAME}</button>
+        </div>
       </div>
     </div>
-  </div>
-  <div class="content">
-    <slot />
-  </div>
-  <div class="footer"></div>
+    <div class="content">
+      <slot />
+    </div>
+    <div class="footer"></div>
+  {/await}
 {/if}
 
 <style>
