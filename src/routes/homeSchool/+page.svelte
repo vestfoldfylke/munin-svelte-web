@@ -7,9 +7,6 @@
     import '@material/web/button/elevated-button';
     import { onMount, afterUpdate } from 'svelte';
     import { getHuginToken } from '../../lib/useApi';
-    import IconSpinner from '../../lib/components/IconSpinner.svelte';
-    import IconSpinner from '$lib/components/icons/IconSpinner.svelte';
-    import Spesialistvelger from '$lib/components/Spesialistvelger.svelte';
 
     // Modell-parametere og payload
     const userParams = {
