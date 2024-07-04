@@ -6,13 +6,8 @@
     import ModelInfo from '../../lib/components/ModelInfo.svelte';
     import '@material/web/button/elevated-button';
     import { onMount, afterUpdate } from 'svelte';
-<<<<<<< HEAD
-    import IconSpinner from '$lib/components/icons/IconSpinner.svelte';
-    import Spesialistvelger from '$lib/components/Spesialistvelger.svelte';
-=======
     import { getHuginToken } from '../../lib/useApi';
     import IconSpinner from '../../lib/components/IconSpinner.svelte';
->>>>>>> 3b24010868e372853da3979ae85de4d7b89ad251
 
     // Modell-parametere og payload
     const userParams = {
@@ -26,25 +21,17 @@
         "synligKontekst": true,
     }
 
-<<<<<<< HEAD
     // Variabler for håndtering av data og innhold i frontend
     let outputElement;
     let tekstFraPdf = ""; // Brukes ikke....
     let selectedFiles = [];
-    let respons = "Velkommen til Hugin! Hva kan jeg hjelpe deg med i dag?";
+    let respons = `Velkommen til ${import.meta.env.VITE_APP_NAME}! Hva kan jeg hjelpe deg med i dag?`;
     let modelinfoModell = modelinfo[userParams.valgtModell].navn;
     let modelinfoBeskrivelse = modelinfo[userParams.valgtModell].description;
     let illustrasjonsbilde = modelinfo[userParams.valgtModell].illustrasjonsbilde;
-=======
-    // Variabler for håndtering av data og innhold
-    let outputElement
-    let tekstFraPdf = ""; // Brukes ikke....
-    let selectedFiles = [];
-    let respons = `Velkommen til ${import.meta.env.VITE_APP_NAME}! Hva kan jeg hjelpe deg med i dag?`;
-    let infoBox = modelinfo[userParams.valgtModell].description;
     let modelTampering = false
     let advancedInteractions = false
->>>>>>> 3b24010868e372853da3979ae85de4d7b89ad251
+
 
     // Fester scroll til bunnen av chatvinduet
     function scrollToBottom() {
@@ -126,48 +113,6 @@
 
 </script>
 
-<<<<<<< HEAD
-<div class="right">
-  <select class="modellSelect" on:change={valgtModell}>
-    <option value="option1" default>GPT-4o</option>
-    <option value="option2">Nora</option>
-    <option value="option3">Matematikkens byggesteiner</option>
-    <option value="option4">NDLA Religion</option>
-  </select>
-
-  <div class="boxy" id="testBox">
-    <ModelInfo modelinfo={modelinfoModell} infoText={modelinfoBeskrivelse} />
-    {#key userParams.synligKontekst}
-    {#if userParams.synligKontekst}
-      <textarea placeholder="Her kan du legge inn kontekst til språkmodellen." bind:value={ userParams.kontekst } rows="4" cols="auto"></textarea>
-      <label for="temperatur">Temperatur: </label>
-      <input type="range" id="temperatur" name="temperatur" min="0" max="2" step="0.1" bind:value={userParams.temperatur} />
-      {userParams.temperatur}
-    {/if}
-    {/key}
-  </div>
-</div>
-
-<div class="container center">
-  <div class="output" bind:this={outputElement}>
-    {#await respons}
-      <IconSpinner />Vises ikke???? Sjekk DEFAULT_TOKEN_RENEWAL_OFFSET_SEC.
-    {:then resultat}
-      <img src={userParams.base64String} class="uploadedImage" alt="" />
-      {#each userParams.messageHistory as chatMessage}
-        <ChatBlobs role={chatMessage.role} content={chatMessage.content} />
-      {/each}
-    {:catch error}
-      <p>{error.message}</p>
-    {/await}
-  </div>
-
-  <input name="askHugin" type="text" autocomplete="off" placeholder="Spør Hugin" size="50" bind:value={userParams.message} />
-  <input class="sendButton" type="button" on:click={brukervalg} value="Spør Hugin" />
-  <input type="file" bind:files={selectedFiles} on:change={handleFileSelect} accept=".jpg, .jpeg, .png, .bmp"/>
-</div>
-
-=======
 <main>
   {#await getHuginToken(true)}
     <div class="loading">
@@ -192,23 +137,19 @@
           {/if}
         </div>
       </div>
-      <!-- Her kan vi legge til en kontekstvelger for brukeren
-      <select class="kontekstSelect" on:change={}>
-        <option value="option1" default>Ingen kontekst</option>
-        <option value="option2">Pythoneksperten</option>
-        <option value="option3">Norsklæreren</option>
-      </select>
-      -->
-      {#if modelTampering}
-        <div class="boxy" id="testBox">
-          <h3>Informasjon om KI-modellen</h3>
-          <p class="infoBoxText">{infoBox}</p>
 
-          <textarea placeholder="Her kan du legge inn kontekst til språkmodellen." bind:value={ userParams.kontekst } rows="4" cols="auto" ></textarea>
-        </div>
-        <label for="temperatur">Temperatur: </label>
-        <input type="range" id="temperatur" name="temperatur" min="0" max="2" step="0.1" bind:value={userParams.temperatur} />
-        {userParams.temperatur}
+      {#if modelTampering}
+      <div class="boxy" id="testBox">
+        <ModelInfo modelinfo={modelinfoModell} infoText={modelinfoBeskrivelse} />
+        {#key userParams.synligKontekst}
+        {#if userParams.synligKontekst}
+          <textarea placeholder="Her kan du legge inn kontekst til språkmodellen." bind:value={ userParams.kontekst } rows="4" cols="auto"></textarea>
+          <label for="temperatur">Temperatur: </label>
+          <input type="range" id="temperatur" name="temperatur" min="0" max="2" step="0.1" bind:value={userParams.temperatur} />
+          {userParams.temperatur}
+        {/if}
+        {/key}
+      </div>
       {/if}
     </div>
     <div class="output" bind:this={outputElement}>
@@ -242,7 +183,6 @@
 </main>
 
 
->>>>>>> 3b24010868e372853da3979ae85de4d7b89ad251
 <style>
   main {
     display: flex;
@@ -362,13 +302,10 @@
     border-radius: 5px;
     cursor: pointer;
     color: black;
-<<<<<<< HEAD
-=======
   }
 
   .sendButton:hover {
     background-color: var(--gress-50);
->>>>>>> 3b24010868e372853da3979ae85de4d7b89ad251
   }
 
   .modellSelect {
