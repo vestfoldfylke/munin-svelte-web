@@ -190,6 +190,7 @@
     flex-wrap: nowrap;
     justify-content: center;
     align-items: center;
+    height: calc(80vh - 100px);
     margin: 20px;
   }
   textarea {
