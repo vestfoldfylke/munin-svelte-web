@@ -8,7 +8,7 @@
 <div class="{role}">
     <div class="chat-blob-content">
         {#if content.startsWith("data:image")}
-            <img style="uploadedImage" src={content} alt="Bilde" />
+            <img src={content} alt="Bilde" />
         {:else if content.startsWith("data:application/pdf")}
             <p>{content}</p>
         {:else}
@@ -43,8 +43,8 @@
         background-color: var(--himmel-30);
     }
 
-    .uploadedImage {
-        width: 400px;
+    img {
+        max-width: 400px;
         height: auto;
     }
 </style>
