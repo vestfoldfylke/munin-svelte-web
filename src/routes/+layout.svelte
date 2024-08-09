@@ -103,6 +103,12 @@
     margin: auto;
     max-width: 1440px;
   }
+  
+  .loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
 
   @media only screen and (max-width: 768px) {
     /* For mobile phones: */

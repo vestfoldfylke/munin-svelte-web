@@ -9,6 +9,18 @@
     import { getHuginToken } from '../../lib/useApi';
     import IconSpinner from '../../lib/components/IconSpinner.svelte';
 
+    let token = null
+    let chatWindow
+    
+    onMount(async () => {
+        if(import.meta.env.VITE_MOCK_API && import.meta.env.VITE_MOCK_API === 'true'){
+            // Pretend to wait for api call
+            spinner = true
+            await new Promise(resolve => setTimeout(resolve, 2000))
+        }
+        token = await getHuginToken(true)
+    })
+
     // Modell-parametere og payload
     const userParams = {
         "message": "",
@@ -34,9 +46,13 @@
 
 
     // Fester scroll til bunnen av chatvinduet
-    function scrollToBottom() {
-        outputElement.scrollTop = outputElement.scrollHeight;
-    }
+    // function scrollToBottom() {
+    //     // outputElement.scrollTop = outputElement?.scrollHeight;
+    // }
+
+    const scrollToBottom = async (node) => {
+      node.scroll({ top: node.scrollHeight, behavior: 'smooth' });
+    }; 
 
     // Håndterer valg av modell og oppdaterere modellinformasjon på siden
     function valgtModell(event) {
@@ -49,32 +65,32 @@
 
     // Kaller på valgt modell med tilhørende parametre basert på brukerens valg
     async function brukervalg() {
-        if (userParams.valgtModell === "option1") {
-            userParams.messageHistory.push({"role": "user", "content": userParams.message});
-            userParams.message = ""; // Nullstiller inputfeltet
-            respons = await multimodalOpenAi(userParams);
-            userParams.messageHistory.push( {"role": "assistant", "content": respons});
-            userParams.message = ""; // Trenger denne for å oppdatere feltet etter respons?? Sjekk denne
-        } else if (userParams.valgtModell === "option2") {
-            console.log(userParams);
-            userParams.synligKontekst = false;
-            let r = await noraChat(userParams);
-            respons = r;
-        } else if (userParams.valgtModell === "option3") {
-            userParams.messageHistory.push({"role": "user", "content": userParams.message});
-            userParams.base64String = ""; // Nullstiller inputfeltet
-            respons = await openAiAssistant(userParams);
-            userParams.messageHistory.push( {"role": "assistant", "content": respons});
-            userParams.message = ""; // Trenger denne for å oppdatere feltet etter respons?? Sjekk denne
-          } else if (userParams.valgtModell === "option4") {
-            userParams.messageHistory.push({"role": "user", "content": userParams.message});
-            userParams.base64String = ""; // Nullstiller inputfeltet
-            respons = await openAiAssistant(userParams);
-            userParams.messageHistory.push( {"role": "assistant", "content": respons});
-            userParams.message = ""; // Trenger denne for å oppdatere feltet etter respons?? Sjekk denne
-          }
-        }
-
+      if (userParams.valgtModell === "option1") {
+          userParams.messageHistory.push({"role": "user", "content": userParams.message});
+          // userParams.message = ""; // Nullstiller inputfeltet, dumt å null stille input feltet før vi sender det videre
+          respons = await multimodalOpenAi(userParams);
+          userParams.messageHistory.push( {"role": "assistant", "content": respons});
+          scrollToBottom(chatWindow);
+          userParams.message = ""; // Trenger denne for å oppdatere feltet etter respons?? Sjekk denne
+      } else if (userParams.valgtModell === "option2") {
+          console.log(userParams);
+          userParams.synligKontekst = false;
+          let r = await noraChat(userParams);
+          respons = r;
+      } else if (userParams.valgtModell === "option3") {
+        userParams.messageHistory.push({"role": "user", "content": userParams.message});
+        // userParams.base64String = ""; // Nullstiller inputfeltet
+        respons = await openAiAssistant(userParams);
+        userParams.messageHistory.push( {"role": "assistant", "content": respons});
+        userParams.message = ""; // Trenger denne for å oppdatere feltet etter respons?? Sjekk denne
+      } else if (userParams.valgtModell === "option4") {
+        userParams.messageHistory.push({"role": "user", "content": userParams.message});
+        // userParams.base64String = ""; // Nullstiller inputfeltet
+        respons = await openAiAssistant(userParams);
+        userParams.messageHistory.push( {"role": "assistant", "content": respons});
+        userParams.message = ""; // Trenger denne for å oppdatere feltet etter respons?? Sjekk denne
+      }
+    }
     // Konverterer opplastet fil til base64
     function handleFileSelect() {
         const file = selectedFiles[0];
@@ -99,26 +115,37 @@
         }
     }
 
+    $: if(respons && chatWindow) {
+      scrollToBottom(chatWindow);
+    }
+
     const onKeyPress = async e => {
       if (e.charCode === 13) {
           // isEnterPressed = true
-          scrollToBottom()
+          scrollToBottom(chatWindow)
           brukervalg()
       }
     }
 
     // Sørger for at chatvinduet scroller til bunnen ved oppdatering
-    // onMount(scrollToBottom);
-    afterUpdate(scrollToBottom);
+    // onMount(scrollToBottom(chatWindow));
+    afterUpdate(() => {
+      console.log(respons)
+      if(respons){
+        scrollToBottom(chatWindow)
+      }
+    });
 
 </script>
 
 <main>
-  {#await getHuginToken(true)}
+  {#if !token}
     <div class="loading">
       <IconSpinner width={"32px"} />
-    </div> 
-  {:then token} 
+    </div>
+  {:else if !token.roles.includes('hugin.basic')}
+    <p>Oi, du har ikke tilgang. Prøver du deg på noe lurt? 🤓</p>
+  {:else} 
   <!-- {console.log(token)} -->
     <div class="modelTampering">
       <div class="boxyHeader">
@@ -152,7 +179,7 @@
       </div>
       {/if}
     </div>
-    <div class="output" bind:this={outputElement}>
+    <div class="output" bind:this={chatWindow}>
       {#await respons}
         <p>Laster...</p>
       {:then}
@@ -164,7 +191,7 @@
         <p>{error.message}</p>
       {/await}
     </div>
-    {#if token.roles.includes("App.Admin")}
+    {#if token.roles.includes("hugin.admin")}
       {#if advancedInteractions}
         <div class="advancedInteractions">
           <label for="file-upload"><span class="material-symbols-outlined">upload_file</span></label>
@@ -173,13 +200,13 @@
       {/if}
     {/if}
     <div class="userInteractionField">
-      <input name="askHugin" type="text" autocomplete="off" placeholder="Spør Hugin" size="50" bind:value={userParams.message} on:keypress={onKeyPress} />
-      {#if token.roles.includes("App.Admin")}
+      <input name="askHugin" type="text" autocomplete="off" placeholder={`Spør ${import.meta.env.VITE_APP_NAME}`} size="50" bind:value={userParams.message} on:keypress={onKeyPress} />
+      {#if token.roles.includes("hugin.admin")}
         <button class="link" on:click={() => {advancedInteractions = !advancedInteractions}}><span class="material-symbols-outlined">settings</span></button>
       {/if}
-      <input class="sendButton" type="button" on:click={brukervalg} on:keypress={onKeyPress} value="Spør Hugin" />
+      <input class="sendButton" type="button" on:click={brukervalg} on:keypress={onKeyPress} value={`Spør ${import.meta.env.VITE_APP_NAME}`} />
     </div>
-  {/await}
+  {/if}
 </main>
 
 
@@ -315,6 +342,12 @@
     border: 1px solid #ccc;
     background-color: #f5f5f5;
     width: 10rem;
-    }
+  }
+
+  .loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
 
 </style>
