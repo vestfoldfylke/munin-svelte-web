@@ -99,8 +99,10 @@
         reader.onloadend = () => {
             if (reader.result.startsWith("data:image")){
                 console.log("Bilde");
+                userParams.messageHistory.push({"role": "user", "content": reader.result});
                 userParams.base64String = reader.result;
             } else if (reader.result.startsWith("data:application/pdf")){
+                userParams.messageHistory.push({"role": "user", "content": reader.result});
                 console.log("pdf");
                 console.log(tekstFraPdf);
                 console.log(askPdf(userParams.base64String));
@@ -183,7 +185,6 @@
       {#await respons}
         <p>Laster...</p>
       {:then}
-        <img src={userParams.base64String} class="uploadedImage" alt="" />
         {#each userParams.messageHistory as chatMessage}
           <ChatBlobs role={chatMessage.role} content={chatMessage.content} />
         {/each}
@@ -191,13 +192,11 @@
         <p>{error.message}</p>
       {/await}
     </div>
-    {#if token.roles.includes("hugin.admin")}
-      {#if advancedInteractions}
-        <div class="advancedInteractions">
-          <label for="file-upload"><span class="material-symbols-outlined">upload_file</span></label>
-          <input type="file" id="file-upload" bind:files={selectedFiles} on:change={handleFileSelect} accept=".jpg, .jpeg, .png, .bmp"/>
-        </div>
-      {/if}
+    {#if advancedInteractions}
+      <div class="advancedInteractions">
+        <label for="file-upload"><span class="material-symbols-outlined">upload_file</span></label>
+        <input type="file" id="file-upload" bind:files={selectedFiles} on:change={handleFileSelect} accept=".jpg, .jpeg, .png, .bmp"/>
+      </div>
     {/if}
     <div class="userInteractionField">
       <input name="askHugin" type="text" autocomplete="off" placeholder={`Spør ${import.meta.env.VITE_APP_NAME}`} size="50" bind:value={userParams.message} on:keypress={onKeyPress} />
@@ -228,11 +227,6 @@
     resize: both;
     min-height: 40px;
     line-height: 20px;
-  }
-
-  .uploadedImage {
-    width: 400px;
-    height: auto;
   }
 
   .boxyHeader {

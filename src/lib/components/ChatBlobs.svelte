@@ -7,7 +7,13 @@
 
 <div class="{role}">
     <div class="chat-blob-content">
-        <SvelteMarkdown source={ content } />
+        {#if content.startsWith("data:image")}
+            <img style="uploadedImage" src={content} alt="Bilde" />
+        {:else if content.startsWith("data:application/pdf")}
+            <p>{content}</p>
+        {:else}
+            <SvelteMarkdown source={ content } />
+        {/if}
     </div>
 </div>
 
@@ -35,5 +41,10 @@
 
     .user .chat-blob-content {
         background-color: var(--himmel-30);
+    }
+
+    .uploadedImage {
+        width: 400px;
+        height: auto;
     }
 </style>
