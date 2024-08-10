@@ -6,15 +6,25 @@
 </script>
 
 <div class="{role}">
-    <div class="chat-blob-content">
-        {#if content.startsWith("data:image")}
-            <img src={content} alt="Bilde" />
-        {:else if content.startsWith("data:application/pdf")}
+    {#if content === ""}
+        <div class="hidden">
             <p>{content}</p>
-        {:else}
-            <SvelteMarkdown source={ content } />
-        {/if}
-    </div>
+        </div>
+    {:else}
+        <div class="chat-blob-content">
+            {#if content.startsWith("data:image")}
+                <img src={content} alt="Bilde" />
+            {:else if content.startsWith("data:application/pdf")}
+                <p>{content}</p>
+            {:else}
+                {#if content === "..."}
+                    <SvelteMarkdown source={ content } />
+                {:else}
+                    <SvelteMarkdown source={ content } />
+                {/if}
+            {/if}
+        </div>
+    {/if}
 </div>
 
 <style>    
