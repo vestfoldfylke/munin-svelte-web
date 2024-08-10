@@ -9,18 +9,6 @@
     import { getHuginToken } from '../../lib/useApi';
     import IconSpinner from '../../lib/components/IconSpinner.svelte';
 
-    let token = null
-    let chatWindow
-    
-    onMount(async () => {
-        if(import.meta.env.VITE_MOCK_API && import.meta.env.VITE_MOCK_API === 'true'){
-            // Pretend to wait for api call
-            spinner = true
-            await new Promise(resolve => setTimeout(resolve, 2000))
-        }
-        token = await getHuginToken(true)
-    })
-
     // Modell-parametere og payload
     const userParams = {
         "message": "",
@@ -37,12 +25,24 @@
     let outputElement;
     let tekstFraPdf = ""; // Brukes ikke....
     let selectedFiles = [];
-    let respons = `Velkommen til ${import.meta.env.VITE_APP_NAME}! Hva kan jeg hjelpe deg med i dag?`;
+    let respons
     let modelinfoModell = modelinfo[userParams.valgtModell].navn;
     let modelinfoBeskrivelse = modelinfo[userParams.valgtModell].description;
     let illustrasjonsbilde = modelinfo[userParams.valgtModell].illustrasjonsbilde;
     let modelTampering = false
     let advancedInteractions = false
+    let token = null
+    let chatWindow
+
+    userParams.messageHistory.push({"role": "assistant", "content": `Velkommen til ${import.meta.env.VITE_APP_NAME}! Hva kan jeg hjelpe deg med i dag?`});
+
+    onMount(async () => {
+        if(import.meta.env.VITE_MOCK_API && import.meta.env.VITE_MOCK_API === 'true'){
+            // Pretend to wait for api call
+            await new Promise(resolve => setTimeout(resolve, 2000))
+        }
+        token = await getHuginToken(true)
+    })
 
 
     // Fester scroll til bunnen av chatvinduet
@@ -64,7 +64,7 @@
     }
 
     // Kaller på valgt modell med tilhørende parametre basert på brukerens valg
-    async function brukervalg() {
+    const brukervalg = async () => {
       if (userParams.valgtModell === "option1") {
           userParams.messageHistory.push({"role": "user", "content": userParams.message});
           // userParams.message = ""; // Nullstiller inputfeltet, dumt å null stille input feltet før vi sender det videre
@@ -90,7 +90,8 @@
         userParams.messageHistory.push( {"role": "assistant", "content": respons});
         userParams.message = ""; // Trenger denne for å oppdatere feltet etter respons?? Sjekk denne
       }
-    }
+    } 
+
     // Konverterer opplastet fil til base64
     function handleFileSelect() {
         const file = selectedFiles[0];
@@ -132,8 +133,7 @@
     // Sørger for at chatvinduet scroller til bunnen ved oppdatering
     // onMount(scrollToBottom(chatWindow));
     afterUpdate(() => {
-      console.log(respons)
-      if(respons){
+      if(respons && chatWindow && userParams.message.length === 0) {
         scrollToBottom(chatWindow)
       }
     });
@@ -148,7 +148,6 @@
   {:else if !token.roles.includes('hugin.basic')}
     <p>Oi, du har ikke tilgang. Prøver du deg på noe lurt? 🤓</p>
   {:else} 
-  <!-- {console.log(token)} -->
     <div class="modelTampering">
       <div class="boxyHeader">
         <select class="modellSelect" on:change={valgtModell}>
@@ -157,7 +156,6 @@
           <option value="option3">Matematikkens byggesteiner</option>
           <option value="option4">NDLA Religion</option>
         </select>
-        
         <div class="showNhideBtns">
           {#if modelTampering}
             <button class="link" on:click={() => {modelTampering = !modelTampering}}><span class="material-symbols-outlined">keyboard_arrow_up</span></button>
@@ -171,26 +169,24 @@
       <div class="boxy" id="testBox">
         <ModelInfo modelinfo={modelinfoModell} infoText={modelinfoBeskrivelse} />
         {#key userParams.synligKontekst}
-        {#if userParams.synligKontekst}
-          <textarea placeholder="Her kan du legge inn kontekst til språkmodellen." bind:value={ userParams.kontekst } rows="4" cols="auto"></textarea>
-          <label for="temperatur">Temperatur: </label>
-          <input type="range" id="temperatur" name="temperatur" min="0" max="2" step="0.1" bind:value={userParams.temperatur} />
-          {userParams.temperatur}
-        {/if}
+          {#if userParams.synligKontekst}
+            <textarea placeholder="Her kan du legge inn kontekst til språkmodellen." bind:value={ userParams.kontekst } rows="4" cols="auto"></textarea>
+            <label for="temperatur">Temperatur: </label>
+            <input type="range" id="temperatur" name="temperatur" min="0" max="2" step="0.1" bind:value={userParams.temperatur} />
+            {userParams.temperatur}
+          {/if}
         {/key}
       </div>
       {/if}
     </div>
     <div class="output" bind:this={chatWindow}>
-      {#await respons}
-        <p>Laster...</p>
-      {:then}
-        {#each userParams.messageHistory as chatMessage}
-          <ChatBlobs role={chatMessage.role} content={chatMessage.content} />
-        {/each}
-      {:catch error}
-        <p>{error.message}</p>
-      {/await}
+      {#if userParams.messageHistory.length === 1}
+        <ChatBlobs role="assistant" content={userParams.messageHistory[0].content} />
+        {:else}
+          {#each userParams.messageHistory as chatMessage}
+            <ChatBlobs role={chatMessage.role} content={chatMessage.content} />
+          {/each}   
+      {/if}
     </div>
     {#if advancedInteractions}
       <div class="advancedInteractions">
@@ -200,9 +196,7 @@
     {/if}
     <div class="userInteractionField">
       <input name="askHugin" type="text" autocomplete="off" placeholder={`Spør ${import.meta.env.VITE_APP_NAME}`} size="50" bind:value={userParams.message} on:keypress={onKeyPress} />
-      {#if token.roles.includes("hugin.admin")}
         <button class="link" on:click={() => {advancedInteractions = !advancedInteractions}}><span class="material-symbols-outlined">settings</span></button>
-      {/if}
       <input class="sendButton" type="button" on:click={brukervalg} on:keypress={onKeyPress} value={`Spør ${import.meta.env.VITE_APP_NAME}`} />
     </div>
   {/if}
@@ -259,7 +253,6 @@
   label .material-symbols-outlined:hover {
     background-color: var(--gress-50);
   }
-
 
   .userInteractionField {
     display: flex;
