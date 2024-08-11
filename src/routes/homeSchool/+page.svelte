@@ -33,6 +33,7 @@
     let advancedInteractions = false
     let token = null
     let chatWindow
+    let isWaiting = false
 
     userParams.messageHistory.push({"role": "assistant", "content": `Velkommen til ${import.meta.env.VITE_APP_NAME}! Hva kan jeg hjelpe deg med i dag?`});
 
@@ -65,32 +66,32 @@
 
     // Kaller på valgt modell med tilhørende parametre basert på brukerens valg
     const brukervalg = async () => {
+      isWaiting = true
+      let userParamsCopy = JSON.parse(JSON.stringify(userParams));
+      userParams.message = "";
       if (userParams.valgtModell === "option1") {
-          userParams.messageHistory.push({"role": "user", "content": userParams.message});
-          // userParams.message = ""; // Nullstiller inputfeltet, dumt å null stille input feltet før vi sender det videre
-          respons = await multimodalOpenAi(userParams);
-          userParams.messageHistory.push( {"role": "assistant", "content": respons});
-          scrollToBottom(chatWindow);
-          userParams.message = ""; // Trenger denne for å oppdatere feltet etter respons?? Sjekk denne
+        userParams.messageHistory.push({"role": "user", "content": userParamsCopy.message});
+        respons = await multimodalOpenAi(userParamsCopy);
+        userParams.messageHistory.push( {"role": "assistant", "content": respons});
+        scrollToBottom(chatWindow);
+        isWaiting = false
       } else if (userParams.valgtModell === "option2") {
-          console.log(userParams);
-          userParams.synligKontekst = false;
-          let r = await noraChat(userParams);
-          respons = r;
+        userParams.synligKontekst = false;
+        let r = await noraChat(userParamsCopy);
+        respons = r;
+        isWaiting = false
       } else if (userParams.valgtModell === "option3") {
-        userParams.messageHistory.push({"role": "user", "content": userParams.message});
-        // userParams.base64String = ""; // Nullstiller inputfeltet
-        respons = await openAiAssistant(userParams);
+        userParams.messageHistory.push({"role": "user", "content": userParamsCopy.message});
+        respons = await openAiAssistant(userParamsCopy);
         userParams.messageHistory.push( {"role": "assistant", "content": respons});
-        userParams.message = ""; // Trenger denne for å oppdatere feltet etter respons?? Sjekk denne
+        isWaiting = false
       } else if (userParams.valgtModell === "option4") {
-        userParams.messageHistory.push({"role": "user", "content": userParams.message});
-        // userParams.base64String = ""; // Nullstiller inputfeltet
-        respons = await openAiAssistant(userParams);
+        userParams.messageHistory.push({"role": "user", "content": userParamsCopy.message});
+        respons = await openAiAssistant(userParamsCopy);
         userParams.messageHistory.push( {"role": "assistant", "content": respons});
-        userParams.message = ""; // Trenger denne for å oppdatere feltet etter respons?? Sjekk denne
+        isWaiting = false
       }
-    } 
+    }
 
     // Konverterer opplastet fil til base64
     function handleFileSelect() {
@@ -130,8 +131,7 @@
       }
     }
 
-    // Sørger for at chatvinduet scroller til bunnen ved oppdatering
-    // onMount(scrollToBottom(chatWindow));
+    // Fester scroll til bunnen av chatvinduet etter oppdatering av chatvinduet
     afterUpdate(() => {
       if(respons && chatWindow && userParams.message.length === 0) {
         scrollToBottom(chatWindow)
@@ -152,7 +152,12 @@
       <div class="boxyHeader">
         <select class="modellSelect" on:change={valgtModell}>
           <option value="option1" default>GPT-4o</option>
-          <option value="option2">Nora</option>
+          <!-- Skjuler NORA for alle som ikke har admin til det er klart -->
+          {#if !token.roles.includes('hugin.admin')}
+            <option value="option2" disabled>Nora</option>
+          {:else}
+            <option value="option2">Nora</option>
+          {/if}
           <option value="option3">Matematikkens byggesteiner</option>
           <option value="option4">NDLA Religion</option>
         </select>
@@ -182,10 +187,17 @@
     <div class="output" bind:this={chatWindow}>
       {#if userParams.messageHistory.length === 1}
         <ChatBlobs role="assistant" content={userParams.messageHistory[0].content} />
-        {:else}
+      {:else}
+        {#if isWaiting}
           {#each userParams.messageHistory as chatMessage}
             <ChatBlobs role={chatMessage.role} content={chatMessage.content} />
-          {/each}   
+          {/each} 
+            <ChatBlobs role={'assistant'} content={'...'} />
+          {:else}
+            {#each userParams.messageHistory as chatMessage}
+              <ChatBlobs role={chatMessage.role} content={chatMessage.content} />
+            {/each} 
+        {/if}  
       {/if}
     </div>
     {#if advancedInteractions}
