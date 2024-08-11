@@ -32,7 +32,7 @@
         background-color: var(--vann-40);
     }
     .content {
-        padding: 12px;
+        padding: 40px;
     }
 
 

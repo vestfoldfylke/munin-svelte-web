@@ -14,7 +14,7 @@ export const modelinfo = {
   },
   option3: {
     navn: 'Matematikkeksperten',
-    description: 'Matematikkekseperten er en assistent som kun forholder seg til innholdet i læreboka Matematikkens byggesteiner. Alle responser er basert på innholdet i denne boka.',
+    description: 'Matematikkekseperten er en assistent som kun forholder seg til innholdet i læreboka Matematikkens byggesteiner som er skrevet av Sindre Sogg Heggen. Alle responser er basert på innholdet i denne boka.',
     synligKontekst: false,
     illustrasjon: 'matematikk.png'
   },

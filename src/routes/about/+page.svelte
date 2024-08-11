@@ -1,13 +1,14 @@
 <script>
   import ravner from "$lib/images/ravner.jpg";
+  import InfoBox from "$lib/components/InfoBox.svelte";
 </script>
 
 <!-- Abpout Hugin/Munin -->
 <h1>Om Hugin/Munin</h1>
 
+
 <img src={ravner} alt="Hugin/Munin" />
 
-<h2>Bakgrunn</h2>
 <p>
   Hugin og Munin er i den norrøne mytologien Odins to ravner. De følger ham
   overalt, og vagler seg på Odins skuldre når han sitter i høysetet, Lidskjalv i
@@ -16,13 +17,17 @@
   Odin ved daggry sender Hugin og Munin ut i verden. De flyr over alle verdens
   kroker før de, tidlig om formiddagen, vender tilbake og setter seg på Odins
   skuldre. Der forteller de ham hva de har sett og hørt, slik at Odin får vite
-  alt som skjer. (Kilde: SNL - Hugin og Munin) Med denne symbolikken ønsker vi å
+  alt som skjer. (Kilde: <a href="https://snl.no/Hugin_og_Munin"> SNL - Hugin og Munin</a>) Med denne symbolikken ønsker vi å
   ta med oss ChatVTFK over i de to nye fylkene. Hugin i Telemark, og Munin i
   Vestfold. Ikke bare som to kopier av den gamle versjonen, men en ny og
   videreutviklet versjon med nytt design og ny funksjonalitet.
 </p>
 
-<h2>Formål</h2>
+<p>
+  <b>Målgruppen for Hugin og Munin er elever og ansatte i Vestfold og Telemark fylkeskommuner. Det er i hovedsak OpenAI sin språkmodell GPT-4o som benyttes i tjenesten, men det vil på sikt bli utviklet flere funksjoner og være mulig å bytte mellom flere modeller og ulike varianter av modellene. Dette kan du lese mer om i informasjonsteksten når du velger modell.</b>
+</p>
+
+<InfoBox title="Formål og personvern">
 <p>
     ChatVTFK er utviklet av Vestfold og Telemark fylkeskommune, ved å ta i bruk
     OpenAI sitt ChatGPT-API og våre egenutviklede nettjenester. Det medfører at vi
@@ -61,7 +66,7 @@
     <li>Tekst (spørringer) til chatVTFK, samt svarene den gir.</li>
     <li>Personopplysninger i treningsdata og modell ChatGPT 3.5 kan inneholde personopplysninger fra trening/utvikling og behandles for å gi den som utfører spørringen et resultat i likhet med et informasjonssøk fra åpne tilgjengelige kilder.</li>
 </ul>
-
+</InfoBox>
 <style>
 img {
     width: 15%;
@@ -73,4 +78,5 @@ img {
   p {
     margin: 40px 0;
   }
+
 </style>
