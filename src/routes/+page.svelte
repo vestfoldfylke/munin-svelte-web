@@ -26,7 +26,6 @@
         <IconSpinner width={"32px"} />
       </div> 
     {:else}
-      {console.log(token)}
       <div class="centerstuff">
           <h1>{import.meta.env.VITE_APP_NAME} - En KI-tjeneste for {import.meta.env.VITE_COUNTY} fylkeskommune</h1>
       </div>
