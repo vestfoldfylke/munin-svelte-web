@@ -15,8 +15,7 @@ export const multimodalOpenAi = async (userParams) => {
   console.log('Pæylød: ', payload)
 
   // Call AZF-funksjon with payload
-  const response = await axios.post(env.PUBLIC_LOCAL_OPENAIMULTI, payload)
-  console.log(response, env.PUBLIC_TEST) // Tester env-handling
+  const response = await axios.post(`${import.meta.env.VITE_AI_API_URI}/multimodalOpenAi`, payload)
   return response.data.choices[0].message.content
 }
 
@@ -26,8 +25,7 @@ export const noraChat = async (modellInfo) => {
   payload.question = modellInfo.message
   console.log('Pæylød: ', payload)
 
-  const response = await axios.post(env.PUBLIC_LOCAL_NORACHAT, payload)
-  console.log(response, env.PUBLIC_TEST) // Tester env-handling
+  const response = await axios.post(`${import.meta.env.VITE_AI_API_URI}/noraChat`, payload)
   return response.data
 }
 
@@ -40,10 +38,8 @@ export const openAiAssistant = async (modellInfo) => {
     question: modellInfo.message
   }
 
-  $: console.log(payload)
-
-  const response = await axios.post(env.PUBLIC_LOCAL_OPENAIASSISTANT, payload)
-  $: console.log(response.data.messages[1].content[0].text.value)
+  const response = await axios.post(`${import.meta.env.VITE_AI_API_URI}/assistantOpenAi`, payload)
+  console.log(response.data.messages[1].content[0].text.value)
   return response.data.messages[1].content[0].text.value
 }
 
@@ -63,11 +59,8 @@ export const docQueryOpenAi = async (filliste, up) => {
   datapakken.append('new_thread', payload.new_thread)
   datapakken.append('message', up.message)
   datapakken.append('filer', filliste[0])
-  // datapakken.append("filtest", filliste[0]);
 
-  // $: console.log("docQueryOpenAi fil: ", ...datapakken);
-
-  const r = await axios.post(env.PUBLIC_LOCAL_DOCQUERY, datapakken, {
+  const r = await axios.post(`${import.meta.env.VITE_AI_API_URI}/docQueryOpenAi`, datapakken, {
     method: 'post',
     data: datapakken,
     headers: {
@@ -76,9 +69,5 @@ export const docQueryOpenAi = async (filliste, up) => {
   })
   payload.thread_id = r.data.thread_id
   payload.new_thread = 'false'
-  console.log('Thread_id: ', JSON.stringify(r))
-  // console.log("Responsen er: ", r.data.messages[1].content[0].text.value);
-  // return r.data.messages[1].content[0].text.value;
-  // console.log("Sånn:", JSON.stringify(r));
   return JSON.stringify(r)
 }
