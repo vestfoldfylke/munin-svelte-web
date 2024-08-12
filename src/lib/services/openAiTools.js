@@ -23,6 +23,7 @@ export const multimodalOpenAi = async (userParams) => {
       'authorization': `Bearer ${accessToken}`
     }
   })
+  console.log('her er jeg', response?.data?.choices[0]?.message?.content)
   return response.data.choices[0].message.content
 }
 
