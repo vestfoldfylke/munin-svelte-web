@@ -3,6 +3,7 @@
 import axios from 'axios'
 import { params } from '$lib/data/modelparams'
 import { env } from '$env/dynamic/public'
+import { getHuginToken } from '../useApi'
 
 export const multimodalOpenAi = async (userParams) => {
   // Template API-call
@@ -12,10 +13,15 @@ export const multimodalOpenAi = async (userParams) => {
   payload.kontekst = userParams.kontekst
   payload.temperatur = userParams.temperatur
   payload.bilde_base64String = userParams.base64String
-  console.log('Pæylød: ', payload)
+
+  const accessToken = await getHuginToken()
 
   // Call AZF-funksjon with payload
-  const response = await axios.post(`${import.meta.env.VITE_AI_API_URI}/multimodalOpenAi`, payload)
+  const response = await axios.post(`${import.meta.env.VITE_AI_API_URI}/multimodalOpenAi`, payload, {
+    headers: {
+      'Authorization': `Bearer ${accessToken}`
+    }
+  })
   return response.data.choices[0].message.content
 }
 
@@ -23,9 +29,14 @@ export const noraChat = async (modellInfo) => {
   // Template API-call
   const payload = params[modellInfo.valgtModell]
   payload.question = modellInfo.message
-  console.log('Pæylød: ', payload)
 
-  const response = await axios.post(`${import.meta.env.VITE_AI_API_URI}/noraChat`, payload)
+  const accessToken = await getHuginToken()
+
+  const response = await axios.post(`${import.meta.env.VITE_AI_API_URI}/noraChat`, payload, {
+    headers: {
+      'Authorization': `Bearer ${accessToken}`
+    }
+  })
   return response.data
 }
 
@@ -38,8 +49,13 @@ export const openAiAssistant = async (modellInfo) => {
     question: modellInfo.message
   }
 
-  const response = await axios.post(`${import.meta.env.VITE_AI_API_URI}/assistantOpenAi`, payload)
-  console.log(response.data.messages[1].content[0].text.value)
+  const accessToken = await getHuginToken()
+
+  const response = await axios.post(`${import.meta.env.VITE_AI_API_URI}/assistantOpenAi`, payload, {
+    headers: {
+      'Authorization': `Bearer ${accessToken}`
+    }
+  })
   return response.data.messages[1].content[0].text.value
 }
 
@@ -60,11 +76,14 @@ export const docQueryOpenAi = async (filliste, up) => {
   datapakken.append('message', up.message)
   datapakken.append('filer', filliste[0])
 
+  const accessToken = await getHuginToken()
+
   const r = await axios.post(`${import.meta.env.VITE_AI_API_URI}/docQueryOpenAi`, datapakken, {
     method: 'post',
     data: datapakken,
     headers: {
-      'Content-Type': 'multipart/form-data'
+      'Content-Type': 'multipart/form-data',
+      'Authorization': `Bearer ${accessToken}`
     }
   })
   payload.thread_id = r.data.thread_id
