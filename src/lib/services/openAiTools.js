@@ -15,11 +15,11 @@ export const multimodalOpenAi = async (userParams) => {
   payload.bilde_base64String = userParams.base64String
 
   const accessToken = await getHuginToken()
-
+  console.log(accessToken)
   // Call AZF-funksjon with payload
   const response = await axios.post(`${import.meta.env.VITE_AI_API_URI}/multimodalOpenAi`, payload, {
     headers: {
-      'Authorization': `Bearer ${accessToken}`
+      'authorization': `Bearer ${accessToken}`
     }
   })
   return response.data.choices[0].message.content
@@ -34,7 +34,7 @@ export const noraChat = async (modellInfo) => {
 
   const response = await axios.post(`${import.meta.env.VITE_AI_API_URI}/noraChat`, payload, {
     headers: {
-      'Authorization': `Bearer ${accessToken}`
+      'authorization': `Bearer ${accessToken}`
     }
   })
   return response.data
@@ -53,7 +53,7 @@ export const openAiAssistant = async (modellInfo) => {
 
   const response = await axios.post(`${import.meta.env.VITE_AI_API_URI}/assistantOpenAi`, payload, {
     headers: {
-      'Authorization': `Bearer ${accessToken}`
+      'authorization': `Bearer ${accessToken}`
     }
   })
   return response.data.messages[1].content[0].text.value
@@ -83,7 +83,7 @@ export const docQueryOpenAi = async (filliste, up) => {
     data: datapakken,
     headers: {
       'Content-Type': 'multipart/form-data',
-      'Authorization': `Bearer ${accessToken}`
+      'authorization': `Bearer ${accessToken}`
     }
   })
   payload.thread_id = r.data.thread_id
