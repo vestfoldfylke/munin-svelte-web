@@ -17,6 +17,7 @@ export const multimodalOpenAi = async (userParams) => {
   const accessToken = await getHuginToken()
   console.log(accessToken)
   // Call AZF-funksjon with payload
+  console.log('Payload:', payload)
   const response = await axios.post(`${import.meta.env.VITE_AI_API_URI}/multimodalOpenAi`, payload, {
     headers: {
       'authorization': `Bearer ${accessToken}`

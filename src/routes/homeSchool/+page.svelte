@@ -97,6 +97,7 @@
         isWaiting = false
       }
       } catch (error) {
+        console.log(error)
         isError = true
         errorMessage = error
         isWaiting = false
@@ -235,7 +236,7 @@
         <h2 slot="header">Error</h2>
         <h3>Noe gikk galt ⛔</h3>
         <div class="centerstuff">
-          <p>{JSON.stringify(errorMessage.message)}</p>
+          <p>{JSON.stringify(errorMessage.response?.data || errorMessage.stack || errorMessage.message)}</p>
         </div>
         <div class="errorMsg">{JSON.stringify(errorMessage)}</div>
       </Modal>
