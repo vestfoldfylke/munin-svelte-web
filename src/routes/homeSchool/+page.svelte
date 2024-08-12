@@ -97,7 +97,6 @@
         isWaiting = false
       }
       } catch (error) {
-        console.log(error)
         isError = true
         errorMessage = error
         isWaiting = false
