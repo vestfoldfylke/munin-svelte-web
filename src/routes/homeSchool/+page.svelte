@@ -8,6 +8,7 @@
     import { onMount, afterUpdate } from 'svelte';
     import { getHuginToken } from '../../lib/useApi';
     import IconSpinner from '../../lib/components/IconSpinner.svelte';
+    import Modal from '../../lib/components/Modal.svelte';
 
     // Modell-parametere og payload
     const userParams = {
@@ -34,6 +35,9 @@
     let token = null
     let chatWindow
     let isWaiting = false
+    let isError = false
+    let errorMessage = ""
+    let showModal = false
 
     userParams.messageHistory.push({"role": "assistant", "content": `Velkommen til ${import.meta.env.VITE_APP_NAME}! Hva kan jeg hjelpe deg med i dag?`});
 
@@ -69,7 +73,8 @@
       isWaiting = true
       let userParamsCopy = JSON.parse(JSON.stringify(userParams));
       userParams.message = "";
-      if (userParams.valgtModell === "option1") {
+      try {
+        if (userParams.valgtModell === "option1") {
         userParams.messageHistory.push({"role": "user", "content": userParamsCopy.message});
         respons = await multimodalOpenAi(userParamsCopy);
         userParams.messageHistory.push( {"role": "assistant", "content": respons});
@@ -91,6 +96,20 @@
         userParams.messageHistory.push( {"role": "assistant", "content": respons});
         isWaiting = false
       }
+      } catch (error) {
+        isError = true
+        errorMessage = error
+        isWaiting = false
+        userParams.messageHistory.push( {"role": "assistant", "content": "Noe gikk galt. Prøv igjen."});
+        openModal()
+      }
+    }
+
+    const openModal = () => {
+        // Disable scrolling when modal is open
+        document.body.style.overflow = "auto"
+        document.body.style.height = "100%"
+        showModal = true
     }
 
     // Konverterer opplastet fil til base64
@@ -211,6 +230,16 @@
         <button class="link" on:click={() => {advancedInteractions = !advancedInteractions}}><span class="material-symbols-outlined">settings</span></button>
       <input class="sendButton" type="button" on:click={brukervalg} on:keypress={onKeyPress} value={`Spør ${import.meta.env.VITE_APP_NAME}`} />
     </div>
+    {#if isError}
+      <Modal bind:showModal>
+        <h2 slot="header">Error</h2>
+        <h3>Noe gikk galt ⛔</h3>
+        <div class="centerstuff">
+          <p>{JSON.stringify(errorMessage.message)}</p>
+        </div>
+        <div class="errorMsg">{JSON.stringify(errorMessage)}</div>
+      </Modal>
+    {/if}
   {/if}
 </main>
 
@@ -347,6 +376,25 @@
     display: flex;
     justify-content: center;
     align-items: center;
+  }
+
+  .errorMsg {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+    margin: 10px;
+    justify-content: center;
+    width: 97%;
+    height: 20vh;
+    overflow: auto;
+  }
+
+  .centerstuff {
+      display: flex;
+      flex-direction: column;
+      flex-wrap: wrap;
+      justify-content: center;
+      padding: 5px;
   }
 
 </style>
