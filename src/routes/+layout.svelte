@@ -8,7 +8,7 @@
   import { getHuginToken } from "../lib/useApi";
   import IconSpinner from "../lib/components/IconSpinner.svelte";
 
-  const appTitle = import.meta.env.VITE_APP_NAME
+  const appName = import.meta.env.VITE_APP_NAME
 
   // Variabel som får "kontoobjektet" fra innlogget bruker fra MSAL
   let account = null;
@@ -57,11 +57,11 @@
         <div>
           <a href="/"><img class="logo" src={logo} alt="Hugin og Munin" style="margin-right: 50px;"/></a>
         </div>
-        <a href="/" title="Gå til forsiden" class="appTitle"><h1>{ appTitle }</h1></a>
+        <a href="/" title="Gå til forsiden" class="appTitle"><h1>{ appName }</h1></a>
         <div class="topbarOptions">
           <button class="link" on:click={() => { goto("/") }}>
             <span class="material-symbols-outlined">logout</span>Hjem / Logg ut</button>
-          <button class="link" on:click={() => { goto("/homeSchool") }}><span class="material-symbols-outlined">chat</span>{import.meta.env.VITE_APP_NAME}</button>
+          <button class="link" on:click={() => { goto("/homeSchool") }}><span class="material-symbols-outlined">chat</span>{appName}</button>
         </div>
       </div>
     </div>

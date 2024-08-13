@@ -9,6 +9,7 @@
     import { onMount } from 'svelte';
     
     let token = null
+    const appName = import.meta.env.VITE_APP_NAME
 
     onMount(async () => {
         if(import.meta.env.VITE_MOCK_API && import.meta.env.VITE_MOCK_API === 'true'){
@@ -27,12 +28,12 @@
       </div> 
     {:else}
       <div class="centerstuff">
-          <h1>{import.meta.env.VITE_APP_NAME} - En KI-tjeneste for {import.meta.env.VITE_COUNTY} fylkeskommune</h1>
+          <h1>{appName} - En KI-tjeneste for {import.meta.env.VITE_COUNTY} fylkeskommune</h1>
       </div>
       <div class="centerstuff">
         <CardButton header={'Om tjenesten'} imgPath={ravner} imgAlt={'Bilde av Hugin og Munin'} gotoPath={'/about'} paragraph={'Trykk her for å lese mer om tjenesten'} boolValue={true}><span class="material-symbols-outlined">raven</span></CardButton>
         <CardButton header={'Chat'} imgPath={chat} imgAlt={'Ikon bilde av en snakkebobble'} gotoPath={'/homeSchool'} paragraph={'Trykk her for chatbotter'} boolValue={true}><span class="material-symbols-outlined">chat</span></CardButton>
-        {#if token.roles.includes('hugin.admin')}
+        {#if token.roles.includes(`${appName.toLowerCase()}.admin`)}
           <CardButton header={'Dokumentspørring'} imgPath={doc} imgAlt={'Ikon bilde av et dokument'} gotoPath={'/docQuery'} paragraph={'Trykk her hvis du vil bruke KI til spørre og jobbe med egne dokumenter.'} boolValue={true}><span class="material-symbols-outlined">find_in_page</span></CardButton>
         {/if}
       </div>
