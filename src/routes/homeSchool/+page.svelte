@@ -197,7 +197,7 @@
         {#key userParams.synligKontekst}
           {#if userParams.synligKontekst}
             <textarea placeholder="Her kan du legge inn kontekst til språkmodellen." bind:value={ userParams.kontekst } rows="4" cols="auto"></textarea>
-            <label for="temperatur"><a href="https://www.vg.no" target="_blank">Temperatur: </a> </label>
+            <label for="temperatur">Temperatur: </label>
             <input type="range" id="temperatur" name="temperatur" min="0" max="2" step="0.1" bind:value={userParams.temperatur} />
             {userParams.temperatur}
           {/if}
