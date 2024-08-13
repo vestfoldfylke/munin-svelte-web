@@ -30,7 +30,7 @@
     let modelinfoModell = modelinfo[userParams.valgtModell].navn;
     let modelinfoBeskrivelse = modelinfo[userParams.valgtModell].description;
     let illustrasjonsbilde = modelinfo[userParams.valgtModell].illustrasjonsbilde;
-    let modelTampering = false
+    let modelTampering = true // Viser modellinformasjon
     let advancedInteractions = false
     let token = null
     let chatWindow
@@ -168,6 +168,7 @@
     <p>Oi, du har ikke tilgang. Prøver du deg på noe lurt? 🤓</p>
   {:else} 
     <div class="modelTampering">
+      <h2>Modellvelger</h2>
       <div class="boxyHeader">
         <select class="modellSelect" on:change={valgtModell}>
           <option value="option1" default>GPT-4o</option>
@@ -195,7 +196,7 @@
         {#key userParams.synligKontekst}
           {#if userParams.synligKontekst}
             <textarea placeholder="Her kan du legge inn kontekst til språkmodellen." bind:value={ userParams.kontekst } rows="4" cols="auto"></textarea>
-            <label for="temperatur">Temperatur: </label>
+            <label for="temperatur"><a href="https://www.vg.no" target="_blank">Temperatur: </a> </label>
             <input type="range" id="temperatur" name="temperatur" min="0" max="2" step="0.1" bind:value={userParams.temperatur} />
             {userParams.temperatur}
           {/if}
@@ -256,6 +257,7 @@
   }
   textarea {
     padding: 10px;
+    margin-bottom: 20px;
     display: block;
     width: 100%;
     overflow: hidden;
@@ -369,7 +371,7 @@
     border-radius: 5px;
     border: 1px solid #ccc;
     background-color: #f5f5f5;
-    width: 10rem;
+    width: 16rem;
   }
 
   .loading {
