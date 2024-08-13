@@ -164,7 +164,7 @@
     <div class="loading">
       <IconSpinner width={"32px"} />
     </div>
-   {:else if !token.roles.includes('hugin.basic')}
+  {:else if !token.roles.some((r) => ['hugin.basic', 'hugin.admin'].includes(r))}
     <p>Oi, du har ikke tilgang. Prøver du deg på noe lurt? 🤓</p>
   {:else} 
     <div class="modelTampering">
