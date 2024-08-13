@@ -1,12 +1,20 @@
 <script>
   import "../app.css"; // Add global css (and make it hot reload)
-  import logo from "$lib/images/TFK_logo.png";
+  import logoTFK from "$lib/images/TFK_logo.png";
+  import logoVFK from "$lib/images/VFK_logo.png";
   import { goto } from "$app/navigation";
   import { page } from "$app/stores";
   import { onMount } from "svelte";
   import { getMsalClient, login, logout } from "../lib/auth/msal-auth";
   import { getHuginToken } from "../lib/useApi";
   import IconSpinner from "../lib/components/IconSpinner.svelte";
+
+  let logo = ""
+  if(import.meta.env.VITE_COUNTY === 'Telemark') {
+    logo = logoTFK
+  } else {
+    logo = logoVFK
+  }
 
   const appName = import.meta.env.VITE_APP_NAME
 
