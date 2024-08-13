@@ -30,7 +30,7 @@
     let modelinfoModell = modelinfo[userParams.valgtModell].navn;
     let modelinfoBeskrivelse = modelinfo[userParams.valgtModell].description;
     let illustrasjonsbilde = modelinfo[userParams.valgtModell].illustrasjonsbilde;
-    let modelTampering = true // Viser modellinformasjon
+    let modelTampering = false // Viser modellinformasjon
     let advancedInteractions = false
     let token = null
     let chatWindow
@@ -254,7 +254,7 @@
     justify-content: center;
     align-items: center;
     height: calc(80vh - 100px);
-    margin: 20px;
+    margin: 10px;
   }
   textarea {
     padding: 10px;
@@ -324,11 +324,11 @@
 
 
   .output {
-    padding: 10px;
+    padding: 1px;
     border: 1px solid #ccc;
     border-radius: 5px;
     margin-bottom: 10px;
-    height: 55vw;
+    height: 100vw;
     max-height: 1440px;
     width: 100%;
     overflow-y: scroll;
@@ -398,6 +398,24 @@
       flex-wrap: wrap;
       justify-content: center;
       padding: 5px;
+  }
+
+  @media only screen and (max-width: 768px) {
+    main {
+      height: calc(80vh - 100px);
+      margin: 2px;
+    }
+
+    .output {
+      padding: 1px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      margin-bottom: 10px;
+      height: 100vw;
+      max-height: 1440px;
+      width: 100%;
+      overflow-y: scroll;
+    }
   }
 
 </style>

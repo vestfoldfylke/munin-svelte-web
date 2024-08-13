@@ -99,7 +99,7 @@
     width: 180px;
   }
   .content {
-    padding: 20px 20px 10px 20px;
+    padding: 10px;
     margin: auto;
     max-width: 1440px;
   }
@@ -126,7 +126,7 @@
       width: 92px;
     }
     .content {
-      padding: 12px;
+      padding: 5px;
     }
   }
 </style>
