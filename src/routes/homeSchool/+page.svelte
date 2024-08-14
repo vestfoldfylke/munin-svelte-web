@@ -83,8 +83,9 @@
         isWaiting = false
       } else if (userParams.valgtModell === "option2") {
         userParams.synligKontekst = false;
-        let r = await noraChat(userParamsCopy);
-        respons = r;
+        userParams.messageHistory.push({"role": "user", "content": userParamsCopy.message});
+        respons = await noraChat(userParamsCopy);
+        userParams.messageHistory.push( {"role": "assistant", "content": respons});
         isWaiting = false
       } else if (userParams.valgtModell === "option3") {
         userParams.messageHistory.push({"role": "user", "content": userParamsCopy.message});
