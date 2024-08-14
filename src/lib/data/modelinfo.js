@@ -8,7 +8,7 @@ export const modelinfo = {
   },
   option2: {
     navn: 'NoraLLM',
-    description: 'NoraLLM er en norsk språmodell som er basert på Mistral',
+    description: 'Nora er en familie med norske språkmodeller utviklet av språkteknologigruppen ved Universitet i Oslo (UiO), i samarbeid med blant annet Nasjonalbiblioteket, og er trent på norske tekster (bokmål og nynorsk). Til forskjell fra de store kommersielle språkmodellene, så er ikke Nora-modellen i Hugin en ferdigutviklet samtalerobot, men den har som formål å vise hvordan en språkmodell som er trent på norske data kan respondere godt på særnorske ord og uttrykk. I tillegg er mindre, åpne og  spesialiserte modeller mer bærekraftige enn de enorme modellene fra de store teknologiselskapene.',
     synligKontekst: false,
     illustrasjon: 'nora.png'
   },
