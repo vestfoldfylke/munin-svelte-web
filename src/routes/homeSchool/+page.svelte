@@ -175,11 +175,11 @@
         <select class="modellSelect" on:change={valgtModell}>
           <option value="option1" default>GPT-4o</option>
           <!-- Skjuler NORA for alle som ikke har admin til det er klart -->
-          {#if !token.roles.includes(`${appName.toLowerCase()}.admin`)}
+          <!-- {#if !token.roles.includes(`${appName.toLowerCase()}.admin`)}
             <option value="option2" disabled>Nora</option>
-          {:else}
+          {:else} -->
             <option value="option2">Nora</option>
-          {/if}
+          <!-- {/if} -->
           <option value="option3">Matematikkens byggesteiner</option>
           <option value="option4">NDLA Religion</option>
         </select>
