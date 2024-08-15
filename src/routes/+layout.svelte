@@ -49,6 +49,11 @@
   });
 </script>
 
+<!-- Overwrite the title fraom app.html file -->
+<svelte:head>
+  <title>{appName}</title>
+</svelte:head>
+
 <!-- If the account is not loaded, show a loading message. -->
 {#if !account}
   <div class="loading">
@@ -81,6 +86,9 @@
 {/if}
 
 <style>
+* {
+  /* user-select:none; */
+}
   .appTitle {
     color: black;
     text-decoration: none;
