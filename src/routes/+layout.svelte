@@ -87,7 +87,7 @@
 
 <style>
 * {
-  user-select:none;
+  /* user-select:none; */
 }
   .appTitle {
     color: black;

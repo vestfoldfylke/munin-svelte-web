@@ -43,7 +43,7 @@
   
   <style>
   * {
-    user-select:none;
+    /* user-select:none; */
     }
     .centerstuff {
         display: flex;
