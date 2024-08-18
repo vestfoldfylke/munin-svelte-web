@@ -3,16 +3,16 @@
     multimodalOpenAi,
     noraChat,
     openAiAssistant,
-  } from "$lib/services/openAiTools";
-  import { modelinfo } from "$lib/data/modelinfo"; // Tekstbeskrivelser om valgt modell
-  import ChatBlobs from "$lib/components/ChatBlobs.svelte"; // Komponent for å vise chatmeldinger
-  // import GPT4o from '$lib/images/GPT4o.png'; // Bilde av valgt modell
-  import ModelInfo from "../../lib/components/ModelInfo.svelte";
-  import "@material/web/button/elevated-button";
-  import { onMount, afterUpdate } from "svelte";
-  import { getHuginToken } from "../../lib/useApi";
-  import IconSpinner from "../../lib/components/IconSpinner.svelte";
-  import Modal from "../../lib/components/Modal.svelte";
+  } from "$lib/services/openAiTools"
+  import { modelinfo } from "$lib/data/modelinfo" // Tekstbeskrivelser om valgt modell
+  import ChatBlobs from "$lib/components/ChatBlobs.svelte" // Komponent for å vise chatmeldinger
+  // import GPT4o from '$lib/images/GPT4o.png' // Bilde av valgt modell
+  import ModelInfo from "../../lib/components/ModelInfo.svelte"
+  import "@material/web/button/elevated-button"
+  import { onMount, afterUpdate } from "svelte"
+  import { getHuginToken } from "../../lib/useApi"
+  import IconSpinner from "../../lib/components/IconSpinner.svelte"
+  import Modal from "../../lib/components/Modal.svelte"
 
   // Modell-parametere og payload
   const userParams = {
@@ -24,30 +24,30 @@
     base64String: "",
     temperatur: 0.7, // Default temperatur
     synligKontekst: true,
-  };
+  }
 
   // Variabler for håndtering av data og innhold i frontend
-  let outputElement;
-  let tekstFraPdf = ""; // Brukes ikke....Ennå
-  let selectedFiles = [];
-  let respons;
-  let modelinfoModell = modelinfo[userParams.valgtModell].navn;
-  let modelinfoBeskrivelse = modelinfo[userParams.valgtModell].description;
-  let illustrasjonsbilde = modelinfo[userParams.valgtModell].illustrasjonsbilde;
-  let modelTampering = false; // Viser modellinformasjon
-  let advancedInteractions = false;
-  let token = null;
-  let chatWindow;
-  let isWaiting = false;
-  let isError = false;
-  let errorMessage = "";
-  let showModal = false;
-  const appName = import.meta.env.VITE_APP_NAME;
+  let outputElement
+  let tekstFraPdf = "" // Brukes ikke....Ennå
+  let selectedFiles = []
+  let respons
+  let modelinfoModell = modelinfo[userParams.valgtModell].navn
+  let modelinfoBeskrivelse = modelinfo[userParams.valgtModell].description
+  let illustrasjonsbilde = modelinfo[userParams.valgtModell].illustrasjonsbilde
+  let modelTampering = false // Viser modellinformasjon
+  let advancedInteractions = false
+  let token = null
+  let chatWindow
+  let isWaiting = false
+  let isError = false
+  let errorMessage = ""
+  let showModal = false
+  const appName = import.meta.env.VITE_APP_NAME
 
   userParams.messageHistory.push({
     role: "assistant",
     content: `Velkommen til ${appName}! Hva kan jeg hjelpe deg med i dag?`,
-  });
+  })
 
   onMount(async () => {
     if (
@@ -55,143 +55,143 @@
       import.meta.env.VITE_MOCK_API === "true"
     ) {
       // Pretend to wait for api call
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      await new Promise((resolve) => setTimeout(resolve, 2000))
     }
-    token = await getHuginToken(true);
-  });
+    token = await getHuginToken(true)
+  })
 
   // Fester scroll til bunnen av chatvinduet
   const scrollToBottom = async (node) => {
-    node.scroll({ top: node.scrollHeight, behavior: "smooth" });
-  };
+    node.scroll({ top: node.scrollHeight, behavior: "smooth" })
+  }
 
   // Håndterer valg av modell og oppdaterere modellinformasjon på siden
   function valgtModell(event) {
-    userParams.valgtModell = event.target.value;
-    modelinfoModell = modelinfo[userParams.valgtModell].navn;
-    modelinfoBeskrivelse = modelinfo[userParams.valgtModell].description;
+    userParams.valgtModell = event.target.value
+    modelinfoModell = modelinfo[userParams.valgtModell].navn
+    modelinfoBeskrivelse = modelinfo[userParams.valgtModell].description
     userParams.synligKontekst =
-      modelinfo[userParams.valgtModell].synligKontekst;
+      modelinfo[userParams.valgtModell].synligKontekst
   }
 
   // Kaller på valgt modell med tilhørende parametre basert på brukerens valg
   const brukervalg = async () => {
-    isWaiting = true;
-    let userParamsCopy = JSON.parse(JSON.stringify(userParams));
-    userParams.message = "";
+    isWaiting = true
+    let userParamsCopy = JSON.parse(JSON.stringify(userParams))
+    userParams.message = ""
     try {
       if (userParams.valgtModell === "option1") {
         userParams.messageHistory.push({
           role: "user",
           content: userParamsCopy.message,
-        });
-        respons = await multimodalOpenAi(userParamsCopy);
-        userParams.messageHistory.push({ role: "assistant", content: respons });
-        scrollToBottom(chatWindow);
-        isWaiting = false;
+        })
+        respons = await multimodalOpenAi(userParamsCopy)
+        userParams.messageHistory.push({ role: "assistant", content: respons })
+        scrollToBottom(chatWindow)
+        isWaiting = false
       } else if (userParams.valgtModell === "option2") {
-        userParams.synligKontekst = false;
+        userParams.synligKontekst = false
         userParams.messageHistory.push({
           role: "user",
           content: userParamsCopy.message,
-        });
-        respons = await noraChat(userParamsCopy);
-        userParams.messageHistory.push({ role: "assistant", content: respons });
-        isWaiting = false;
+        })
+        respons = await noraChat(userParamsCopy)
+        userParams.messageHistory.push({ role: "assistant", content: respons })
+        isWaiting = false
       } else if (userParams.valgtModell === "option3") {
         userParams.messageHistory.push({
           role: "user",
           content: userParamsCopy.message,
-        });
-        respons = await openAiAssistant(userParamsCopy);
-        userParams.messageHistory.push({ role: "assistant", content: respons });
-        isWaiting = false;
+        })
+        respons = await openAiAssistant(userParamsCopy)
+        userParams.messageHistory.push({ role: "assistant", content: respons })
+        isWaiting = false
       } else if (userParams.valgtModell === "option4") {
         userParams.messageHistory.push({
           role: "user",
           content: userParamsCopy.message,
-        });
-        respons = await openAiAssistant(userParamsCopy);
-        userParams.messageHistory.push({ role: "assistant", content: respons });
-        isWaiting = false;
+        })
+        respons = await openAiAssistant(userParamsCopy)
+        userParams.messageHistory.push({ role: "assistant", content: respons })
+        isWaiting = false
       } else if (userParams.valgtModell === "option5") {
         userParams.messageHistory.push({
           role: "user",
           content: userParamsCopy.message,
-        });
-        respons = await openAiAssistant(userParamsCopy);
-        userParams.messageHistory.push({ role: "assistant", content: respons });
-        isWaiting = false;
+        })
+        respons = await openAiAssistant(userParamsCopy)
+        userParams.messageHistory.push({ role: "assistant", content: respons })
+        isWaiting = false
       } else if (userParams.valgtModell === "option6") {
         userParams.messageHistory.push({
           role: "user",
           content: userParamsCopy.message,
-        });
-        respons = await openAiAssistant(userParamsCopy);
-        userParams.messageHistory.push({ role: "assistant", content: respons });
-        isWaiting = false;
+        })
+        respons = await openAiAssistant(userParamsCopy)
+        userParams.messageHistory.push({ role: "assistant", content: respons })
+        isWaiting = false
       }
     } catch (error) {
-      isError = true;
-      errorMessage = error;
-      isWaiting = false;
+      isError = true
+      errorMessage = error
+      isWaiting = false
       userParams.messageHistory.push({
         role: "assistant",
         content: "Noe gikk galt. Prøv igjen.",
-      });
-      openModal();
+      })
+      openModal()
     }
-  };
+  }
 
   const openModal = () => {
     // Disable scrolling when modal is open
-    document.body.style.overflow = "auto";
-    document.body.style.height = "100%";
-    showModal = true;
-  };
+    document.body.style.overflow = "auto"
+    document.body.style.height = "100%"
+    showModal = true
+  }
 
   // Konverterer opplastet fil til base64
   function handleFileSelect(event) {
-    selectedFiles = event.target.files;
-    console.log("selectedFiles", selectedFiles.length);
-    const file = selectedFiles[0];
+    selectedFiles = event.target.files
+    console.log("selectedFiles", selectedFiles.length)
+    const file = selectedFiles[0]
     if (file) {
-      const reader = new FileReader();
+      const reader = new FileReader()
       reader.onloadend = () => {
         try {
-          console.log("Bilde");
+          console.log("Bilde")
           userParams.messageHistory.push({
             role: "user",
             content: reader.result,
-          });
-          userParams.base64String = reader.result;
-          console.log("base64String", userParams.base64String);
+          })
+          userParams.base64String = reader.result
+          console.log("base64String", userParams.base64String)
         } catch (error) {
-          console.log("Noe gikk galt", error);
+          console.log("Noe gikk galt", error)
         }
-      };
-      reader.readAsDataURL(file); // This method reads the file as a base64 string
+      }
+      reader.readAsDataURL(file) // This method reads the file as a base64 string
     }
   }
 
   $: if (respons && chatWindow) {
-    scrollToBottom(chatWindow);
+    scrollToBottom(chatWindow)
   }
 
   const onKeyPress = async (e) => {
     if (e.charCode === 13) {
       // isEnterPressed = true
-      scrollToBottom(chatWindow);
-      brukervalg();
+      scrollToBottom(chatWindow)
+      brukervalg()
     }
-  };
+  }
 
   // Fester scroll til bunnen av chatvinduet etter oppdatering av chatvinduet
   afterUpdate(() => {
     if (respons && chatWindow && userParams.message.length === 0) {
-      scrollToBottom(chatWindow);
+      scrollToBottom(chatWindow)
     }
-  });
+  })
 </script>
 
 <main>
@@ -228,7 +228,7 @@
             <button
               class="link"
               on:click={() => {
-                modelTampering = !modelTampering;
+                modelTampering = !modelTampering
               }}
               ><span class="material-symbols-outlined">keyboard_arrow_up</span
               ></button
@@ -237,7 +237,7 @@
             <button
               class="link"
               on:click={() => {
-                modelTampering = !modelTampering;
+                modelTampering = !modelTampering
               }}
               ><span class="material-symbols-outlined">keyboard_arrow_down</span
               ></button
@@ -320,7 +320,7 @@
       <button
         class="link"
         on:click={() => {
-          advancedInteractions = !advancedInteractions;
+          advancedInteractions = !advancedInteractions
         }}><span class="material-symbols-outlined">settings</span></button
       >
       <input
