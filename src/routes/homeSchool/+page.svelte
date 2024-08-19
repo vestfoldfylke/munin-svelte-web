@@ -150,22 +150,57 @@
     showModal = true
   }
 
+  const resizeBase64Image = (base64, width, height) => {
+  // Create a canvas element
+  const canvas = document.createElement('canvas')
+  // Create an image element from the base64 string
+  const image = new Image();
+  image.src = base64;
+
+  // Return a Promise that resolves when the image has loaded
+  return new Promise((resolve, reject) => {
+    image.onload = () => {
+      // Calculate the aspect ratio of the image
+      const aspectRatio = image.width / image.height;
+
+      // Calculate the best fit dimensions for the canvas
+      if (width / height > aspectRatio) {
+        canvas.width = height * aspectRatio;
+        canvas.height = height;
+      } else {
+        canvas.width = width;
+        canvas.height = width / aspectRatio;
+      }
+
+      // Draw the image to the canvas
+      const context = canvas.getContext('2d');
+      if (context) {
+        context.drawImage(image, 0, 0, canvas.width, canvas.height);
+      }
+
+      // Resolve the Promise with the resized image as a base64 string
+      resolve(canvas.toDataURL());
+    };
+
+    image.onerror = reject;
+  });
+};
+
   // Konverterer opplastet fil til base64
-  function handleFileSelect(event) {
+  const handleFileSelect = async (event) => {
     selectedFiles = event.target.files
-    console.log("selectedFiles", selectedFiles.length)
     const file = selectedFiles[0]
+
     if (file) {
       const reader = new FileReader()
-      reader.onloadend = () => {
+      reader.onloadend = async () => {
         try {
-          console.log("Bilde")
           userParams.messageHistory.push({
             role: "user",
-            content: reader.result,
+            content: await resizeBase64Image(reader.result, 400, 400),
           })
           userParams.base64String = reader.result
-          console.log("base64String", userParams.base64String)
+          // console.log("base64String", userParams.base64String)
         } catch (error) {
           console.log("Noe gikk galt", error)
         }
@@ -209,7 +244,7 @@
           <option value="option1" default>GPT-4o</option>
           <!-- Skjuler NORA for alle som ikke har admin til det er klart -->
           {#if !token.roles.includes(`${appName.toLowerCase()}.admin`)}
-            <option value="option2" disabled>Nora</option>
+            <option value="option2" hidden>Nora</option>
           {:else}
             <option value="option2">Nora</option>
           {/if}
@@ -218,7 +253,7 @@
           <option value="option5">NDLA Religion (Eksperimentell)</option>
           <!-- Skjuler VTR for alle som ikke har admin til det er klart -->
           {#if !token.roles.includes(`${appName.toLowerCase()}.admin`)}
-            <option value="option6" disabled>VTR</option>
+            <option value="option6" hidden>VTR</option>
           {:else}
             <option value="option6">VTR</option>
           {/if}
