@@ -35,7 +35,7 @@ export const noraChat = async (modellInfo) => {
   payload.question = modellInfo.message
 
   const accessToken = await getHuginToken()
-  if (isWeekday && isDaytime) {
+  if (isWeekday() && isDaytime()) {
     const response = await axios.post(`${import.meta.env.VITE_AI_API_URI}/noraChat`, payload, {
       headers: {
         'authorization': `Bearer ${accessToken}`
