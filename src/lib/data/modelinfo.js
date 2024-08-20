@@ -14,7 +14,7 @@ export const modelinfo = {
   },
   option3: {
     navn: 'Matematikkens byggesteiner',
-    description: 'Matematikkens byggesteiner er en lærebok som dekker de fleste temaer i matematikk fra grunnskolen til og med 1P/2P på videregående. Denne assistenten svarer på spørsmål om matematikk basert på innholdet i denne boken. Alle responser er basert på innholdet i boken, og assistenten er instruert til kun å gi svar som er relevante for matematikk. Læreboken er skrevet av Sindre Sogge Heggen og publisert på https://sindrsh.github.io/openmathbooks/ under en Creative Commons-lisens. CC BY-NC-SA 4.0',
+    description: 'Matematikkens byggesteiner er en lærebok som dekker de fleste temaer i matematikk fra grunnskolen til og med 1P/2P på videregående. Denne assistenten svarer på spørsmål om matematikk basert på innholdet i denne boken. Alle responser er basert på innholdet i boken, og assistenten er instruert til kun å gi svar som er relevante for matematikk. Læreboken er skrevet av Sindre Sogge Heggen og publisert på <a href="https://sindrsh.github.io/openmathbooks/" target="_blank">Github - Open Math Books</a> under en Creative Commons-lisens. CC BY-NC-SA 4.0',
     synligKontekst: false,
     illustrasjon: 'matematikk.png'
   },
