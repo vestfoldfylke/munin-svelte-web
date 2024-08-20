@@ -17,17 +17,15 @@
     // Function to convert string from markdown to valid HTML with showdown.
     // It also substitutes the LaTeX code with the corresponding HTML using katex.
     function parseAiResponse(s) {
-
         // Replace all LaTeX expressions
         s = s.replace(/\\\[(.*?)\\\]/g, (_, match) => `$$${match}$$`);
         s = s.replace(/\\\((.*?)\\\)/g, (_, match) => `$${match}$`);
-
+        
         // Convert markdown to HTML
         let html = converter.makeHtml(s);
 
         // Replace <em> and </em> with _
         html = html.replace(/<em>/g, '_ ').replace(/<\/em>/g, '_ ')
-
         let htmlWithKatex = html.replace(/\$\$(.*?)\$\$/g, (_, match) => {
             return katex.renderToString(match, { throwOnError: false });
         }).replace(/\$(.*?)\$/g, (_, match) => {
