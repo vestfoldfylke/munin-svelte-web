@@ -14,19 +14,19 @@ export const modelinfo = {
   },
   option3: {
     navn: 'Matematikkens byggesteiner',
-    description: 'Matematikkens byggesteiner er en lærebok som dekker de fleste temaer i matematikk fra grunnskolen til og med 1P/2P på videregående. Denne assistenten svarer på spørsmål om matematikk basert på innholdet i denne boken. I tillegg er læreplanene i matematikk 1P og 2P lagt til som kontekst. Alle responser er basert på innholdet i boken, og assistenten er instruert til kun å gi svar som er relevante for matematikk. Læreboken er skrevet av Sindre Sogge Heggen og publisert på https://sindrsh.github.io/openmathbooks/ under en Creative Commons-lisens. CC BY-NC-SA 4.0',
+    description: 'Matematikkens byggesteiner er en lærebok som dekker de fleste temaer i matematikk fra grunnskolen til og med 1P/2P på videregående. Denne assistenten svarer på spørsmål om matematikk basert på innholdet i denne boken. Alle responser er basert på innholdet i boken, og assistenten er instruert til kun å gi svar som er relevante for matematikk. Læreboken er skrevet av Sindre Sogge Heggen og publisert på https://sindrsh.github.io/openmathbooks/ under en Creative Commons-lisens. CC BY-NC-SA 4.0',
     synligKontekst: false,
     illustrasjon: 'matematikk.png'
   },
   option4: {
     navn: 'Teoretisk matematikk 1 - 1T og R1',
-    description: 'Matematikkens byggesteiner er en to lærebøker som dekker de fleste temaer i matematikk for 1T og R1 på videregående. Denne assistenten svarer på spørsmål om matematikk basert på innholdet i disse bøkene. I tillegg er læreplanene i matematikk 1T, R1 og R2 lagt til som kontekst. Alle responser er basert på innholdet i boken, og assistenten er instruert til kun å gi svar som er relevante for matematikk. Læreboken er skrevet av Sindre Sogge Heggen og publisert på https://sindrsh.github.io/openmathbooks/ under en Creative Commons-lisens. CC BY-NC-SA 4.0',
+    description: 'Matematikkens byggesteiner er en to lærebøker som dekker de fleste temaer i matematikk for 1T og R1 på videregående. Denne assistenten svarer på spørsmål om matematikk basert på innholdet i disse bøkene. Alle responser er basert på innholdet i boken, og assistenten er instruert til kun å gi svar som er relevante for matematikk. Læreboken er skrevet av Sindre Sogge Heggen og publisert på https://sindrsh.github.io/openmathbooks/ under en Creative Commons-lisens. CC BY-NC-SA 4.0',
     synligKontekst: false,
     illustrasjon: 'matematikk.png'
   },
   option5: {
     navn: 'Teoretisk matematikk 2 - R2',
-    description: 'Matematikkens byggesteiner er en to lærebøker som dekker de fleste temaer i matematikk R2 på videregående. Denne assistenten svarer på spørsmål om matematikk basert på innholdet i disse bøkene. I tillegg er læreplanene i matematikk 1T, R1 og R2 lagt til som kontekst. Alle responser er basert på innholdet i boken, og assistenten er instruert til kun å gi svar som er relevante for matematikk. Læreboken er skrevet av Sindre Sogge Heggen og publisert på https://sindrsh.github.io/openmathbooks/ under en Creative Commons-lisens. CC BY-NC-SA 4.0',
+    description: 'Matematikkens byggesteiner er en to lærebøker som dekker de fleste temaer i matematikk R2 på videregående. Denne assistenten svarer på spørsmål om matematikk basert på innholdet i disse bøkene. Alle responser er basert på innholdet i boken, og assistenten er instruert til kun å gi svar som er relevante for matematikk. Læreboken er skrevet av Sindre Sogge Heggen og publisert på https://sindrsh.github.io/openmathbooks/ under en Creative Commons-lisens. CC BY-NC-SA 4.0',
     synligKontekst: false,
     illustrasjon: 'matematikk.png'
   },
