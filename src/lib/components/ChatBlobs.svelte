@@ -20,7 +20,8 @@
         // Replace all LaTeX expressions
         s = s.replace(/\\\[(.*?)\\\]/g, (_, match) => `$$${match}$$`);
         s = s.replace(/\\\((.*?)\\\)/g, (_, match) => `$${match}$`);
-        
+        s = s.replace(/\\\[\s*\n(.*?)\n\s*\\\]/s, (_, match) => `$$${match}$$`)
+        console.log(s)
         // Convert markdown to HTML
         let html = converter.makeHtml(s);
 
