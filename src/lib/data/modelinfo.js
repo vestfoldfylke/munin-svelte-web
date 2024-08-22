@@ -43,5 +43,12 @@ export const modelinfo = {
     synligKontekst: false,
     illustrasjon: ''
 
+  },
+  option8: {
+    navn: 'Leieavtalechatten - eksperimentell assistent',
+    description: 'VTR er en eksperimentell ekspertbot som er trent på en håndull rapporter',
+    synligKontekst: false,
+    illustrasjon: ''
+
   }
 }
