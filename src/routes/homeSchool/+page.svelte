@@ -249,7 +249,7 @@
           {#if !token.roles.includes(`${appName.toLowerCase()}.admin`)}
            <option value="option8" hidden>Leieavtale elev-PC</option>
           {:else}
-            <option value="option8">Leieavtale elev-PC</option>
+            <option value="option8">Leie- og låneavtale elev-PC</option>
           {/if}
         </select>
         <div class="showNhideBtns">
