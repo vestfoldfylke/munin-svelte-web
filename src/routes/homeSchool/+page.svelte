@@ -247,9 +247,9 @@
             <option value="option7">VTR</option>
           {/if}
           {#if !token.roles.includes(`${appName.toLowerCase()}.admin`)}
-           <option value="option8" hidden>Leieavtale elev-PC</option>
+           <option value="option8" hidden>Avtaler og veiledninger elev-PC</option>
           {:else}
-            <option value="option8">Leie- og låneavtale elev-PC</option>
+            <option value="option8">Avtaler og veiledninger elev-PC</option>
           {/if}
         </select>
         <div class="showNhideBtns">
