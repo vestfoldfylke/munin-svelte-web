@@ -312,7 +312,7 @@
         {/each}
       {/if}
     </div>
-    <p>Husk at språkmodeller lager tekst som kan inneholde feil. Sjekk alltid flere kilder og bruk sunn fornuft når du bruker KI-tjenester.</p><br>
+    <p>Husk at språkmodeller lager tekst som kan inneholde feil. Sjekk alltid flere kilder og bruk sunn fornuft når du bruker KI-tjenester. Ikke send inn data som kan være sensitivt eller inneholder informasjon som ikke kan deles offentlig</p><br>
     {#if advancedInteractions}
       <div class="advancedInteractions">
         <label for="file-upload"><span class="material-symbols-outlined">upload_file</span></label>
