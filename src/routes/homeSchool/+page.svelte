@@ -247,9 +247,9 @@
             <option value="option7">VTR</option>
           {/if}
           {#if !token.roles.includes(`${appName.toLowerCase()}.admin`)}
-           <option value="option8" hidden>Leieavtale elev-PC</option>
+           <option value="option8" hidden>Avtaler og veiledninger elev-PC</option>
           {:else}
-            <option value="option8">Leie- og låneavtale elev-PC</option>
+            <option value="option8">Avtaler og veiledninger elev-PC</option>
           {/if}
         </select>
         <div class="showNhideBtns">
@@ -312,7 +312,7 @@
         {/each}
       {/if}
     </div>
-    <p>Husk at språkmodeller lager tekst som kan inneholde feil. Sjekk alltid flere kilder og bruk sunn fornuft når du bruker KI-tjenester.</p><br>
+    <p>Husk at språkmodeller lager tekst som kan inneholde feil. Sjekk alltid flere kilder og bruk sunn fornuft når du bruker KI-tjenester.<br> Ikke send inn data som kan være sensitive eller inneholder informasjon som ikke kan deles offentlig</p><br>
     {#if advancedInteractions}
       <div class="advancedInteractions">
         <label for="file-upload"><span class="material-symbols-outlined">upload_file</span></label>
