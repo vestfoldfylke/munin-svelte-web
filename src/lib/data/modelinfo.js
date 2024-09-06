@@ -45,8 +45,8 @@ export const modelinfo = {
 
   },
   option8: {
-    navn: 'Leieavtalechatten - eksperimentell assistent',
-    description: 'VTR er en eksperimentell ekspertbot som er trent på en håndull rapporter',
+    navn: 'Geologibotten - eksperimentell assistent',
+    description: 'Eksperimentell bot til bruk for geologi',
     synligKontekst: false,
     illustrasjon: ''
 

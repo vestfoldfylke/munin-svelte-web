@@ -232,9 +232,9 @@
           <option value="option1" default>GPT-4o</option>
           <!-- Skjuler NORA for alle som ikke har admin til det er klart -->
           {#if !token.roles.includes(`${appName.toLowerCase()}.admin`)}
-            <option value="option2" hidden>Nora</option>
+            <option value="option2" hidden>Nora - Eksperimentell</option>
           {:else}
-            <option value="option2">Nora</option>
+            <option value="option2">Nora - Eksperimentell</option>
           {/if}
           <option value="option3">Matematikkens byggesteiner 1P og 2P</option>
           <option value="option4">Teoretisk matematikk 1T og R1</option>
@@ -246,11 +246,7 @@
           {:else}
             <option value="option7">VTR</option>
           {/if}
-          {#if !token.roles.includes(`${appName.toLowerCase()}.admin`)}
-           <option value="option8" hidden>Avtaler og veiledninger elev-PC</option>
-          {:else}
-            <option value="option8">Avtaler og veiledninger elev-PC</option>
-          {/if}
+          <option value="option8">Geologi - Eksperimentell</option>
         </select>
         <div class="showNhideBtns">
           {#if modelTampering}
