@@ -89,9 +89,10 @@
       // Nora
       }  else if (userParams.valgtModell === "option2") {
         userParams.synligKontekst = false
+        const message = userParams.message
         userParams.messageHistory.push({
           role: "user",
-          content: userParams.message,
+          content: message,
         })
         userParams.message = ""
         respons = await noraChat(userParams)
@@ -111,7 +112,6 @@
         userParams.newThread = false
         userParams.threadId = respons.thread_id
         scrollToBottom(chatWindow)
-
         isWaiting = false
 
         // Klargjort for GPT-o1-preview
