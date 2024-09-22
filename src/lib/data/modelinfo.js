@@ -49,12 +49,23 @@ export const modelinfo = {
     description: 'Eksperimentell bot til bruk for geologi',
     synligKontekst: false,
     illustrasjon: ''
-
   },
   option9: {
     navn: 'GPT-o1-preview',
     description: 'Denne modellen bruker <a href="https://openai.com/index/hello-gpt-4o/">OpenAIsG PT-4o</a> til å generere tekst basert på en gitt kontekst og melding. GPT-4o er den nyeste versjonen av GPT-4, og er trent på en stor mengde data fra internett. Modellen er trent på å generere tekst som ligner på menneskelig skrevet tekst, og kan brukes til en rekke oppgaver som tekstgenerering, oversettelse og spørsmål-svar. Du må selv legge inn kontektst og temperatur slik at modellen får de egenskapene du ønsker. Denne modellen har også mulighet for bildeanalyse. Trykk på tannhjulet og last opp et bilde. Modellen vil analysere bildet og kan generere tekst basert på dette',
     synligKontekst: true,
     illustrasjon: 'GPT4o.png'
-  }
+  },
+  option10: {
+    navn: 'Labs elev - Helsefremmende arbeid',
+    description: 'Eksperimentell bot til bruk i HO/Helsefremmende arbeid for elever',
+    synligKontekst: false,
+    illustrasjon: ''
+  },
+  option11: {
+    navn: 'Labs lærer - Helsefremmende arbeid ',
+    description: 'Eksperimentell bot til bruk i HO/Helsefremmende arbeid for lærere',
+    synligKontekst: false,
+    illustrasjon: ''
+  },
 }
