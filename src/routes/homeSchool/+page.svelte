@@ -101,7 +101,7 @@
         isWaiting = false
 
       // Fagbotter
-      } else if (userParams.valgtModell === "option3" || userParams.valgtModell === "option4"  || userParams.valgtModell === "option5" || userParams.valgtModell === "option6" || userParams.valgtModell === "option7" || userParams.valgtModell === "option8" || userParams.valgtModell === "option10" || userParams.valgtModell === "option11") {
+      } else if (userParams.valgtModell === "option3" || userParams.valgtModell === "option4"  || userParams.valgtModell === "option5" || userParams.valgtModell === "option6" || userParams.valgtModell === "option7" || userParams.valgtModell === "option8") {
         userParams.messageHistory.push({
           role: "user",
           content: userParams.message,
@@ -250,22 +250,6 @@
             <option value="option7">VTR</option>
           {/if}
           <option value="option8">Geologi - Eksperimentell</option>
-          <!-- Skjuler GPT o1 for alle som ikke har admin -->
-          <!-- {#if !token.roles.includes(`${appName.toLowerCase()}.admin`)}
-            <option value="option9" hidden>GPT-o1-preview</option>
-          {:else}
-            <option value="option9">GPT-o1-preview</option>
-          {/if} -->
-          {#if !token.roles.includes(`${appName.toLowerCase()}.admin`)}
-            <option value="option10" hidden>Labs Skogmo elever - Helsefremmende arbeid</option>
-          {:else}
-            <option value="option10">Labs Skogmo elever - Helsefremmende arbeid</option>
-          {/if}
-          {#if !token.roles.includes(`${appName.toLowerCase()}.admin`)}
-            <option value="option11" hidden>Labs Skogmo lærer - Helsefremmende arbeid</option>
-          {:else}
-            <option value="option11">Labs Skogmo lærer - Helsefremmende arbeid</option>
-          {/if}
         </select>
         <div class="showNhideBtns">
           {#if modelTampering}

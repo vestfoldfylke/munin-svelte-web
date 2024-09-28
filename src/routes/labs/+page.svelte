@@ -2,7 +2,6 @@
   import { multimodalOpenAi, noraChat, openAiAssistant } from "$lib/services/openAiTools"
   import { modelinfo } from "$lib/data/modelinfo" // Tekstbeskrivelser om valgt modell
   import ChatBlobs from "$lib/components/ChatBlobs.svelte" // Komponent for å vise chatmeldinger
-  // import GPT4o from '$lib/images/GPT4o.png' // Bilde av valgt modell
   import ModelInfo from "../../lib/components/ModelInfo.svelte"
   import "@material/web/button/elevated-button"
   import { onMount, afterUpdate } from "svelte"
@@ -18,9 +17,9 @@
     threadId: "",
     messageHistory: [],
     kontekst: "",
-    valgtModell: "option1", // Default modell GPT-4o
+    valgtModell: "option10", // Default modell Labs Skogmo elever - Helsefremmende arbeid
     base64String: "",
-    temperatur: 0.7, // Default temperatur
+    temperatur: 0.2, // Default temperatur
     synligKontekst: true,
   }
 
@@ -45,7 +44,7 @@
   // Starter med en velkomstmelding
   userParams.messageHistory.push({
     role: "assistant",
-    content: `Velkommen til ${appName}! Hva kan jeg hjelpe deg med i dag?`,
+    content: `Velkommen til ${appName} HO-botten! Hva kan jeg hjelpe deg med i dag?`,
   })
 
   onMount(async () => {
@@ -72,36 +71,11 @@
 
   // Kaller på valgt modell med tilhørende parametre basert på brukerens valg
   const brukervalg = async () => {
+    console.log("userParams.valgtModell", userParams.valgtModell)
     isWaiting = true
     try {
-      // GPT-4o
-      if (userParams.valgtModell === "option1") {
-        userParams.messageHistory.push({
-          role: "user",
-          content: userParams.message,
-        })
-        userParams.message = ""
-        respons = await multimodalOpenAi(userParams)
-        userParams.messageHistory.push({ role: "assistant", content: respons })
-        scrollToBottom(chatWindow)
-        isWaiting = false
-
-      // Nora
-      }  else if (userParams.valgtModell === "option2") {
-        userParams.synligKontekst = false
-        const message = userParams.message
-        userParams.messageHistory.push({
-          role: "user",
-          content: message,
-        })
-        userParams.message = ""
-        respons = await noraChat(userParams)
-        userParams.messageHistory.push({ role: "assistant", content: respons })
-        scrollToBottom(chatWindow)
-        isWaiting = false
-
       // Fagbotter
-      } else if (userParams.valgtModell === "option3" || userParams.valgtModell === "option4"  || userParams.valgtModell === "option5" || userParams.valgtModell === "option6" || userParams.valgtModell === "option7" || userParams.valgtModell === "option8") {
+      if (userParams.valgtModell === "option10" || userParams.valgtModell === "option11") {
         userParams.messageHistory.push({
           role: "user",
           content: userParams.message,
@@ -111,18 +85,6 @@
         userParams.messageHistory.push({ role: "assistant", content: respons.messages[0].content[0].text.value })
         userParams.newThread = false
         userParams.threadId = respons.thread_id
-        scrollToBottom(chatWindow)
-        isWaiting = false
-
-        // Klargjort for GPT-o1-preview
-      } else if (userParams.valgtModell === "option9") {
-        userParams.synligKontekst = true
-        userParams.messageHistory.push({
-          role: "user",
-          content: userParamsCopy.message,
-        })
-        respons = await multimodalOpenAi(userParams)
-        userParams.messageHistory.push({ role: "assistant", content: respons })
         scrollToBottom(chatWindow)
         isWaiting = false
       }
@@ -236,26 +198,9 @@
     <div class="modelTampering">
       <h2>Modellvelger</h2>
       <div class="boxyHeader">
-        <select class="modellSelect" on:change={valgtModell}>
-          <option value="option1" default>GPT-4o</option>
-          <option value="option2">Nora - Eksperimentell</option>
-          <option value="option3">Matematikkens byggesteiner 1P og 2P</option>
-          <option value="option4">Teoretisk matematikk 1T og R1</option>
-          <option value="option5">Teoretisk matematikk R2</option>
-          <option value="option6">NDLA Religion Eksperimentell</option>
-          <!-- Skjuler VTR og leieavtalefor alle som ikke har admin til det er klart -->
-          {#if !token.roles.includes(`${appName.toLowerCase()}.admin`)}
-            <option value="option7" hidden>VTR</option>
-          {:else}
-            <option value="option7">VTR</option>
-          {/if}
-          <option value="option8">Geologi - Eksperimentell</option>
-          <!-- Skjuler GPT o1 for alle som ikke har admin -->
-          <!-- {#if !token.roles.includes(`${appName.toLowerCase()}.admin`)}
-            <option value="option9" hidden>GPT-o1-preview</option>
-          {:else}
-            <option value="option9">GPT-o1-preview</option>
-          {/if} -->
+        <select class="modellSelect" on:change={valgtModell} >
+          <option value="option10" default selected>Labs Skogmo elever - Helsefremmende arbeid</option>
+          <option value="option11">Labs Skogmo lærer - Helsefremmende arbeid</option>
         </select>
         <div class="showNhideBtns">
           {#if modelTampering}
@@ -339,19 +284,10 @@
         bind:value={userParams.message}
         on:keypress={onKeyPress}
       />
-      <button
-        class="link"
-        on:click={() => {
-          advancedInteractions = !advancedInteractions
-        }}><span class="material-symbols-outlined">settings</span></button
-      >
-      <input
-        class="sendButton"
-        type="button"
-        on:click={brukervalg}
-        on:keypress={onKeyPress}
-        value={`Spør ${appName}`}
-      />
+      <button class="link" on:click={() => {advancedInteractions = !advancedInteractions}}>
+        <span class="material-symbols-outlined">settings</span>
+      </button>
+      <input class="sendButton" type="button" on:click={brukervalg} on:keypress={onKeyPress} value={`Spør HO-botten`} />
     </div>
     {#if isError}
       <Modal bind:showModal>
@@ -498,7 +434,7 @@
     border-radius: 5px;
     border: 1px solid #ccc;
     background-color: #f5f5f5;
-    width: 16rem;
+    width: 32rem;
   }
 
   .loading {
