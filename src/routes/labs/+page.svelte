@@ -1,5 +1,6 @@
 <script>
   import { multimodalOpenAi, noraChat, openAiAssistant } from "$lib/services/openAiTools"
+  import { getArticlesFromNDLA } from "$lib/services/ndlaTools"
   import { modelinfo } from "$lib/data/modelinfo" // Tekstbeskrivelser om valgt modell
   import ChatBlobs from "$lib/components/ChatBlobs.svelte" // Komponent for å vise chatmeldinger
   import ModelInfo from "../../lib/components/ModelInfo.svelte"
@@ -69,6 +70,24 @@
     modelinfo[userParams.valgtModell].synligKontekst
   }
 
+   // Ensure this code is inside an async function
+   async function handleNDLARequest(extractedText, i) {
+    try {
+      // Await the promise to ensure it is resolved before proceeding
+      const ndla = await getArticlesFromNDLA(extractedText);
+      console.log("Søk: ", extractedText); // Output: Helsefremmende arbeid - grunnleggende hygiene - Desinfeksjon, Varmedesinfeksjon, Kjemisk desinfeksjon
+      console.log("NDLA: ", ndla);
+
+      // Update message history after the promise is resolved
+      userParams.messageHistory.push({
+        role: "assistant",
+        content: `Les mer på <a target="_blank" href="https://ndla.no/article-iframe/nb/article/${ndla[i].id}">NDLA - ${ndla[i].title.title}</a>`,
+      });
+    } catch (error) {
+      console.error("Error fetching articles from NDLA:", error);
+    }
+  }
+
   // Kaller på valgt modell med tilhørende parametre basert på brukerens valg
   const brukervalg = async () => {
     console.log("userParams.valgtModell", userParams.valgtModell)
@@ -82,9 +101,20 @@
         })
         userParams.message = ""
         respons = await openAiAssistant(userParams)
-        userParams.messageHistory.push({ role: "assistant", content: respons.messages[0].content[0].text.value })
+        const vasketRespons = respons.messages[0].content[0].text.value.replace(/【\d+:\d+†source】/g, '');
+        userParams.messageHistory.push({ role: "assistant", content: vasketRespons })
         userParams.newThread = false
         userParams.threadId = respons.thread_id
+
+        console.log("respons", respons.messages[0].content[0].text.value)
+        const match = respons.messages[0].content[0].text.value.match(/\[([^\]]+)\]/);
+        if (match && match[1]) {
+          const extractedText = match[1];
+          await handleNDLARequest(extractedText, 0);
+          await handleNDLARequest(extractedText, 1);
+        } else {
+          console.log("No match found");
+        }
         scrollToBottom(chatWindow)
         isWaiting = false
       }
