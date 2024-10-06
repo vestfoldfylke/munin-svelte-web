@@ -74,9 +74,8 @@
    async function handleNDLARequest(extractedText) {
     try {
       // Await the promise to ensure it is resolved before proceeding
-      let queryText = extractedText.split(" - ").slice(-2).join(" - "); // Liten hack for å få tak i riktig søketekst
-      const ndla = await getArticlesFromNDLA(queryText);
-      console.log("Søk: ", queryText);
+      const ndla = await getArticlesFromNDLA(extractedText);
+      console.log("Søk: ", extractedText); // Output: Helsefremmende arbeid - grunnleggende hygiene - Desinfeksjon, Varmedesinfeksjon, Kjemisk desinfeksjon
       console.log("NDLA: ", ndla);
 
       // Update message history after the promise is resolved
