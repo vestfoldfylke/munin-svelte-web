@@ -71,7 +71,7 @@
   }
 
    // Ensure this code is inside an async function
-   async function handleNDLARequest(extractedText, i) {
+   async function handleNDLARequest(extractedText) {
     try {
       // Await the promise to ensure it is resolved before proceeding
       const ndla = await getArticlesFromNDLA(extractedText);
@@ -81,7 +81,7 @@
       // Update message history after the promise is resolved
       userParams.messageHistory.push({
         role: "assistant",
-        content: `Les mer på <a target="_blank" href="https://ndla.no/article-iframe/nb/article/${ndla[i].id}">NDLA - ${ndla[i].title.title}</a>`,
+        content: `Les mer om dette på NDLA-sidene: <br> <a target="_blank" href="https://ndla.no/article-iframe/nb/article/${ndla[0].id}">${ndla[0].title.title}</a> og <a target="_blank" href="https://ndla.no/article-iframe/nb/article/${ndla[1].id}">${ndla[1].title.title}</a> eller på <a target="_blank" href="https://ndla.no/article-iframe/nb/article/${ndla[2].id}">${ndla[2].title.title}</a><br>`,
       });
     } catch (error) {
       console.error("Error fetching articles from NDLA:", error);
@@ -107,11 +107,11 @@
         userParams.threadId = respons.thread_id
 
         console.log("respons", respons.messages[0].content[0].text.value)
-        const match = respons.messages[0].content[0].text.value.match(/\[([^\]]+)\]/);
+        const match = respons.messages[0].content[0].text.value.match(/\[([^\]]+)\]/); // Extract text between brackets
         if (match && match[1]) {
           const extractedText = match[1];
-          await handleNDLARequest(extractedText, 0);
-          await handleNDLARequest(extractedText, 1);
+          console.log("Extracted text: ", extractedText);
+          await handleNDLARequest(extractedText);
         } else {
           console.log("No match found");
         }
