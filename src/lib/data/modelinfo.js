@@ -63,9 +63,15 @@ export const modelinfo = {
     illustrasjon: ''
   },
   option11: {
-    navn: 'Labs lærer - Helsefremmende arbeid ',
+    navn: 'Labs lærer - Helsefremmende arbeid',
     description: 'Eksperimentell bot til bruk i HO/Helsefremmende arbeid for lærere',
     synligKontekst: false,
     illustrasjon: ''
   },
+  option12: {
+    navn: 'Test strukturert respons',
+    description: 'Eksperimentell bot for å teste strukturert respons',
+    synligKontekst: false,
+    illustrasjon: ''
+  }
 }

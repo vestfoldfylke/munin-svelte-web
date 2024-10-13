@@ -93,4 +93,12 @@ export const params = {
     new_thread: true,
     thread_id: ''
   },
+  option12: {
+    message: '',
+    kontekst: '',
+    model: 'gpt-4o',
+    assistant_id: '',
+    new_thread: true,
+    thread_id: ''
+  }
 }
