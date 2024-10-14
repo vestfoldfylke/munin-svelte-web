@@ -1,6 +1,7 @@
 <script>
   import { multimodalOpenAi, noraChat, openAiAssistant } from "$lib/services/openAiTools"
-  import { getArticlesFromNDLA } from "$lib/services/ndlaTools"
+  import { testStructured } from "$lib/services/openAiToolsLabs"
+  import { getArticlesFromNDLA, structureResponse } from "$lib/services/kildekallTools"
   import { modelinfo } from "$lib/data/modelinfo" // Tekstbeskrivelser om valgt modell
   import ChatBlobs from "$lib/components/ChatBlobs.svelte" // Komponent for å vise chatmeldinger
   import ModelInfo from "../../lib/components/ModelInfo.svelte"
@@ -45,7 +46,7 @@
   // Starter med en velkomstmelding
   userParams.messageHistory.push({
     role: "assistant",
-    content: `Velkommen til ${appName} HO-botten! Hva kan jeg hjelpe deg med i dag?`,
+    content: `Velkommen til ${appName} og HO-botten! Hva kan jeg hjelpe deg med i dag?`,
   })
 
   onMount(async () => {
@@ -66,22 +67,25 @@
     userParams.valgtModell = event.target.value
     modelinfoModell = modelinfo[userParams.valgtModell].navn
     modelinfoBeskrivelse = modelinfo[userParams.valgtModell].description
-    userParams.synligKontekst =
     modelinfo[userParams.valgtModell].synligKontekst
   }
 
-   // Ensure this code is inside an async function
-   async function handleNDLARequest(extractedText, i) {
+   // Henter artikler fra NDLA basert på tekstuttrekk fra responsen ttil språkmodellen
+   async function handleNDLARequest() {
     try {
-      // Await the promise to ensure it is resolved before proceeding
-      const ndla = await getArticlesFromNDLA(extractedText);
-      console.log("Søk: ", extractedText); // Output: Helsefremmende arbeid - grunnleggende hygiene - Desinfeksjon, Varmedesinfeksjon, Kjemisk desinfeksjon
-      console.log("NDLA: ", ndla);
+      // Strukturerer responsen fra Hugin
+      const structTest = await structureResponse(userParams);
+      structTest.nøkkelord += "  og Helsefremmende arbeid (HS-HSF vg1)"; // Legger til nøkkelord for søk på NDLA
 
-      // Update message history after the promise is resolved
+      // Søker etter artikler på NDLA basert på nøkkelord fra responsen til Hugin
+      const ndla = await getArticlesFromNDLA(structTest.nøkkelord);
+      console.log("Søk: ", structTest.nøkkelord); // Log the search term
+      console.log("NDLA: ", ndla); // Logger responsen fra NDLA
+
+      // Lager en ny systemmelding med lenker til artiklene fra NDLA
       userParams.messageHistory.push({
         role: "assistant",
-        content: `Les mer på <a target="_blank" href="https://ndla.no/article-iframe/nb/article/${ndla[i].id}">NDLA - ${ndla[i].title.title}</a>`,
+        content: `Les mer om dette på NDLA-sidene: <br> <a target="_blank" href="https://ndla.no/article-iframe/nb/article/${ndla[0].id}">${ndla[0].title.title}</a> og <a target="_blank" href="https://ndla.no/article-iframe/nb/article/${ndla[1].id}">${ndla[1].title.title}</a> eller på <a target="_blank" href="https://ndla.no/article-iframe/nb/article/${ndla[2].id}">${ndla[2].title.title}</a><br>`,
       });
     } catch (error) {
       console.error("Error fetching articles from NDLA:", error);
@@ -90,7 +94,6 @@
 
   // Kaller på valgt modell med tilhørende parametre basert på brukerens valg
   const brukervalg = async () => {
-    console.log("userParams.valgtModell", userParams.valgtModell)
     isWaiting = true
     try {
       // Fagbotter
@@ -101,20 +104,24 @@
         })
         userParams.message = ""
         respons = await openAiAssistant(userParams)
-        const vasketRespons = respons.messages[0].content[0].text.value.replace(/【\d+:\d+†source】/g, '');
+        const vasketRespons = respons.messages[0].content[0].text.value.replace(/【\d+:\d+†source】/g, ''); // Pynter på responsen
         userParams.messageHistory.push({ role: "assistant", content: vasketRespons })
         userParams.newThread = false
         userParams.threadId = respons.thread_id
-
-        console.log("respons", respons.messages[0].content[0].text.value)
-        const match = respons.messages[0].content[0].text.value.match(/\[([^\]]+)\]/);
-        if (match && match[1]) {
-          const extractedText = match[1];
-          await handleNDLARequest(extractedText, 0);
-          await handleNDLARequest(extractedText, 1);
-        } else {
-          console.log("No match found");
-        }
+        await handleNDLARequest(); // Kildekall: Henter relevante artikler fra NDLA
+        scrollToBottom(chatWindow)
+        isWaiting = false
+      }
+      // Strukturert respons
+      else if (userParams.valgtModell === "option12") {
+        userParams.messageHistory.push({
+          role: "user",
+          content: userParams.message,
+        })
+        userParams.message = ""
+        respons = await testStructured(userParams)
+        console.log("respons", respons.data.choices[0].message.parsed.superkraft)
+        userParams.messageHistory.push({ role: "assistant", content: JSON.stringify(respons.data.choices[0].message.parsed) })
         scrollToBottom(chatWindow)
         isWaiting = false
       }
@@ -231,6 +238,7 @@
         <select class="modellSelect" on:change={valgtModell} >
           <option value="option10" default selected>Labs Skogmo elever - Helsefremmende arbeid</option>
           <option value="option11">Labs Skogmo lærer - Helsefremmende arbeid</option>
+          <option value="option12">Test - Enkel strukturert respons</option>
         </select>
         <div class="showNhideBtns">
           {#if modelTampering}
