@@ -19,13 +19,13 @@ export const modelinfo = {
     illustrasjon: 'matematikk.png'
   },
   option4: {
-    navn: 'Teoretisk matematikk 1 - 1T og R1',
+    navn: 'Teoretisk matematikk 1',
     description: '<a href="https://sindreheggen.wordpress.com/boker/">Teoretisk matematikk 1</a> er en lærebok som dekker de fleste temaer i matematikk for 1T og R1 på videregående. Denne assistenten svarer på spørsmål om matematikk basert på innholdet i disse bøkene. Alle responser er basert på innholdet i boken, og assistenten er instruert til kun å gi svar som er relevante for matematikk. Læreboken er skrevet av Sindre Sogge Heggen og publisert på https://sindrsh.github.io/openmathbooks/ under en Creative Commons-lisens. CC BY-NC-SA 4.0<br><br><b>Husk at KI lager tekst som kan inneholde feil. Sjekk alltid flere kilder og bruk sunn fornuft når du bruker KI.<b>',
     synligKontekst: false,
     illustrasjon: 'matematikk.png'
   },
   option5: {
-    navn: 'Teoretisk matematikk 2 - R2',
+    navn: 'Teoretisk matematikk 2',
     description: '<a href="https://sindreheggen.wordpress.com/boker/">Teoretisk matematikk 1</a> er en lærebok som dekker de fleste temaer i matematikk R2 på videregående. Denne assistenten svarer på spørsmål om matematikk basert på innholdet i disse bøkene. Alle responser er basert på innholdet i boken, og assistenten er instruert til kun å gi svar som er relevante for matematikk. Læreboken er skrevet av Sindre Sogge Heggen og publisert på https://sindrsh.github.io/openmathbooks/ under en Creative Commons-lisens. CC BY-NC-SA 4.0<br><br><b>Husk at KI lager tekst som kan inneholde feil. Sjekk alltid flere kilder og bruk sunn fornuft når du bruker KI.<b>',
     synligKontekst: false,
     illustrasjon: 'matematikk.png'
