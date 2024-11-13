@@ -47,3 +47,25 @@ export const testStructured = async (userParams) => {
    //console.log(response.data.choices[0].message.parsed)
    return response
 }
+
+export const nbTranscript = async (filliste) => {
+
+  console.log("Første fil: ", filliste)
+  const datapakken = new FormData()
+  datapakken.append('filer', filliste)
+
+  const accessToken = await getHuginToken()
+  console.log("lydfil: ", filliste)
+
+  const r = await axios.post(`${import.meta.env.VITE_AI_API_URI}/nbTranscript`, datapakken, {
+    method: 'post',
+    data: datapakken,
+    headers: {
+      'Content-Type': 'multipart/form-data',
+      authorization: `Bearer ${accessToken}`
+    }
+  })
+  console.log("Venter på transcript: ")
+  console.log(r)
+  return JSON.stringify(r.data.data.text)
+}

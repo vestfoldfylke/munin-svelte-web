@@ -73,6 +73,10 @@
   // Kaller på valgt modell med tilhørende parametre basert på brukerens valg
   const brukervalg = async () => {
     isWaiting = true
+    // Get the textarea and set the height
+    const textarea = document.querySelector("textarea")
+    textarea.style.height = "50px"
+
     try {
       // GPT-4o
       if (userParams.valgtModell === "option1") {
@@ -145,41 +149,36 @@
     showModal = true
   }
 
-  // Justerer størrelsen på opplastede bilder
-  const resizeBase64Image = (base64, width, height) => {
-  // Create a canvas element
-  const canvas = document.createElement('canvas')
-  // Create an image element from the base64 string
-  const image = new Image();
-  image.src = base64;
-
-  // Return a Promise that resolves when the image has loaded
-  return new Promise((resolve, reject) => {
-    image.onload = () => {
-      // Calculate the aspect ratio of the image
-      const aspectRatio = image.width / image.height;
-
-      // Calculate the best fit dimensions for the canvas
-      if (width / height > aspectRatio) {
-        canvas.width = height * aspectRatio;
-        canvas.height = height;
-      } else {
-        canvas.width = width;
-        canvas.height = width / aspectRatio;
-      }
-
-      // Draw the image to the canvas
-      const context = canvas.getContext('2d');
-      if (context) {
-        context.drawImage(image, 0, 0, canvas.width, canvas.height);
-      }
-
-      // Resolve the Promise with the resized image as a base64 string
-      resolve(canvas.toDataURL());
-    };
-
-    image.onerror = reject;
-  });
+// Justerer størrelsen på opplastede bilder
+const resizeBase64Image = (base64, width, height) => {
+    // Opprett et canvas-element
+    const canvas = document.createElement('canvas');
+    // Opprett et bilde-element fra base64-strengen
+    const image = new Image();
+    image.src = base64;
+    // Returner en Promise som løses når bildet er lastet
+    return new Promise((resolve, reject) => {
+        image.onload = () => {
+            // Beregn bildets aspektforhold
+            const aspectRatio = image.width / image.height;
+            // Beregn beste passform-dimensjoner for canvas
+            if (width / height > aspectRatio) {
+                canvas.width = height * aspectRatio;
+                canvas.height = height;
+            } else {
+                canvas.width = width;
+                canvas.height = width / aspectRatio;
+            }
+            // Tegn bildet på canvas
+            const context = canvas.getContext('2d');
+            if (context) {
+                context.drawImage(image, 0, 0, canvas.width, canvas.height);
+            }
+            // Løs Promisen med det skalerte bildet som en base64-streng
+            resolve(canvas.toDataURL('image/jpeg'));
+        };
+        image.onerror = reject;
+    });
 };
 
   // Konverterer opplastet fil til base64
@@ -212,6 +211,7 @@
   const onKeyPress = async (e) => {
     if (e.charCode === 13) {
       // isEnterPressed = true
+      e.preventDefault()
       scrollToBottom(chatWindow)
       brukervalg()
     }
@@ -223,6 +223,8 @@
       scrollToBottom(chatWindow)
     }
   })
+
+
 </script>
 
 <main>
@@ -266,6 +268,7 @@
           {#key userParams.synligKontekst}
             {#if userParams.synligKontekst}
               <textarea
+                id="inputKontekst"
                 placeholder="Her kan du legge inn kontekst til språkmodellen."
                 bind:value={userParams.kontekst}
                 rows="4"
@@ -317,15 +320,19 @@
       </div>
     {/if}
     <div class="userInteractionField">
-      <input
-        name="askHugin"
-        type="text"
-        autocomplete="off"
-        placeholder={`Spør ${appName}`}
-        size="50"
-        bind:value={userParams.message}
-        on:keypress={onKeyPress}
-      />
+      <textarea
+      name="askHugin"
+      autocomplete="off"
+      placeholder={`Spør ${appName}`}
+      rows="1"
+      bind:value={userParams.message}
+      on:keypress={onKeyPress}
+      on:input={(e) => {
+        e.target.style.height = 'auto';
+        e.target.style.height = `${e.target.scrollHeight}px`;
+      }}
+    ></textarea>
+
       <button
         class="link"
         on:click={() => {
@@ -340,7 +347,7 @@
         value={`Spør ${appName}`}
       />
     </div>
-    {#if isError}
+    {#if isError} <!-- Droppe modal på denne? -->
       <Modal bind:showModal>
         <h2 slot="header">Error</h2>
         <h3>Noe gikk galt ⛔</h3>
@@ -370,14 +377,16 @@
     height: calc(85vh);
     margin: 10px;
   }
-  textarea {
+
+textarea {
     padding: 10px;
-    margin-bottom: 20px;
+    margin: 10px;
     display: block;
     width: 100%;
-    overflow: hidden;
-    resize: both;
+    overflow-y: scroll;
+    resize: none;
     min-height: 40px;
+    max-height: 200px;
     line-height: 20px;
   }
 
@@ -422,14 +431,6 @@
   }
   .userInteractionField button:hover {
     transform: rotate(360deg);
-  }
-
-  input[type="text"] {
-    all: unset;
-    width: 80%;
-    padding: 15px 20px;
-    margin: 8px 5px;
-    border-right: 1px solid #ccc;
   }
 
   input[type="file"] {
