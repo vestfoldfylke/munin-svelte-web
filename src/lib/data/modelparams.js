@@ -22,31 +22,31 @@ export const params = {
       return_full_text: true
     }
   },
-  option3: {
+  option3: { // Matematikkens byggesteiner
     message: '',
     kontekst: '',
     model: 'gpt-4o',
-    assistant_id: 'asst_BJazzPrqisexDOnT6GfE76jY',
+    assistant_id: 'asst_0I2uU1sPdSixkVp8sIuzomPC',
     new_thread: true,
     thread_id: ''
   },
-  option4: {
+  option4: { // Teoretisk matematikk 1
     message: '',
     kontekst: '',
     model: 'gpt-4o',
-    assistant_id: 'asst_r7NROIPTuk2OME5sElp4ORSl',
+    assistant_id: 'asst_KZLKUwxeVkDn86DlhOAuTlPM',
     new_thread: true,
     thread_id: ''
   },
-  option5: {
+  option5: { // Teoretisk matematikk 2
     message: '',
     kontekst: '',
     model: 'gpt-4o',
-    assistant_id: 'asst_iZz9L7JGhfTgjdgXDeR5SsgJ',
+    assistant_id: 'asst_LxcMbkhbmSpJsXvTSyblKVcq',
     new_thread: true,
     thread_id: ''
   },
-  option6: {
+  option6: { // Geologi
     message: '',
     kontekst: '',
     model: 'gpt-4o',
@@ -54,7 +54,7 @@ export const params = {
     new_thread: true,
     thread_id: ''
   },
-  option7: {
+  option7: { // VTR
     message: '',
     kontekst: '',
     model: 'gpt-4o',
@@ -62,11 +62,11 @@ export const params = {
     new_thread: true,
     thread_id: ''
   },
-  option8: {
+  option8: { // Geologi
     message: '',
     kontekst: '',
     model: 'gpt-4o',
-    assistant_id: 'asst_MZM21yV96uFVHet8O09zkKtK',
+    assistant_id: 'asst_g5BEAxNzyOcDMuSkgtV2gQy5',
     new_thread: true,
     thread_id: ''
   },
@@ -77,19 +77,19 @@ export const params = {
     model: 'o1-preview',
     base64String: ''
   },
-  option10: {
+  option10: { // Skogmo - Elev
     message: '',
     kontekst: '',
     model: 'gpt-4o',
-    assistant_id: 'asst_0nUf4eeGzahHpm50tKYVdAOg',
+    assistant_id: 'asst_3oEC7ZpAbcIgYsheQdi1UQ1g',
     new_thread: true,
     thread_id: ''
   },
-  option11: {
+  option11: { // Skogmo - Lærer
     message: '',
     kontekst: '',
     model: 'gpt-4o',
-    assistant_id: 'asst_w4CndCxQh1DZ5XTMM21cRUJw',
+    assistant_id: 'asst_3oEC7ZpAbcIgYsheQdi1UQ1g',
     new_thread: true,
     thread_id: ''
   },
