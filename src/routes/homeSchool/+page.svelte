@@ -2,13 +2,12 @@
   import { multimodalOpenAi, noraChat, openAiAssistant } from "$lib/services/openAiTools"
   import { modelinfo } from "$lib/data/modelinfo" // Tekstbeskrivelser om valgt modell
   import ChatBlobs from "$lib/components/ChatBlobs.svelte" // Komponent for å vise chatmeldinger
-  // import GPT4o from '$lib/images/GPT4o.png' // Bilde av valgt modell
   import ModelInfo from "../../lib/components/ModelInfo.svelte"
   import "@material/web/button/elevated-button"
   import { onMount, afterUpdate } from "svelte"
   import { getHuginToken } from "../../lib/useApi"
   import IconSpinner from "../../lib/components/IconSpinner.svelte"
-  import Modal from "../../lib/components/Modal.svelte"
+  import autosize from 'svelte-autosize';
 
   // Modell-parametere og payload
   const userParams = {
@@ -142,12 +141,6 @@
     }
   }
 
-  const openModal = () => {
-    // Disable scrolling when modal is open
-    document.body.style.overflow = "auto"
-    document.body.style.height = "100%"
-    showModal = true
-  }
 
 // Justerer størrelsen på opplastede bilder
 const resizeBase64Image = (base64, width, height) => {
@@ -209,8 +202,7 @@ const resizeBase64Image = (base64, width, height) => {
   }
 
   const onKeyPress = async (e) => {
-    if (e.charCode === 13) {
-      // isEnterPressed = true
+    if (e.charCode === 13 && !e.shiftKey) {
       e.preventDefault()
       scrollToBottom(chatWindow)
       brukervalg()
@@ -268,6 +260,7 @@ const resizeBase64Image = (base64, width, height) => {
           {#key userParams.synligKontekst}
             {#if userParams.synligKontekst}
               <textarea
+                use:autosize
                 id="inputKontekst"
                 placeholder="Her kan du legge inn kontekst til språkmodellen."
                 bind:value={userParams.kontekst}
@@ -307,62 +300,14 @@ const resizeBase64Image = (base64, width, height) => {
         {/each}
       {/if}
     </div>
-    {#if advancedInteractions}
-      <div class="advancedInteractions">
-        <label for="file-upload"><span class="material-symbols-outlined">upload_file</span></label>
-        <input
-          type="file"
-          id="file-upload"
-          bind:files={selectedFiles}
-          on:change={handleFileSelect}
-          accept="image/*"
-        />
-      </div>
-    {/if}
-    <div class="userInteractionField">
-      <textarea
-      name="askHugin"
-      autocomplete="off"
-      placeholder={`Spør ${appName}`}
-      rows="1"
-      bind:value={userParams.message}
-      on:keypress={onKeyPress}
-      on:input={(e) => {
-        e.target.style.height = 'auto';
-        e.target.style.height = `${e.target.scrollHeight}px`;
-      }}
-    ></textarea>
-
-      <button
-        class="link"
-        on:click={() => {
-          advancedInteractions = !advancedInteractions
-        }}><span class="material-symbols-outlined">settings</span></button
-      >
-      <input
-        class="sendButton"
-        type="button"
-        on:click={brukervalg}
-        on:keypress={onKeyPress}
-        value={`Spør ${appName}`}
-      />
+    
+    <div class="brukerInputWrapper">
+      <textarea id="brukerInput" use:autosize name="askHugin" autocomplete="off" placeholder={`Skriv inn ledetekst (Shift + Enter for flere linjer)`} bind:value={userParams.message} on:keypress={onKeyPress}></textarea>
+      <label for="imageButton"><span class="material-symbols-outlined">add_photo_alternate</span>
+        <input id="imageButton" type="file" bind:files={selectedFiles} on:change={handleFileSelect} accept="image/*" style="display: none;"/></label>
+      <label for="sendButton"><span class="material-symbols-outlined">send</span>
+        <input id="sendButton" type="button" on:click={brukervalg} on:keypress={onKeyPress} value={`Spør ${appName}`} style="display: none;"/></label>
     </div>
-    {#if isError} <!-- Droppe modal på denne? -->
-      <Modal bind:showModal>
-        <h2 slot="header">Error</h2>
-        <h3>Noe gikk galt ⛔</h3>
-        <div class="centerstuff">
-          <p>
-            {JSON.stringify(
-              errorMessage.response?.data ||
-                errorMessage.stack ||
-                errorMessage.message
-            )}
-          </p>
-        </div>
-        <div class="errorMsg">{JSON.stringify(errorMessage)}</div>
-      </Modal>
-    {/if}
   {/if}
   <br><p>Husk at språkmodeller lager tekst som kan inneholde feil. Sjekk alltid flere kilder og bruk sunn fornuft når du bruker KI-tjenester.<br> Ikke send inn data som kan være sensitive eller inneholder informasjon som ikke kan deles offentlig</p><br>
 </main>
@@ -379,8 +324,6 @@ const resizeBase64Image = (base64, width, height) => {
   }
 
 textarea {
-    padding: 10px;
-    margin: 10px;
     display: block;
     width: 100%;
     overflow-y: scroll;
@@ -388,6 +331,13 @@ textarea {
     min-height: 40px;
     max-height: 200px;
     line-height: 20px;
+  }
+
+  #brukerInput {
+    border: none;
+    outline: none;
+    background: none;
+    flex-grow: 1;
   }
 
   .boxyHeader {
@@ -413,28 +363,21 @@ textarea {
     background-color: var(--gress-10);
     font-size: 1.8rem;
     border-radius: 5px;
-    padding: 10px;
-    margin: 10px;
+    padding: 5px;
+    margin: 5px;
   }
 
   label .material-symbols-outlined:hover {
     background-color: var(--gress-50);
   }
 
-  .userInteractionField {
+  .brukerInputWrapper {
     display: flex;
     width: 100%;
     border: 1px solid #ccc;
-  }
-  .userInteractionField button {
-    transition: transform 0.7s ease-in-out;
-  }
-  .userInteractionField button:hover {
-    transform: rotate(360deg);
-  }
-
-  input[type="file"] {
-    display: none;
+    padding-left: 10px;
+    padding-top: 10px;
+    background-color: #fffafa;
   }
 
   .output {
@@ -448,16 +391,6 @@ textarea {
     overflow-y: scroll;
   }
 
-  /* .right {
-    float: right;
-    width: 30%;
-    padding: 10px;
-    margin-right: 80px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    margin-bottom: 10px;
-  } */
-
   .modelTampering {
     border: 1px solid #ccc;
     border-radius: 5px;
@@ -466,18 +399,31 @@ textarea {
     width: 100%;
   }
 
-  .sendButton {
-    padding: 15px;
-    margin: 8px;
-    background-color: var(--gress-10);
-    color: white;
+#imageButton {
+  background-color: #e0e0e0;
     border: none;
-    border-radius: 5px;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
-    color: black;
   }
 
-  .sendButton:hover {
+  #sendButton {
+    background-color: #e0e0e0;
+    border: none;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+
+  #sendButton:hover {
     background-color: var(--gress-50);
   }
 
