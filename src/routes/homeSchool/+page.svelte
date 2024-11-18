@@ -24,21 +24,16 @@
   }
 
   // Variabler for håndtering av data og innhold i frontend
-  let outputElement
-  let tekstFraPdf = "" // Brukes ikke....Ennå
   let selectedFiles = []
   let respons
   let modelinfoModell = modelinfo[userParams.valgtModell].navn
   let modelinfoBeskrivelse = modelinfo[userParams.valgtModell].description
-  let illustrasjonsbilde = modelinfo[userParams.valgtModell].illustrasjonsbilde
   let modelTampering = false // Viser modellinformasjon
-  let advancedInteractions = false
   let token = null
   let chatWindow
-  let isWaiting = false
+  let isWaiting = false // Venter på svar fra modell
   let isError = false
   let errorMessage = ""
-  let showModal = false
   const appName = import.meta.env.VITE_APP_NAME
 
   // Starter med en velkomstmelding
@@ -75,7 +70,6 @@
     // Get the textarea and set the height
     const textarea = document.querySelector("textarea")
     textarea.style.height = "50px"
-
     try {
       // GPT-4o
       if (userParams.valgtModell === "option1") {
@@ -103,7 +97,7 @@
         scrollToBottom(chatWindow)
         isWaiting = false
 
-      // Fagbotter
+      // Fagbotter - Matematikk og Geologi
       } else if (userParams.valgtModell === "option3" || userParams.valgtModell === "option4"  || userParams.valgtModell === "option5" || userParams.valgtModell === "option6" || userParams.valgtModell === "option7" || userParams.valgtModell === "option8") {
         userParams.messageHistory.push({
           role: "user",
@@ -116,19 +110,7 @@
         userParams.threadId = respons.thread_id
         scrollToBottom(chatWindow)
         isWaiting = false
-
-        // Klargjort for GPT-o1-preview
-      } else if (userParams.valgtModell === "option9") {
-        userParams.synligKontekst = true
-        userParams.messageHistory.push({
-          role: "user",
-          content: userParamsCopy.message,
-        })
-        respons = await multimodalOpenAi(userParams)
-        userParams.messageHistory.push({ role: "assistant", content: respons })
-        scrollToBottom(chatWindow)
-        isWaiting = false
-      }
+      } 
     } catch (error) {
       isError = true
       errorMessage = error
@@ -137,10 +119,8 @@
         role: "assistant",
         content: "Noe gikk galt. Prøv igjen.",
       })
-      openModal()
     }
   }
-
 
 // Justerer størrelsen på opplastede bilder
 const resizeBase64Image = (base64, width, height) => {
@@ -215,8 +195,6 @@ const resizeBase64Image = (base64, width, height) => {
       scrollToBottom(chatWindow)
     }
   })
-
-
 </script>
 
 <main>
@@ -253,30 +231,12 @@ const resizeBase64Image = (base64, width, height) => {
 
       {#if modelTampering}
         <div class="boxy" id="testBox">
-          <ModelInfo
-            modelinfo={modelinfoModell}
-            infoText={modelinfoBeskrivelse}
-          />
+          <ModelInfo modelinfo={modelinfoModell} infoText={modelinfoBeskrivelse} />
           {#key userParams.synligKontekst}
             {#if userParams.synligKontekst}
-              <textarea
-                use:autosize
-                id="inputKontekst"
-                placeholder="Her kan du legge inn kontekst til språkmodellen."
-                bind:value={userParams.kontekst}
-                rows="4"
-                cols="auto"
-              ></textarea>
+              <textarea use:autosize id="inputKontekst" placeholder="Her kan du legge inn kontekst til språkmodellen." bind:value={userParams.kontekst} rows="4" cols="auto"></textarea>
               <label for="temperatur">Temperatur: </label>
-              <input
-                type="range"
-                id="temperatur"
-                name="temperatur"
-                min="0"
-                max="2"
-                step="0.1"
-                bind:value={userParams.temperatur}
-              />
+                <input type="range" id="temperatur" name="temperatur" min="0" max="2" step="0.1" bind:value={userParams.temperatur}/>
               {userParams.temperatur}
             {/if}
           {/key}
@@ -376,7 +336,6 @@ textarea {
     width: 100%;
     border: 1px solid #ccc;
     padding-left: 10px;
-    padding-top: 10px;
     background-color: #fffafa;
   }
 
@@ -439,25 +398,6 @@ textarea {
     display: flex;
     justify-content: center;
     align-items: center;
-  }
-
-  .errorMsg {
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    padding: 10px;
-    margin: 10px;
-    justify-content: center;
-    width: 97%;
-    height: 20vh;
-    overflow: auto;
-  }
-
-  .centerstuff {
-    display: flex;
-    flex-direction: column;
-    flex-wrap: wrap;
-    justify-content: center;
-    padding: 5px;
   }
 
   @media only screen and (max-width: 768px) {
