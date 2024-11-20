@@ -1,7 +1,3 @@
-// Parametre som sendes til backend og api
-
-const appName = import.meta.env.VITE_APP_NAME
-console.log('appName', appName)
 
 export const params = {
   option1: {
@@ -30,7 +26,7 @@ export const params = {
     message: '',
     kontekst: '',
     model: 'gpt-4o',
-    assistant_id: appName === 'Hugin' ? 'asst_0I2uU1sPdSixkVp8sIuzomPC' : 'asst_tBIc3OGl8pyEiSygIYfE41AD', // Hugin eller Munin
+    assistant_id: import.meta.env.VITE_ASSISTANT_MB,
     new_thread: true,
     thread_id: ''
     },
@@ -38,7 +34,7 @@ export const params = {
     message: '',
     kontekst: '',
     model: 'gpt-4o',
-    assistant_id: appName === 'Hugin' ? 'asst_KZLKUwxeVkDn86DlhOAuTlPM' : 'asst_7tenDoQ3L6pjvVXqqLv22N56', // Hugin eller Munin
+    assistant_id: import.meta.env.VITE_ASSISTANT_TM1,
     new_thread: true,
     thread_id: ''
   },
@@ -46,7 +42,7 @@ export const params = {
     message: '',
     kontekst: '',
     model: 'gpt-4o',
-    assistant_id: appName === 'Hugin' ? 'asst_LxcMbkhbmSpJsXvTSyblKVcq' : 'asst_LHGHomFUX9zEwCEig2eHSrnt', // Hugin eller Munin
+    assistant_id: import.meta.env.VITE_ASSISTANT_TM2,
     new_thread: true,
     thread_id: ''
   },
@@ -54,7 +50,7 @@ export const params = {
     message: '',
     kontekst: '',
     model: 'gpt-4o',
-    assistant_id: appName === 'Hugin' ? 'asst_PjgBFDXTELeMF6vXKvhlOZrH' : 'asst_Qx5vog8wFLmBiEXofs4gQDko', // Hugin eller Munin
+    assistant_id: '',
     new_thread: true,
     thread_id: ''
   },
@@ -62,7 +58,7 @@ export const params = {
     message: '',
     kontekst: '',
     model: 'gpt-4o',
-    assistant_id: 'asst_kleLVY0hLwXAgcgxoBgzwqLA',
+    assistant_id:'',
     new_thread: true,
     thread_id: ''
   },
@@ -70,7 +66,7 @@ export const params = {
     message: '',
     kontekst: '',
     model: 'gpt-4o',
-    assistant_id: appName === 'Hugin' ? 'asst_g5BEAxNzyOcDMuSkgtV2gQy5' : 'asst_Qx5vog8wFLmBiEXofs4gQDko',
+    assistant_id: import.meta.env.VITE_ASSISTANT_GEOLOGI,
     new_thread: true,
     thread_id: ''
   },
@@ -85,7 +81,7 @@ export const params = {
     message: '',
     kontekst: '',
     model: 'gpt-4o',
-    assistant_id: 'asst_3oEC7ZpAbcIgYsheQdi1UQ1g',
+    assistant_id: import.meta.env.VITE_ASSISTANT_SKOGMO_ELEV,
     new_thread: true,
     thread_id: ''
   },
@@ -93,7 +89,7 @@ export const params = {
     message: '',
     kontekst: '',
     model: 'gpt-4o',
-    assistant_id: 'asst_VbXY4QAm0IoMXfMp9RvmcByF',
+    assistant_id: import.meta.env.VITE_ASSISTANT_SKOGMO_LAERER,
     new_thread: true,
     thread_id: ''
   },
