@@ -1,6 +1,6 @@
 <script>
-  import { multimodalOpenAi, noraChat, openAiAssistant } from "$lib/services/openAiTools"
-  import { modelinfo } from "$lib/data/modelinfo" // Tekstbeskrivelser om valgt modell
+  import { multimodalOpenAi, noraChat, openAiAssistant } from "../../lib/services/openAiTools"
+  import { modelinfo } from "../../lib/data/modelinfo" // Tekstbeskrivelser om valgt modell
   import ChatBlobs from "$lib/components/ChatBlobs.svelte" // Komponent for å vise chatmeldinger
   // import GPT4o from '$lib/images/GPT4o.png' // Bilde av valgt modell
   import ModelInfo from "../../lib/components/ModelInfo.svelte"
