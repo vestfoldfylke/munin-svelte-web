@@ -37,6 +37,9 @@
         {#if token.roles.includes(`${appName.toLowerCase()}.admin`)}
           <CardButton header={'Dokumentspørring'} imgPath={doc} imgAlt={'Ikon bilde av et dokument'} gotoPath={'/docQuery'} paragraph={'Trykk her hvis du vil bruke KI til spørre og jobbe med egne dokumenter.'} boolValue={true}><span class="material-symbols-outlined">find_in_page</span></CardButton>
         {/if}
+        {#if token.roles.includes(`${appName.toLowerCase()}.admin`)}
+          <CardButton header={'Transkripsjon'} imgPath={doc} imgAlt={'Ikon bilde av et dokument'} gotoPath={'/transcript'} paragraph={'Trykk her hvis du vil bruke KI til å transkribere tale.'} boolValue={true}><span class="material-symbols-outlined">interpreter_mode</span></CardButton>
+        {/if}
         {#if token.roles.includes(`${appName.toLowerCase()}.labs`) || token.roles.includes(`${appName.toLowerCase()}.admin`)}
           <CardButton header={'Pilot'} imgPath={eksperiment} imgAlt={'Ikon bilde av et reagensrør'} gotoPath={'/labs'} paragraph={'Trykk her for labs.'} boolValue={true}><span class="material-symbols-outlined">experiment</span></CardButton>
         {/if}
