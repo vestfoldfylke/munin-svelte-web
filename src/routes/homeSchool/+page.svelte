@@ -269,7 +269,7 @@ const resizeBase64Image = (base64, width, height) => {
         <input id="sendButton" type="button" on:click={brukervalg} on:keypress={onKeyPress} value={`Spør ${appName}`} style="display: none;"/></label>
     </div>
   {/if}
-  <br><p>Husk at språkmodeller lager tekst som kan inneholde feil. Sjekk alltid flere kilder og bruk sunn fornuft når du bruker KI-tjenester.<br> Ikke send inn data som kan være sensitive eller inneholder informasjon som ikke kan deles offentlig</p><br>
+  <br><p style="font-size: 14px;font-color: light-grey">Husk at språkmodeller lager tekst som kan inneholde feil. Sjekk alltid flere kilder og bruk sunn fornuft når du bruker KI-tjenester.<br> Ikke send inn data som kan være sensitive eller inneholder informasjon som ikke kan deles offentlig.</p><br>
 </main>
 
 <style>
@@ -292,12 +292,32 @@ textarea {
     max-height: 200px;
     line-height: 20px;
   }
+  
+  .brukerInputWrapper {
+    display: flex;
+    width: 100%;
+    border: 1px solid #ccc;
+    padding-left: 10px;
+    background-color: #fffafa;
+    position: relative;
+    align-items: center;
+  }
 
   #brukerInput {
     border: none;
     outline: none;
     background: none;
     flex-grow: 1;
+    padding-top: 15px;
+    padding-bottom: 5px;
+  }
+
+  #brukerInput::placeholder {
+    padding-top: 5px;
+  }
+
+  #brukerInput:focus::placeholder {
+  color: transparent;
   }
 
   .boxyHeader {
@@ -329,14 +349,6 @@ textarea {
 
   label .material-symbols-outlined:hover {
     background-color: var(--gress-50);
-  }
-
-  .brukerInputWrapper {
-    display: flex;
-    width: 100%;
-    border: 1px solid #ccc;
-    padding-left: 10px;
-    background-color: #fffafa;
   }
 
   .output {
