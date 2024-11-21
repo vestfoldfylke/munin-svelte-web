@@ -88,6 +88,15 @@
     padding: 10px;
     width: 50%;
   }
+
+  audio {
+    margin-top: 20px;
+  }
+
+  button {
+    margin-right: 10px;
+  }
+
 </style>
 
 
