@@ -69,6 +69,7 @@
     isWaiting = true
     // Get the textarea and set the height
     const textarea = document.querySelector("textarea")
+    textarea.style.height = "60px"
     try {
       // GPT-4o
       if (userParams.valgtModell === "option1") {
