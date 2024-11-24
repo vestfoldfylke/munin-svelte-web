@@ -222,8 +222,9 @@ const resizeBase64Image = (base64, width, height) => {
               Trykk her for å lukke<span class="material-symbols-outlined">keyboard_arrow_up</span>
             </button>
           {:else}
-            <button class="link" on:click={() => { modelTampering = !modelTampering }}>
-              Trykk her for å lese mer om modellen<span class="material-symbols-outlined">keyboard_arrow_down</span>
+            <button id="modelinfoButton" class="link" on:click={() => { modelTampering = !modelTampering }}>
+              Trykk her for å legge inn kontekst og systemledetekster<br>
+              Les mer om modellen og dens egenskaper<span class="material-symbols-outlined">keyboard_arrow_down</span>
             </button>
           {/if}
         </div>
@@ -282,6 +283,12 @@ const resizeBase64Image = (base64, width, height) => {
     height: calc(85vh);
     margin: 10px;
   }
+
+#modelinfoButton {
+  border: 1px solid #ccc;
+  padding: 3px 10px 3px 10px;
+  background-color: #f5f5f5;
+}
 
 textarea {
     display: block;
