@@ -79,7 +79,7 @@
       <div class="loading">
         <IconSpinner width={"32px"} />
       </div>
-    {:else if !token.roles.some( (r) => [`${appName.toLowerCase()}.basic`, `${appName.toLowerCase()}.admin`].includes(r) )}
+    {:else if !token.roles.some( (r) => [`${appName.toLowerCase()}.admin`].includes(r) )}
       <p>Oi, du har ikke tilgang. Prøver du deg på noe lurt? 🤓</p>
 {:else}
   <h1>Selvbetjeningsløsning for transkripsjon av tale</h1>
