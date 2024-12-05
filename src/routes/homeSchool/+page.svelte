@@ -1,4 +1,5 @@
 <script>
+  import { docQueryOpenAi } from "$lib/services/openAiTools"
   import { multimodalOpenAi, noraChat, openAiAssistant } from "../../lib/services/openAiTools"
   import { multimodalMistral } from "$lib/services/mistralTools"
   import { modelinfo } from "../../lib/data/modelinfo" // Tekstbeskrivelser om valgt modell
@@ -9,6 +10,7 @@
   import { getHuginToken } from "../../lib/useApi"
   import IconSpinner from "../../lib/components/IconSpinner.svelte"
   import autosize from 'svelte-autosize';
+  import Modal from "../../lib/components/Modal.svelte"
 
   // Modell-parametere og payload
   const userParams = {
@@ -21,10 +23,19 @@
     valgtModell: "option1", // Default modell GPT-4o
     base64String: "",
     temperatur: 0.7, // Default temperatur
-    synligKontekst: true,
+    synligKontekst: true,  
+    assistant: "docQuery",
+    newThread: true,
+    threadId: "",
+    vectorStoreId: "",      
+    fil: "Fil ikke valgt",
+    filArray: "",
   }
 
   // Variabler for håndtering av data og innhold i frontend
+  let files;
+  let svar;
+  let showModal = false
   let selectedFiles = []
   let respons
   let modelinfoModell = modelinfo[userParams.valgtModell].navn
@@ -183,7 +194,6 @@ const resizeBase64Image = (base64, width, height) => {
             content: await resizeBase64Image(reader.result, 400, 400),
           })
           userParams.base64String = reader.result
-          // console.log("base64String", userParams.base64String)
         } catch (error) {
           console.log("Noe gikk galt", error)
         }
@@ -196,11 +206,11 @@ const resizeBase64Image = (base64, width, height) => {
     scrollToBottom(chatWindow)
   }
 
-  const onKeyPress = async (e) => {
+  const onKeyPress = async (e, callback) => {
     if (e.charCode === 13 && !e.shiftKey) {
       e.preventDefault()
       scrollToBottom(chatWindow)
-      brukervalg()
+      callback()
     }
   }
 
@@ -210,6 +220,38 @@ const resizeBase64Image = (base64, width, height) => {
       scrollToBottom(chatWindow)
     }
   })
+
+  // beta-sjekk
+  let isBeta = false;
+  if (window.location.search.includes('?beta')) {
+  isBeta = true;
+  }
+
+  async function sporDokument() {
+    userParams.fil = files ? files[0].name : "Ingen fil valgt"
+    isWaiting = true
+    userParams.messageHistory.push({
+          role: "user",
+          content: userParams.message,
+        })
+    try {
+      respons = await docQueryOpenAi(files, userParams).then((response) => {
+        const l = JSON.parse(response).data.messages.length;
+        svar = JSON.parse(response).data.messages[l - 1].content[0].text.value;
+        // Get last message from data.messages
+        userParams.newThread = false;
+        userParams.vectorStoreId = JSON.parse(response).data.vectorStore_id;
+        userParams.threadId = JSON.parse(response).data.thread_id;
+        userParams.fil = files[0].name;
+      });
+      userParams.messageHistory.push({ role: "assistant", content: svar });
+      scrollToBottom(chatWindow)
+      userParams.message = "";
+      isWaiting = false
+    } catch (e) {
+      console.log("Oj, noe gikk galt!", e);
+    }
+  }
 </script>
 
 <main>
@@ -283,14 +325,64 @@ const resizeBase64Image = (base64, width, height) => {
     </div>
     
     <div class="brukerInputWrapper">
-      <textarea id="brukerInput" use:autosize name="askHugin" autocomplete="off" placeholder={`Skriv inn ledetekst (Shift + Enter for flere linjer)`} bind:value={userParams.message} on:keypress={onKeyPress}></textarea>
+      <textarea 
+        id="brukerInput" 
+        use:autosize 
+        name="askHugin" 
+        autocomplete="off" 
+        placeholder={`Skriv inn ledetekst (Shift + Enter for flere linjer)`} 
+        bind:value={userParams.message} 
+        on:keypress={(e) => onKeyPress(e, files && files.length > 0 ? sporDokument : brukervalg)}></textarea>
+
+      {#if isBeta}
+        <label for="fileButton"><span class="material-symbols-outlined">cloud_upload</span>
+          <input style="display:none;" bind:files={files} id="fileButton" multiple type="file" accept=".xls, .xlsx, .docx, .pdf, .txt, .json, .md, .pptx" />
+        </label>
+        <!--span>{files && files.length > 0 ? files[0].name : ""}</span-->
+        {#if files && files.length > 0}
+          <div class="fileName flash">
+            {files[0].name}
+            <button 
+              class="removeFile" 
+              on:click={() => { files = null; selectedFiles = []; document.getElementById('fileButton').value = '';}} 
+              aria-label="Remove file">
+              &times;
+            </button>
+          </div>
+        {/if}
+<style>
+
+  
+</style>       
+        {#if isError}
+          <Modal bind:showModal>
+            <h2 slot="header">Error</h2>
+            <h3>Noe gikk galt ⛔</h3>
+            <div class="centerstuff">
+              <p>
+                {JSON.stringify(
+                  errorMessage.response?.data ||
+                    errorMessage.stack ||
+                    errorMessage.message
+                )}
+              </p>
+            </div>
+            <div class="errorMsg">{JSON.stringify(errorMessage)}</div>
+          </Modal>
+        {/if}
+      {/if}
       <label for="imageButton"><span class="material-symbols-outlined">add_photo_alternate</span>
-        <input id="imageButton" type="file" bind:files={selectedFiles} on:change={handleFileSelect} accept="image/*" style="display: none;"/></label>
+      <input id="imageButton" type="file" bind:files={selectedFiles} on:change={handleFileSelect} accept="image/*" style="display: none;"/></label>
       <label for="sendButton"><span class="material-symbols-outlined">send</span>
-        <input id="sendButton" type="button" on:click={brukervalg} on:keypress={onKeyPress} value={`Spør ${appName}`} style="display: none;"/></label>
+        <input id="sendButton" type="button" on:click={files && files.length > 0 ? sporDokument : brukervalg}  value={`Spør ${appName}`} style="display: none;"/></label>
     </div>
   {/if}
-  <br><p style="font-size: 14px;font-color: light-grey">Husk at språkmodeller lager tekst som kan inneholde feil eller være upresis. Vurder alltid om bruken av språkteknologi passer med formålet ditt.<br>Dersom du forventer en presis eller "riktig" respons, så er det særlig viktig å kontrollere opp mot andre kilder. Ikke send inn data som inneholder opplysninger om deg selv eller andre personer.<br> {appName} skal ikke brukes i noen sammenheng der det skal utarbeides grunnlag for enkeltvedtak, og som kan medføre risiko for brudd på god forvaltningsskikk.</p><br>
+  <br>
+  <p style="font-size: 14px;font-color: light-grey">
+    Husk at språkmodeller lager tekst som kan inneholde feil eller være upresis. Vurder alltid om bruken av språkteknologi passer med formålet ditt.<br>Dersom du forventer en presis eller "riktig" respons, så er det særlig viktig å kontrollere opp mot andre kilder.
+    Ikke send inn data som inneholder opplysninger om deg selv eller andre personer.<br> {appName} skal ikke brukes i noen sammenheng der det skal utarbeides grunnlag for enkeltvedtak, og som kan medføre risiko for brudd på god forvaltningsskikk.
+  </p>
+  <br>
 </main>
 
 <style>
@@ -397,6 +489,48 @@ textarea {
     width: 100%;
   }
 
+  .fileName {
+    display: inline-block;
+    position: relative;
+    padding-right: 20px;
+  }
+
+  @keyframes flash {
+    0% {
+      background-color: transparent;
+    } 
+    50% {
+      background-color: #f1f59f;
+    }
+    100% {
+      background-color: transparent;
+    }
+  }
+
+  .flash {
+  animation: flash 2s ease-in-out;
+  }
+
+  .removeFile {
+    position: absolute;
+    top: 0;
+    right: 4px;
+    background: red;
+    color: white;
+    border-radius: 50%;
+    width: 13px !important; /* veien til helvete er brolagt med !important css */
+    height: 13px !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 0px 1px 1px 0px;
+    border: 0;
+    font-size: 12px;
+  }
+
+/* Tror ikke disse gjør noe...
+
 #imageButton {
   background-color: #e0e0e0;
     border: none;
@@ -423,7 +557,7 @@ textarea {
 
   #sendButton:hover {
     background-color: var(--gress-50);
-  }
+  }*/
 
   .modellSelect {
     padding: 10px;
