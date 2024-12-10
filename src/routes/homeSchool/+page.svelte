@@ -379,8 +379,8 @@ const resizeBase64Image = (base64, width, height) => {
   {/if}
   <br>
   <p style="font-size: 14px;font-color: light-grey">
-    Husk at språkmodeller lager tekst som kan inneholde feil. Sjekk alltid flere kilder og bruk sunn fornuft når du bruker KI-tjenester.<br> 
-    Ikke send inn data som kan være sensitive eller inneholder informasjon som ikke kan deles offentlig.</p>
+    Husk at språkmodeller lager tekst som kan inneholde feil. Vurder alltid om bruken av språkteknologi passer med formålet ditt.<br> 
+    Ikke send inn data som kan være sensitive eller inneholder informasjon som ikke kan deles offentlig. <a href="https://www.vestfoldfylke.no/no/meny/tjenester/opplaring/digitale-laringsressurser-til-videregaende-opplaring/munin/">Les mer om bruk av {appName} her.</a></p>
   <br>
 </main>
 
