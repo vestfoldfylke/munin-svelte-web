@@ -104,7 +104,7 @@ export const params = {
   option13: {
     message: '',
     kontekst: '',
-    model: 'mistral-large-latest',
+    model: 'pixtral-large-latest',
     assistant_id: '',
     new_thread: false,
     thread_id: ''

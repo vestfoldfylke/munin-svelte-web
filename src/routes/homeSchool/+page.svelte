@@ -124,7 +124,7 @@
         isWaiting = false
       }
 
-      // Mistral
+      // Pixtral
       else if (userParams.valgtModell === "option13") {
         userParams.messageHistory.push({
           role: "user",
@@ -267,9 +267,7 @@ const resizeBase64Image = (base64, width, height) => {
       <div class="boxyHeader">
         <select class="modellSelect" on:change={valgtModell}>
           <option value="option1" default>GPT-4o</option>
-          {#if token.roles.some( (r) => [`${appName.toLowerCase()}.basic`, `${appName.toLowerCase()}.admin`].includes(r) )}
-            <option value="option13">Mistral - Eksperimentell</option>
-          {/if}
+          <option value="option13">Mistral Large</option>
           <option value="option2">Nora - Eksperimentell</option>
           <option value="option3">Matematikkens byggesteiner</option>
           <option value="option4">Teoretisk matematikk Nivå 1</option>
