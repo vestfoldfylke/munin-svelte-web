@@ -46,6 +46,7 @@
   let isWaiting = false // Venter på svar fra modell
   let isError = false
   let errorMessage = ""
+  let inputMessage = ""
   const appName = import.meta.env.VITE_APP_NAME
 
   // Starter med en velkomstmelding
@@ -82,6 +83,8 @@
     // Get the textarea and set the height
     const textarea = document.querySelector("textarea")
     textarea.style.height = "60px"
+    userParams.message = inputMessage
+    inputMessage = ""
     try {
       // GPT-4o
       if (userParams.valgtModell === "option1") {
@@ -89,7 +92,6 @@
           role: "user",
           content: userParams.message,
         })
-        userParams.message = ""
         respons = await multimodalOpenAi(userParams)
         userParams.messageHistory.push({ role: "assistant", content: respons })
         scrollToBottom(chatWindow)
@@ -103,7 +105,6 @@
           role: "user",
           content: message,
         })
-        userParams.message = ""
         respons = await noraChat(userParams)
         userParams.messageHistory.push({ role: "assistant", content: respons })
         scrollToBottom(chatWindow)
@@ -115,7 +116,6 @@
           role: "user",
           content: userParams.message,
         })
-        userParams.message = ""
         respons = await openAiAssistant(userParams)
         userParams.messageHistory.push({ role: "assistant", content: respons.messages[0].content[0].text.value })
         userParams.newThread = false
@@ -130,7 +130,6 @@
           role: "user",
           content: userParams.message,
         })
-        userParams.message = ""
         respons = await multimodalMistral(userParams)
         console.log("History:", userParams.messageHistory)
         userParams.messageHistory.push({ role: "assistant", content: respons })
@@ -230,6 +229,8 @@ const resizeBase64Image = (base64, width, height) => {
   async function sporDokument() {
     userParams.fil = files ? files[0].name : "Ingen fil valgt"
     isWaiting = true
+    userParams.message = inputMessage
+    inputMessage = ""
     userParams.messageHistory.push({
           role: "user",
           content: userParams.message,
@@ -246,7 +247,6 @@ const resizeBase64Image = (base64, width, height) => {
       });
       userParams.messageHistory.push({ role: "assistant", content: svar });
       scrollToBottom(chatWindow)
-      userParams.message = "";
       isWaiting = false
     } catch (e) {
       console.log("Oj, noe gikk galt!", e);
@@ -329,7 +329,7 @@ const resizeBase64Image = (base64, width, height) => {
         name="askHugin" 
         autocomplete="off" 
         placeholder={`Skriv inn ledetekst (Shift + Enter for flere linjer)`} 
-        bind:value={userParams.message} 
+        bind:value={inputMessage} 
         on:keypress={(e) => onKeyPress(e, files && files.length > 0 ? sporDokument : brukervalg)}></textarea>
 
       {#if token.roles.some( (r) => [`${appName.toLowerCase()}.admin`].includes(r) )}
