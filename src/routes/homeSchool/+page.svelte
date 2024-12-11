@@ -267,7 +267,7 @@ const resizeBase64Image = (base64, width, height) => {
       <div class="boxyHeader">
         <select class="modellSelect" on:change={valgtModell}>
           <option value="option1" default>GPT-4o</option>
-          <option value="option13">Mistral Large</option>
+          <option value="option13">Mistral</option>
           <option value="option2">Nora - Eksperimentell</option>
           <option value="option3">Matematikkens byggesteiner</option>
           <option value="option4">Teoretisk matematikk Nivå 1</option>
@@ -347,11 +347,7 @@ const resizeBase64Image = (base64, width, height) => {
               &times;
             </button>
           </div>
-        {/if}
-<style>
-
-  
-</style>       
+        {/if}     
         {#if isError}
           <Modal bind:showModal>
             <h2 slot="header">Error</h2>
