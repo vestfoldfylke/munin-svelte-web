@@ -43,8 +43,8 @@
         transition: 0.3s;
         border-radius: 1rem;
         margin: 1rem;
-        width: 310px;
-        height: 310px;
+        width: 210px;
+        height: 210px;
         padding: 16px;
         display: flex;
         flex-direction: column;
@@ -55,7 +55,7 @@
 
     .card:hover {
         box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
-        background: linear-gradient(rgb(255, 255, 255), rgb(178, 203, 207));
+        background: linear-gradient(rgb(255, 255, 255), var(--gress-10));
         /* background-color: var(--himmel-30); */
         cursor: pointer;
     }
@@ -89,7 +89,7 @@
         justify-content: center;
         align-items: center;
         margin-top: bottom;
-        padding: 50px;
+        padding: 20px;
     }
 
     @media only screen and (max-width: 768px) {

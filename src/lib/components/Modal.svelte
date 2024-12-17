@@ -1,6 +1,6 @@
 <script>
 	export let showModal; // boolean
-
+	export let buttonText = "Lukk"; // string
 	let dialog; // HTMLDialogElement
 
 	$: if (dialog && showModal) dialog.showModal();
@@ -31,7 +31,7 @@
 		<!-- svelte-ignore a11y-autofocus -->
         <div class="buttons">
             <slot name="saveButton"></slot>
-		    <button autofocus on:click={() => closeModal()}>Avbryt</button>
+		    <button autofocus on:click={() => closeModal()}>{buttonText}</button>
         </div>
 	</div>
 </dialog>

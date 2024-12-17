@@ -72,9 +72,10 @@
         </div>
         <a href="/" title="Gå til forsiden" class="appTitle"><h1>{ appName }</h1></a>
         <div class="topbarOptions">
-          <button class="link" on:click={() => { goto("/") }}>
+          <!-- logg ut fungerer ikke, Hjem er dekket av å trykker på header-tittel. Holder kanskje?-->
+          <!--button class="link" on:click={() => { goto("/") }}>
             <span class="material-symbols-outlined">logout</span>Hjem / Logg ut</button>
-          <button class="link" on:click={() => { goto("/homeSchool") }}><span class="material-symbols-outlined">chat</span>{appName}</button>
+          <button class="link" on:click={() => { goto("/homeSchool") }}><span class="material-symbols-outlined">chat</span>{appName}</button-->
         </div>
       </div>
     </div>
@@ -92,32 +93,39 @@
   .appTitle {
     color: black;
     text-decoration: none;
+    flex-grow: 1;
+    text-align: center;
   }
   .topbar {
     width: 100%;
     background-color: var(--gress-10);
-    padding: 00px 0px;
+    padding: 0px 0px;
   }
   .toptop {
     width: 100%;
+    height: 80px;
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
     padding: 10px 40px 10px 40px;
+    position: relative;
   }
   .topbarOptions {
-    float: right;
     display: flex;
     flex-direction: column;
     align-items: self-end;
   }
   .logo {
     width: 180px;
+    margin-right: 50px;
+    left: 40px;
+    position: absolute;
+    top: 10px;
   }
   .content {
     padding: 10px;
     margin: auto;
-    max-width: 1440px;
+    max-width: 1000px;
   }
   
   .loading {
@@ -140,6 +148,8 @@
     }
     .logo {
       width: 92px;
+      margin-right: 0;
+      left: 5px;
     }
     .content {
       padding: 5px;

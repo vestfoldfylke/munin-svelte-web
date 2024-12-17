@@ -6,7 +6,7 @@
   import ChatBlobs from "$lib/components/ChatBlobs.svelte" // Komponent for å vise chatmeldinger
   import ModelInfo from "../../lib/components/ModelInfo.svelte"
   import "@material/web/button/elevated-button"
-  import { onMount, afterUpdate } from "svelte"
+  import { onMount, afterUpdate, tick } from "svelte"
   import { getHuginToken } from "../../lib/useApi"
   import IconSpinner from "../../lib/components/IconSpinner.svelte"
   import autosize from 'svelte-autosize';
@@ -80,6 +80,9 @@
   // Kaller på valgt modell med tilhørende parametre basert på brukerens valg
   const brukervalg = async () => {
     isWaiting = true
+    await tick()
+    scrollToBottom(chatWindow)
+
     // Get the textarea and set the height
     const textarea = document.querySelector("textarea")
     textarea.style.height = "60px"
@@ -94,8 +97,9 @@
         })
         respons = await multimodalOpenAi(userParams)
         userParams.messageHistory.push({ role: "assistant", content: respons })
-        scrollToBottom(chatWindow)
         isWaiting = false
+        await tick()
+        await scrollToBottom(chatWindow)
 
       // Nora
       }  else if (userParams.valgtModell === "option2") {
@@ -107,7 +111,8 @@
         })
         respons = await noraChat(userParams)
         userParams.messageHistory.push({ role: "assistant", content: respons })
-        scrollToBottom(chatWindow)
+        await tick()
+        await scrollToBottom(chatWindow)
         isWaiting = false
 
       // Fagbotter - Matematikk og Geologi
@@ -120,7 +125,8 @@
         userParams.messageHistory.push({ role: "assistant", content: respons.messages[0].content[0].text.value })
         userParams.newThread = false
         userParams.threadId = respons.thread_id
-        scrollToBottom(chatWindow)
+        await tick()
+        await scrollToBottom(chatWindow)
         isWaiting = false
       }
 
@@ -133,7 +139,8 @@
         respons = await multimodalMistral(userParams)
         console.log("History:", userParams.messageHistory)
         userParams.messageHistory.push({ role: "assistant", content: respons })
-        scrollToBottom(chatWindow)
+        await tick()
+        await scrollToBottom(chatWindow)
         isWaiting = false
       }
     } catch (error) {
@@ -220,7 +227,7 @@ const resizeBase64Image = (base64, width, height) => {
     }
   })
 
-  // beta-sjekk
+  // b
   let isBeta = false;
   if (window.location.search.includes('?beta')) {
   isBeta = true;
@@ -246,7 +253,8 @@ const resizeBase64Image = (base64, width, height) => {
         userParams.fil = files[0].name;
       });
       userParams.messageHistory.push({ role: "assistant", content: svar });
-      scrollToBottom(chatWindow)
+      await tick()
+      await scrollToBottom(chatWindow)
       isWaiting = false
     } catch (e) {
       console.log("Oj, noe gikk galt!", e);
@@ -274,33 +282,22 @@ const resizeBase64Image = (base64, width, height) => {
           <option value="option5">Teoretisk matematikk Nivå 2</option>
           <option value="option8">Geologi - Eksperimentell</option>
         </select>
-        <div class="showNhideBtns">
-          {#if modelTampering}
-            <button class="link" on:click={() => { modelTampering = !modelTampering }}>
-              Trykk her for å lukke<span class="material-symbols-outlined">keyboard_arrow_up</span>
+            <button id="modelinfoButton" class="link" on:click={() => { modelTampering = !modelTampering; showModal = true }}>
+              Instillinger
+              <span class="material-symbols-outlined">keyboard_arrow_down</span>
             </button>
-          {:else}
-            <button id="modelinfoButton" class="link" on:click={() => { modelTampering = !modelTampering }}>
-              Trykk her for å legge inn kontekst og systemledetekster<br>
-              Les mer om modellen og dens egenskaper<span class="material-symbols-outlined">keyboard_arrow_down</span>
-            </button>
-          {/if}
-        </div>
       </div>
-
-      {#if modelTampering}
-        <div class="boxy" id="testBox">
-          <ModelInfo modelinfo={modelinfoModell} infoText={modelinfoBeskrivelse} />
-          {#key userParams.synligKontekst}
-            {#if userParams.synligKontekst}
-              <textarea use:autosize id="inputKontekst" placeholder="Her kan du legge inn kontekst til språkmodellen." bind:value={userParams.kontekst} rows="4" cols="auto"></textarea>
-              <label for="temperatur">Temperatur: </label>
-                <input type="range" id="temperatur" name="temperatur" min="0" max="2" step="0.1" bind:value={userParams.temperatur}/>
-              {userParams.temperatur}
-            {/if}
-          {/key}
-        </div>
-      {/if}
+            
+            <Modal bind:showModal buttonText="Lagre">
+                <h2 slot="header">{modelinfoModell}</h2>
+                <p slot="mainContent">{modelinfoBeskrivelse}</p>
+                {#if userParams.synligKontekst}
+                <textarea use:autosize style="" id="inputKontekst" placeholder="Her kan du legge inn kontekst til språkmodellen." bind:value={userParams.kontekst} rows="4" cols="auto"></textarea>
+                <label for="temperatur">Temperatur: </label>
+                  <input type="range" id="temperatur" name="temperatur" min="0" max="2" step="0.1" bind:value={userParams.temperatur}/>
+                {userParams.temperatur}
+                {/if}
+            </Modal>
     </div>
     <div class="output" bind:this={chatWindow}>
       {#if userParams.messageHistory.length === 1}
@@ -329,7 +326,7 @@ const resizeBase64Image = (base64, width, height) => {
         name="askHugin" 
         autocomplete="off" 
         placeholder={`Skriv inn ledetekst (Shift + Enter for flere linjer)`} 
-        bind:value={inputMessage} 
+        bind:value={inputMessage}
         on:keypress={(e) => onKeyPress(e, files && files.length > 0 ? sporDokument : brukervalg)}></textarea>
 
       {#if token.roles.some( (r) => [`${appName.toLowerCase()}.admin`].includes(r) )}
@@ -368,7 +365,13 @@ const resizeBase64Image = (base64, width, height) => {
       <label for="imageButton"><span class="material-symbols-outlined">add_photo_alternate</span>
       <input id="imageButton" type="file" bind:files={selectedFiles} on:change={handleFileSelect} accept="image/*" style="display: none;"/></label>
       <label for="sendButton"><span class="material-symbols-outlined">send</span>
-        <input id="sendButton" type="button" on:click={files && files.length > 0 ? sporDokument : brukervalg}  value={`Spør ${appName}`} style="display: none;"/></label>
+        <input 
+          id="sendButton" 
+          type="button" 
+          on:click={files && files.length > 0 ? sporDokument() : brukervalg() }
+          value={`Spør ${appName}`} 
+          style="display: none;"/>
+      </label>
     </div>
   {/if}
   <br>
@@ -379,6 +382,7 @@ const resizeBase64Image = (base64, width, height) => {
 </main>
 
 <style>
+
   main {
     display: flex;
     flex-direction: column;
@@ -393,6 +397,8 @@ const resizeBase64Image = (base64, width, height) => {
   border: 1px solid #ccc;
   padding: 3px 10px 3px 10px;
   background-color: #f5f5f5;
+  border-radius: 1rem;
+  text-decoration: none;
 }
 
 textarea {
@@ -436,6 +442,7 @@ textarea {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+    padding: 5px 10px 10px 8px;
   }
 
   .boxy {
@@ -554,10 +561,17 @@ textarea {
 
   .modellSelect {
     padding: 10px;
-    border-radius: 5px;
+    border-radius: 1rem;
     border: 1px solid #ccc;
     background-color: #f5f5f5;
     width: 26rem;
+  }
+
+  textarea#inputKontekst {
+    padding: 10px;
+    margin-top: 30px;
+    margin-bottom: 10px;
+    font-size: 16px;
   }
 
   .loading {
