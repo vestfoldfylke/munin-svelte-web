@@ -9,7 +9,7 @@
     import { getHuginToken } from '../lib/useApi';
     import { onMount } from 'svelte';
     
-    let token = null
+    let token = $state(null)
     const appName = import.meta.env.VITE_APP_NAME
 
     onMount(async () => {

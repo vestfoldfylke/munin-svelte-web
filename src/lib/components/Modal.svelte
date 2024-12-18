@@ -1,9 +1,31 @@
 <script>
-	export let showModal; // boolean
-	export let buttonText = "Lukk"; // string
-	let dialog; // HTMLDialogElement
+	import { run, self, createBubbler, stopPropagation } from 'svelte/legacy';
 
-	$: if (dialog && showModal) dialog.showModal();
+	const bubble = createBubbler();
+	/**
+	 * @typedef {Object} Props
+	 * @property {any} showModal - boolean
+	 * @property {string} [buttonText] - string
+	 * @property {import('svelte').Snippet} [header]
+	 * @property {import('svelte').Snippet} [children]
+	 * @property {import('svelte').Snippet} [mainContent]
+	 * @property {import('svelte').Snippet} [saveButton]
+	 */
+
+	/** @type {Props} */
+	let {
+		showModal = $bindable(),
+		buttonText = "Lukk",
+		header,
+		children,
+		mainContent,
+		saveButton
+	} = $props();
+	let dialog = $state(); // HTMLDialogElement
+
+	run(() => {
+		if (dialog && showModal) dialog.showModal();
+	});
 	
 	const closeModal = () => {
 		// Endable scrolling when modal is closed
@@ -13,25 +35,25 @@
 	}
 </script>
 
-<!-- svelte-ignore a11y-click-events-have-key-events a11y-no-noninteractive-element-interactions -->
+<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_noninteractive_element_interactions -->
 <dialog
 	bind:this={dialog}
-	on:close={() => (showModal = false)}
-	on:click|self={() => closeModal()}
+	onclose={() => (showModal = false)}
+	onclick={self(() => closeModal())}
 >
-	<!-- svelte-ignore a11y-no-static-element-interactions -->
-	<div on:click|stopPropagation>
-		<slot name="header" />
+	<!-- svelte-ignore a11y_no_static_element_interactions -->
+	<div onclick={stopPropagation(bubble('click'))}>
+		{@render header?.()}
 		<hr />
-		<slot />
+		{@render children?.()}
 		<div class="mainContent">
-			<slot name="mainContent">
-			</slot>
+			{#if mainContent}{@render mainContent()}{:else}
+			{/if}
 		</div>
-		<!-- svelte-ignore a11y-autofocus -->
+		<!-- svelte-ignore a11y_autofocus -->
         <div class="buttons">
-            <slot name="saveButton"></slot>
-		    <button autofocus on:click={() => closeModal()}>{buttonText}</button>
+            {@render saveButton?.()}
+		    <button autofocus onclick={() => closeModal()}>{buttonText}</button>
         </div>
 	</div>
 </dialog>

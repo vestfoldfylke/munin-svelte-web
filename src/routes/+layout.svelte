@@ -8,8 +8,15 @@
   import { getMsalClient, login, logout } from "../lib/auth/msal-auth";
   import { getHuginToken } from "../lib/useApi";
   import IconSpinner from "../lib/components/IconSpinner.svelte";
+  /**
+   * @typedef {Object} Props
+   * @property {import('svelte').Snippet} [children]
+   */
 
-  let logo = ""
+  /** @type {Props} */
+  let { children } = $props();
+
+  let logo = $state("")
   if(import.meta.env.VITE_COUNTY === 'Telemark') {
     logo = logoTFK
   } else {
@@ -19,7 +26,7 @@
   const appName = import.meta.env.VITE_APP_NAME
 
   // Variabel som får "kontoobjektet" fra innlogget bruker fra MSAL
-  let account = null;
+  let account = $state(null);
 
   onMount(() => {
     const authenticate = async () => {
@@ -80,7 +87,7 @@
       </div>
     </div>
     <div class="content">
-      <slot />
+      {@render children?.()}
     </div>
     <!-- <div class="footer"></div> -->
   {/await}

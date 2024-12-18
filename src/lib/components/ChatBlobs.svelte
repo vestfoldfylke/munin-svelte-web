@@ -1,9 +1,15 @@
 <script>
     import katex from 'katex';
     import showdown from 'showdown';
-// Props
-    export let role = 'user'
-    export let content = 'content'
+
+    /**
+     * @typedef {Object} Props
+     * @property {string} [role] - Props
+     * @property {string} [content]
+     */
+
+    /** @type {Props} */
+    let { role = 'user', content = 'content' } = $props();
     let converter = new showdown.Converter()
 
     // Function to convert string from markdown to valid HTML with showdown.
@@ -26,9 +32,6 @@
         });
         return htmlWithKatex
     }
-
-
-
 </script>
 <head>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
