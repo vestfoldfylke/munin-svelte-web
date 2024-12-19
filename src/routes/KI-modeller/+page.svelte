@@ -469,7 +469,7 @@ textarea {
   }
 
   .output {
-    padding: 1px;
+    padding-top: 10px;
     border: 1px solid #ccc;
     border-radius: 5px;
     margin-bottom: 10px;
@@ -491,6 +491,7 @@ textarea {
     display: inline-block;
     position: relative;
     padding-right: 20px;
+    margin-bottom: 15px;
   }
 
   @keyframes flash {
@@ -554,17 +555,6 @@ textarea {
     main {
       height: calc(80vh - 100px);
       margin: 2px;
-    }
-
-    .output {
-      padding: 1px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      margin-bottom: 10px;
-      height: 100vw;
-      max-height: 1440px;
-      width: 100%;
-      overflow-y: scroll;
     }
   }
 </style>
