@@ -55,34 +55,7 @@
   userParams.messageHistory.push({
     role: "assistant",
     content: `Velkommen til ${appName}! Hva kan jeg hjelpe deg med i dag?`,
-  })
-  userParams.messageHistory.push({
-    role: "assistant",
-    content: `Velkommen til ${appName}! Hva kan jeg hjelpe deg med i dag?`,
-  })
-  userParams.messageHistory.push({
-    role: "assistant",
-    content: `Velkommen til ${appName}! Hva kan jeg hjelpe deg med i dag?`,
-  })
-  userParams.messageHistory.push({
-    role: "assistant",
-    content: `Velkommen til ${appName}! Hva kan jeg hjelpe deg med i dag?`,
-  })
-  userParams.messageHistory.push({
-    role: "assistant",
-    content: `Velkommen til ${appName}! Hva kan jeg hjelpe deg med i dag?`,
-  })
-  userParams.messageHistory.push({
-    role: "assistant",
-    content: `Velkommen til ${appName}! Hva kan jeg hjelpe deg med i dag?`,
-  })
-  userParams.messageHistory.push({
-    role: "assistant",
-    content: `Velkommen til ${appName}! Hva kan jeg hjelpe deg med i dag?`,
-  })
-  userParams.messageHistory.push({
-    role: "assistant",
-    content: `Velkommen til ${appName}! Hva kan jeg hjelpe deg med i dag?`,
+    model: `${appName}`
   })
 
   onMount(async () => {
@@ -91,7 +64,6 @@
       await new Promise((resolve) => setTimeout(resolve, 2000))
     }
     token = await getHuginToken(true)
-    console.log("how fast?")
   })
 
   // Fester scroll til bunnen av chatvinduet
@@ -133,6 +105,7 @@
     userParams.messageHistory.push({
       role: "user",
       content: userParams.message,
+      model: modelinfoModell
     })
 
     try {
@@ -163,7 +136,7 @@
           throw new Error("Ugyldig modellvalg");
       }
 
-      userParams.messageHistory.push({ role: "assistant", content: response });
+      userParams.messageHistory.push({ role: "assistant", content: response, model: modelinfoModell});
       isWaiting = false;
     } catch (error) {
       isError = true
@@ -172,11 +145,12 @@
       userParams.messageHistory.push({
         role: "assistant",
         content: "Noe gikk galt. Prøv igjen.",
+        model: modelinfoModell
       })
     }
   }
 
-// Justerer størrelsen på opplastede bilder
+  // Justerer størrelsen på opplastede bilder
 const resizeBase64Image = (base64, width, height) => {
     // Opprett et canvas-element
     const canvas = document.createElement('canvas');
@@ -269,6 +243,8 @@ const resizeBase64Image = (base64, width, height) => {
       console.log("Oj, noe gikk galt!", e);
     }
   }
+
+  //$inspect(userParams.messageHistory)
 </script>
 
 <main>
@@ -303,16 +279,24 @@ const resizeBase64Image = (base64, width, height) => {
         <ChatBlobs
           role="assistant"
           content={userParams.messageHistory[0].content}
-        />
+          assistant={`${appName}`}  />
       {:else if isWaiting}
         {#each userParams.messageHistory as chatMessage}
-          <ChatBlobs role={chatMessage.role} content={chatMessage.content} />
+          <ChatBlobs 
+            role={chatMessage.role} 
+            content={chatMessage.content}
+            {...(chatMessage.role === "assistant" ? { assistant: chatMessage.model } : {})}
+             />
         {/each}
         <ChatBlobs role={"assistant"} content={"..."} />
       {:else}
         {#each userParams.messageHistory as chatMessage}
           {#if typeof chatMessage.content === "string"}
-            <ChatBlobs role={chatMessage.role} content={chatMessage.content} />
+            <ChatBlobs 
+              role={chatMessage.role} 
+              content={chatMessage.content} 
+              {...(chatMessage.role === "assistant" ? { assistant: chatMessage.model } : {})}
+              />
           {/if}
         {/each}
       {/if}
@@ -330,7 +314,7 @@ const resizeBase64Image = (base64, width, height) => {
 
       {#if token.roles.some( (r) => [`${appName.toLowerCase()}.admin`].includes(r) )}
         {#if userParams.valgtModell === "option1"}
-          <label for="fileButton"><span class="material-symbols-outlined">cloud_upload</span>
+          <label for="fileButton"><span class="material-symbols-outlined inputButton">cloud_upload</span>
             <input style="display:none;" bind:files={files} id="fileButton" multiple type="file" accept=".xls, .xlsx, .docx, .pdf, .txt, .json, .md, .pptx" />
           </label>
           {#if files && files.length > 0}
@@ -342,7 +326,7 @@ const resizeBase64Image = (base64, width, height) => {
                 aria-label="Remove file">X</button>
             </div>
           {/if}
-          <label for="imageButton"><span class="material-symbols-outlined">add_photo_alternate</span>
+          <label for="imageButton"><span class="material-symbols-outlined inputButton">add_photo_alternate</span>
           <input id="imageButton" type="file" bind:files={selectedFiles} onchange={handleFileSelect} accept="image/*" style="display: none;"/></label>
         {/if}
         {#if isError}
@@ -364,7 +348,7 @@ const resizeBase64Image = (base64, width, height) => {
           </Modal>
         {/if}
       {/if}
-      <label for="sendButton"><span class="material-symbols-outlined">send</span>
+      <label for="sendButton"><span class="material-symbols-outlined inputButton">send</span>
         <input 
           id="sendButton" 
           type="button" 
@@ -440,7 +424,7 @@ textarea {
     padding-left: 10px;
     background-color: #fffafa;
     position: relative;
-    align-items: center;
+    align-items: end;
   }
 
   #brukerInput {
@@ -465,14 +449,6 @@ textarea {
     flex-direction: row;
     justify-content: space-between;
     padding: 5px 10px 10px 8px;
-  }
-
-  .boxy {
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    margin-bottom: 10px;
-    margin-top: 10px;
   }
 
   .material-symbols-outlined {
@@ -568,6 +544,10 @@ textarea {
     display: flex;
     justify-content: center;
     align-items: center;
+  }
+  
+  .inputButton {
+    margin-bottom: 10px !important;
   }
 
   @media only screen and (max-width: 768px) {

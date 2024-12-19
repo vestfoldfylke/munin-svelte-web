@@ -9,7 +9,7 @@
      */
 
     /** @type {Props} */
-    let { role = 'user', content = 'content' } = $props();
+    let { role = 'user', content = 'content', assistant = '' } = $props();
     let converter = new showdown.Converter()
 
     // Function to convert string from markdown to valid HTML with showdown.
@@ -53,7 +53,12 @@
                     <div class="loader"></div>
                 {:else}
                     {@html parseAiResponse(content)}
-                    
+                    {#if role !== 'user'}
+                        <div class="assistantInfo">
+                            {assistant}
+                        </div>
+                    {/if}
+
                 {/if}
             {/if}
         </div>
@@ -74,7 +79,21 @@
         margin: 0.5rem;
     }
 
+    .assistantInfo {
+        position: absolute;
+        top: -18px;
+        left: 10px;
+        border: 1px solid var(--himmel-80);
+        font-size: 0.8rem;
+        color: var(--himmel-50);
+        text-align: left;
+        background-color: var(--himmel-10);
+        padding: 2px 5px;
+        border-radius: 5px;
+    }
+
     .chat-blob-content {
+        position: relative;
         background-color: var(--himmel-10);
         border-radius: 1rem;
         border: 1px solid var(--himmel-80);
