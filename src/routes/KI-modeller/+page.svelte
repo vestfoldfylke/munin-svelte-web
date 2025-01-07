@@ -77,6 +77,8 @@
   //TODO: Uten if...else scroller chatbobler bare delvis og jeg skjønner ikke hvorfor....
   //TODO: Bilder scroller bare delvis, så ligger egen scrollToBottom i HandleFileSelect
 
+  $effect(() => scrollToBottom(chatWindow));
+
   $effect(() => {
     if (isWaiting) {
       scrollToBottom(chatWindow);
@@ -184,7 +186,6 @@ const resizeBase64Image = (base64, width, height) => {
 
   // Konverterer opplastet fil til base64
   const handleFileSelect = async (event) => {
-    isWaiting = true
     selectedFiles = event.target.files
     const file = selectedFiles[0]
 
@@ -282,11 +283,7 @@ const resizeBase64Image = (base64, width, height) => {
           assistant={`${appName}`}  />
       {:else if isWaiting}
         {#each userParams.messageHistory as chatMessage}
-          <ChatBlobs 
-            role={chatMessage.role} 
-            content={chatMessage.content}
-            {...(chatMessage.role === "assistant" ? { assistant: chatMessage.model } : {})}
-             />
+          <ChatBlobs role={chatMessage.role} content={chatMessage.content} {...(chatMessage.role === "assistant" ? { assistant: chatMessage.model } : {})} />
         {/each}
         <ChatBlobs role={"assistant"} content={"..."} />
       {:else}
@@ -326,6 +323,8 @@ const resizeBase64Image = (base64, width, height) => {
                 aria-label="Remove file">X</button>
             </div>
           {/if}
+        {/if}
+        {#if userParams.valgtModell === "option1" || userParams.valgtModell === "option13"}
           <label for="imageButton"><span class="material-symbols-outlined inputButton">add_photo_alternate</span>
           <input id="imageButton" type="file" bind:files={selectedFiles} onchange={handleFileSelect} accept="image/*" style="display: none;"/></label>
         {/if}
@@ -369,7 +368,7 @@ const resizeBase64Image = (base64, width, height) => {
         <h2 >{modelinfoModell}</h2>
       {/snippet}
     {#snippet mainContent()}
-        <p >{modelinfoBeskrivelse}</p>
+        <p >{@html modelinfoBeskrivelse}</p>
       {/snippet}
     {#if userParams.synligKontekst}
     <textarea 

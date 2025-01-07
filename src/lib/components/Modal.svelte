@@ -47,7 +47,7 @@
 		<hr />
 		{@render children?.()}
 		<div class="mainContent">
-			{#if mainContent}{@render mainContent()}{:else}
+			{#if mainContent}{@render mainContent()}
 			{/if}
 		</div>
 		<!-- svelte-ignore a11y_autofocus -->
