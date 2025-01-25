@@ -29,7 +29,7 @@
       </div> 
     {:else}
       <div class="centerstuff">
-        <CardButton header={'Om tjenesten'} imgPath={ravner} imgAlt={'Bilde av Hugin og Munin'} gotoPath={'/about'} paragraph={''} boolValue={true}><span class="material-symbols-outlined">raven</span></CardButton>
+        <!-- <CardButton header={'Om tjenesten'} imgPath={ravner} imgAlt={'Bilde av Hugin og Munin'} gotoPath={'/about'} paragraph={''} boolValue={true}><span class="material-symbols-outlined">raven</span></CardButton> -->
         <CardButton header={'KI-modeller'} imgPath={chat} imgAlt={'Ikon bilde av en snakkebobble'} gotoPath={'/KI-modeller'} paragraph={''} boolValue={true}><span class="material-symbols-outlined">chat</span></CardButton>
         {#if token.roles.includes(`${appName.toLowerCase()}.admin`)}
           <!-- <CardButton header={'Dokumentspørring'} imgPath={doc} imgAlt={'Ikon bilde av et dokument'} gotoPath={'/docQuery'} paragraph={'Trykk her hvis du vil bruke KI til spørre og jobbe med egne dokumenter.'} boolValue={true}><span class="material-symbols-outlined">find_in_page</span></CardButton> -->
@@ -39,7 +39,7 @@
           <CardButton header={'Pilot'} imgPath={eksperiment} imgAlt={'Ikon bilde av et reagensrør'} gotoPath={'/labs'} paragraph={''} boolValue={true}><span class="material-symbols-outlined">experiment</span></CardButton>
         {/if}
       </div>
-      <h1>{appName} - En KI-tjeneste for {import.meta.env.VITE_COUNTY} fylkeskommune</h1>
+      <h2>{appName} - En <a target="_blank" href="https://www.vestfoldfylke.no/no/meny/tjenester/opplaring/digitale-laringsressurser-til-videregaende-opplaring/munin/"> KI-tjeneste </a> for {import.meta.env.VITE_COUNTY} fylkeskommune</h2>
     {/if}
   </main>
   

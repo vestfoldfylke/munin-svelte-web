@@ -22,11 +22,11 @@
     threadId: "",
     messageHistory: [],
     kontekst: "",
-    valgtModell: "option1", // Default modell GPT-4o
+    valgtModell: "option13", // Default modell Mistral
     base64String: "",
     temperatur: 0.7, // Default temperatur
     synligKontekst: true,  
-    assistant: "docQuery",
+    assistant: "Mistral",
     newThread: true,
     threadId: "",
     vectorStoreId: "",      
@@ -260,8 +260,8 @@ const resizeBase64Image = (base64, width, height) => {
       <h2>Modellvelger</h2>
       <div class="boxyHeader">
         <select class="modellSelect" onchange={valgtModell}>
-          <option value="option1" default>GPT-4o</option>
-          <option value="option13">Mistral</option>
+          <option value="option13" default>Mistral</option>
+          <option value="option1">GPT-4o</option>
           <option value="option2">Nora - Eksperimentell</option>
           <option value="option3">Matematikkens byggesteiner</option>
           <option value="option4">Teoretisk matematikk Nivå 1</option>

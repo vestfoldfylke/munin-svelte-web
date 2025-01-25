@@ -85,7 +85,7 @@
         left: 10px;
         border: 1px solid var(--himmel-80);
         font-size: 0.8rem;
-        color: var(--himmel-50);
+        color: var(--himmel-100);
         text-align: left;
         background-color: var(--himmel-10);
         padding: 2px 5px;

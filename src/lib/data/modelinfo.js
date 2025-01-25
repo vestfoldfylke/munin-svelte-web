@@ -76,8 +76,8 @@ export const modelinfo = {
   },
   option13: {
     navn: 'Mistral',
-    description: 'Eksperimentell bot for å teste Mistral',
-    synligKontekst: false,
+    description: 'Mistral AI er et fransk selskap som utvikler en rekke med språkmodeller. Utgaven som brukes i Hugin er den kraftigste modellen til Mistral og og heter Mistral Large. Den er også multimodal og kan analysere bilder.',
+    synligKontekst: true,
     illustrasjon: ''
   }
 }

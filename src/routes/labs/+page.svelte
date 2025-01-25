@@ -1,7 +1,6 @@
 <!-- @migration-task Error while migrating Svelte code: Can't migrate code with afterUpdate. Please migrate by hand. -->
 <script>
-  import { multimodalOpenAi, noraChat, openAiAssistant } from "$lib/services/openAiTools"
-  import { multimodalMistral } from "$lib/services/mistralTools"
+  import { openAiAssistant } from "$lib/services/openAiTools"
   import { testStructured } from "../../lib/services/openaiToolsLabs"
   import { getArticlesFromNDLA, structureResponse } from "$lib/services/kildekallTools"
   import { modelinfo } from "$lib/data/modelinfo" // Tekstbeskrivelser om valgt modell
@@ -24,7 +23,7 @@
     valgtModell: "option10", // Default modell Labs Skogmo elever - Helsefremmende arbeid
     base64String: "",
     temperatur: 0.2, // Default temperatur
-    synligKontekst: true,
+    synligKontekst: true
   }
 
   // Variabler for håndtering av data og innhold i frontend
@@ -107,7 +106,7 @@
         userParams.message = ""
         respons = await openAiAssistant(userParams)
         const vasketRespons = respons.messages[0].content[0].text.value.replace(/【\d+:\d+†source】/g, ''); // Pynter på responsen
-        userParams.messageHistory.push({ role: "assistant", content: vasketRespons })
+        userParams.messageHistory.push({ role: "assistant", content: vasketRespons, assistant: "HO-Botten" })
         userParams.newThread = false
         userParams.threadId = respons.thread_id
         await handleNDLARequest(); // Kildekall: Henter relevante artikler fra NDLA
@@ -124,20 +123,6 @@
         respons = await testStructured(userParams)
         console.log("respons", respons.data.choices[0].message.parsed.superkraft)
         userParams.messageHistory.push({ role: "assistant", content: JSON.stringify(respons.data.choices[0].message.parsed) })
-        scrollToBottom(chatWindow)
-        isWaiting = false
-      }
-      // Mistral
-      else if (userParams.valgtModell === "option13") {
-        userParams.messageHistory.push({
-          role: "user",
-          content: userParams.message,
-        })
-        userParams.message = ""
-        console.log("userParams", userParams)
-        respons = await multimodalMistral(userParams)
-        userParams.messageHistory.push({ role: "assistant", content: respons.data.choices[0].message.content })
-        console.log("respons", respons)
         scrollToBottom(chatWindow)
         isWaiting = false
       }
@@ -255,7 +240,6 @@
           <option value="option10" default selected>Labs Skogmo elever - Helsefremmende arbeid</option>
           <option value="option11">Labs Skogmo lærer - Helsefremmende arbeid</option>
           <option value="option12">Test - Enkel strukturert respons</option>
-          <option value="option13">Mistral</option>
         </select>
         <div class="showNhideBtns">
           {#if modelTampering}
@@ -313,22 +297,10 @@
         <ChatBlobs role={"assistant"} content={"..."} />
       {:else}
         {#each userParams.messageHistory as chatMessage}
-          <ChatBlobs role={chatMessage.role} content={chatMessage.content} />
+          <ChatBlobs role={chatMessage.role} content={chatMessage.content} assistant={"HO-botten"} />
         {/each}
       {/if}
     </div>
-    {#if advancedInteractions}
-      <div class="advancedInteractions">
-        <label for="file-upload"><span class="material-symbols-outlined">upload_file</span></label>
-        <input
-          type="file"
-          id="file-upload"
-          bind:files={selectedFiles}
-          on:change={handleFileSelect}
-          accept="image/*"
-        />
-      </div>
-    {/if}
     <div class="userInteractionField">
       <input
         name="askHugin"
@@ -339,9 +311,7 @@
         bind:value={userParams.message}
         on:keypress={onKeyPress}
       />
-      <button class="link" on:click={() => {advancedInteractions = !advancedInteractions}}>
-        <span class="material-symbols-outlined">settings</span>
-      </button>
+      
       <input class="sendButton" type="button" on:click={brukervalg} on:keypress={onKeyPress} value={`Spør HO-botten`} />
     </div>
     {#if isError}
