@@ -310,7 +310,7 @@ const resizeBase64Image = (base64, width, height) => {
         onkeypress={(e) => onKeyPress(e, files && files.length > 0 ? sporDokument : brukervalg)}></textarea>
 
       {#if token.roles.some( (r) => [`${appName.toLowerCase()}.admin`].includes(r) )}
-        {#if userParams.valgtModell === "option1"}
+        {#if userParams.valgtModell === "option1" || userParams.valgtModell === "option13"}
           <label for="fileButton"><span class="material-symbols-outlined inputButton">cloud_upload</span>
             <input style="display:none;" bind:files={files} id="fileButton" multiple type="file" accept=".xls, .xlsx, .docx, .pdf, .txt, .json, .md, .pptx" />
           </label>
