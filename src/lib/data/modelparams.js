@@ -4,7 +4,7 @@ export const params = {
     message: '',
     messageHistory: '',
     kontekst: '',
-    model: 'gpt-4o',
+    model: 'gpt-4o-latest',
     base64String: ''
   },
   option2: {
