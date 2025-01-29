@@ -2,19 +2,37 @@
     import { goto } from '$app/navigation';
     import IconSpinner from './IconSpinner.svelte'
 
-    // Props
-    export let header = 'header'
-    export let imgPath = 'path'
-    export let imgAlt = 'alt'
-    export let gotoPath = 'urlPath'
-    export let paragraph = 'some text'
-    export let image = false
-    export let boolValue = false
-    export let loading = false
-    export let func
+    
+    /**
+     * @typedef {Object} Props
+     * @property {string} [header] - Props
+     * @property {string} [imgPath]
+     * @property {string} [imgAlt]
+     * @property {string} [gotoPath]
+     * @property {string} [paragraph]
+     * @property {boolean} [image]
+     * @property {boolean} [boolValue]
+     * @property {boolean} [loading]
+     * @property {any} func
+     * @property {import('svelte').Snippet} [children]
+     */
+
+    /** @type {Props} */
+    let {
+        header = 'header',
+        imgPath = 'path',
+        imgAlt = 'alt',
+        gotoPath = 'urlPath',
+        paragraph = 'some text',
+        image = false,
+        boolValue = false,
+        loading = false,
+        func,
+        children
+    } = $props();
 </script>
 
-<button on:click={boolValue ? () => goto(gotoPath) : func} class="card">
+<button onclick={boolValue ? () => goto(gotoPath) : func} class="card">
     {#if loading}
         <div class="loadingSpinner">
             <IconSpinner width="80px"/>
@@ -24,7 +42,7 @@
             <img src={imgPath} alt={imgAlt}/>
         {:else}
             <div class="mainSlot">
-                <slot></slot>
+                {@render children?.()}
             </div>
         {/if}
     {/if}
@@ -43,8 +61,8 @@
         transition: 0.3s;
         border-radius: 1rem;
         margin: 1rem;
-        width: 310px;
-        height: 310px;
+        width: 210px;
+        height: 210px;
         padding: 16px;
         display: flex;
         flex-direction: column;
@@ -55,7 +73,7 @@
 
     .card:hover {
         box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
-        background: linear-gradient(rgb(255, 255, 255), rgb(178, 203, 207));
+        background: linear-gradient(rgb(255, 255, 255), var(--gress-10));
         /* background-color: var(--himmel-30); */
         cursor: pointer;
     }
@@ -89,7 +107,7 @@
         justify-content: center;
         align-items: center;
         margin-top: bottom;
-        padding: 50px;
+        padding: 20px;
     }
 
     @media only screen and (max-width: 768px) {
