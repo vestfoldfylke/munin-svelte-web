@@ -98,7 +98,7 @@
     isWaiting = true
     try {
       // Fagbotter
-      if (userParams.valgtModell === "option10" || userParams.valgtModell === "option11" || userParams.valgtModell === "option14") {
+      if (userParams.valgtModell === "option10" || userParams.valgtModell === "option11" || userParams.valgtModell === "option14" || userParams.valgtModell === "option15") {
         userParams.messageHistory.push({
           role: "user",
           content: userParams.message,
@@ -241,6 +241,7 @@
           <option value="option11">Labs Skogmo Planleggingshjelper - Helsefremmende arbeid</option>
           <option value="option14">Labs Skogmo Lovverkhjelpen</option>
           <option value="option12">Test - Enkel strukturert respons</option>
+          <option value="option15">Test - Plan og Bygg</option>
         </select>
         <div class="showNhideBtns">
           {#if modelTampering}
