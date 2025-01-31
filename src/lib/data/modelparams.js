@@ -108,5 +108,25 @@ export const params = {
     assistant_id: '',
     new_thread: false,
     thread_id: ''
+  },
+  option14: { // Skogmo - Lovverkhjelperen
+    message: '',
+    kontekst: '',
+    model: 'gpt-4o',
+    assistant_id: import.meta.env.VITE_ASSISTANT_SKOGMO_LOVVERK,
+    new_thread: true,
+    thread_id: ''
+  },
+  option15: { // Plan og Bygg
+    message: '',
+    kontekst: '',
+    model: 'gpt-4o',
+    assistant_id: import.meta.env.VITE_ASSISTANT_PLAN_OG_BYGG,
+    new_thread: true,
+    thread_id: ''
   }
 }
+
+
+
+

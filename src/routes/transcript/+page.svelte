@@ -1,7 +1,7 @@
 <script>
   import { nbTranscript } from "$lib/services/openaiToolsLabs";
   import { getHuginToken } from "../../lib/useApi"
-  import { onMount, afterUpdate } from "svelte"
+  import { onMount, } from "svelte"
   import IconSpinner from "../../lib/components/IconSpinner.svelte"
 
 
@@ -9,11 +9,11 @@
   let mediaRecorder;
   let audioChunks = [];
   let audioBlob;
-  let audioUrl;
-  let token = null
-  let ferdigTranskript = "Her kommer transkripsjonen";
-  let recording = false;
-  let timer = 0;
+  let audioUrl = $state();
+  let token = $state(null)
+  let ferdigTranskript = $state("Her kommer transkripsjonen");
+  let recording = $state(false);
+  let timer = $state(0);
   let timerInterval;
   const appName=import.meta.env.VITE_APP_NAME
 
@@ -86,11 +86,11 @@
   <h2>Modell: Nasjonalbibliotektets nb-whisper-medium</h2>
   <p>Tjenesten er under utvikling og kan være ustabil. Husk at du ikke må sende inn lydklipp som inneholder sensitiv informasjon.</p>
   <br><br>
-  <button on:click={startRecording}>Start opptak</button>
-  <button on:click={stopRecording}>Stopp opptak</button>
-  <button on:click={sendTilTranscript}>Transkriber opptak</button>
+  <button onclick={startRecording}>Start opptak</button>
+  <button onclick={stopRecording}>Stopp opptak</button>
+  <button onclick={sendTilTranscript}>Transkriber opptak</button>
   <!-- Opplasting av lydfil -->
-  <input type="file" accept="audio/*" id="audioFile" name="audioFile" on:change={handleAudioFileSelect} />
+  <input type="file" accept="audio/*" id="audioFile" name="audioFile" onchange={handleAudioFileSelect} />
   <br>
   {#if audioUrl}
       <!-- Avspilling fra audioUrl-objektet -->

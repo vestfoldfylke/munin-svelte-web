@@ -1,9 +1,15 @@
 <script>
     import katex from 'katex';
     import showdown from 'showdown';
-// Props
-    export let role = 'user'
-    export let content = 'content'
+
+    /**
+     * @typedef {Object} Props
+     * @property {string} [role] - Props
+     * @property {string} [content]
+     */
+
+    /** @type {Props} */
+    let { role = 'user', content = 'content', assistant = '' } = $props();
     let converter = new showdown.Converter()
 
     // Function to convert string from markdown to valid HTML with showdown.
@@ -26,9 +32,6 @@
         });
         return htmlWithKatex
     }
-
-
-
 </script>
 <head>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
@@ -50,7 +53,12 @@
                     <div class="loader"></div>
                 {:else}
                     {@html parseAiResponse(content)}
-                    
+                    {#if role !== 'user'}
+                        <div class="assistantInfo">
+                            {assistant}
+                        </div>
+                    {/if}
+
                 {/if}
             {/if}
         </div>
@@ -71,7 +79,21 @@
         margin: 0.5rem;
     }
 
+    .assistantInfo {
+        position: absolute;
+        top: -18px;
+        left: 10px;
+        border: 1px solid var(--himmel-80);
+        font-size: 0.8rem;
+        color: var(--himmel-100);
+        text-align: left;
+        background-color: var(--himmel-10);
+        padding: 2px 5px;
+        border-radius: 5px;
+    }
+
     .chat-blob-content {
+        position: relative;
         background-color: var(--himmel-10);
         border-radius: 1rem;
         border: 1px solid var(--himmel-80);
