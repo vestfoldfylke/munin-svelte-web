@@ -1,5 +1,11 @@
 <script>
-    export let width = '100px'
+  /**
+   * @typedef {Object} Props
+   * @property {string} [width]
+   */
+
+  /** @type {Props} */
+  let { width = '100px' } = $props();
   </script>
   
   <div class="spinnerContainer" style="width: {width}">

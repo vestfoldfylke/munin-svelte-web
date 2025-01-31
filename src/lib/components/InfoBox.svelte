@@ -1,15 +1,22 @@
 <script>
-    // Props
-    export let title
-    export let open = false
+    
+    /**
+     * @typedef {Object} Props
+     * @property {any} title - Props
+     * @property {boolean} [open]
+     * @property {import('svelte').Snippet} [children]
+     */
+
+    /** @type {Props} */
+    let { title, open = $bindable(false), children } = $props();
 
 </script>
 
 <div class="infoBox">
-    <button class="title" on:click={() => { open = !open } }><span class="material-symbols-outlined">{open ? 'keyboard_arrow_down' : 'chevron_right'}</span><strong>{title}</strong></button>
+    <button class="title" onclick={() => { open = !open }}><span class="material-symbols-outlined">{open ? 'keyboard_arrow_down' : 'chevron_right'}</span><strong>{title}</strong></button>
     {#if open}
         <div class="content">
-            <slot/>
+            {@render children?.()}
         </div>
     {/if}
 </div>
