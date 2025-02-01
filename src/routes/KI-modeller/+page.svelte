@@ -49,6 +49,7 @@
   let isError = $state(false)
   let errorMessage = $state("")
   let inputMessage = $state("")
+  let viewportWidth = $state(window.innerWidth)
   const appName = import.meta.env.VITE_APP_NAME
 
   // Starter med en velkomstmelding
@@ -86,6 +87,17 @@
       scrollToBottom(chatWindow);
     }
   })
+
+  $effect(() => {
+  const updateWidth = () => {
+      viewportWidth = window.innerWidth;
+    };
+
+    window.addEventListener('resize', updateWidth);
+    return () => {
+      window.removeEventListener('resize', updateWidth);
+    };
+  });
 
   // Håndterer valg av modell og oppdaterere modellinformasjon på siden
   function valgtModell(event) {
@@ -226,7 +238,7 @@ const resizeBase64Image = (base64, width, height) => {
     inputMessage = ""
     userParams.messageHistory.push({
           role: "user",
-          content: userParams.message,
+          content: userParams.message
         })
     try {
       respons = await docQueryOpenAi(files, userParams).then((response) => {
@@ -238,15 +250,19 @@ const resizeBase64Image = (base64, width, height) => {
         userParams.threadId = JSON.parse(response).data.thread_id;
         userParams.fil = files[0].name;
       });
-      userParams.messageHistory.push({ role: "assistant", content: svar });
+      userParams.messageHistory.push({ role: "assistant", content: svar, model: modelinfoModell });
       isWaiting = false
     } catch (e) {
       console.log("Oj, noe gikk galt!", e);
     }
   }
 
-  //$inspect(userParams.messageHistory)
+  $inspect(userParams.messageHistory)
 </script>
+
+<svelte:head>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</svelte:head>
 
 <main>
   {#if !token}
@@ -268,12 +284,11 @@ const resizeBase64Image = (base64, width, height) => {
           <option value="option5">Teoretisk matematikk Nivå 2</option>
           <option value="option8">Geologi - Eksperimentell</option>
         </select>
-            <button id="modelinfoButton" class="link" onclick={() => { modelTampering = !modelTampering; showModal = true }}>
-              Instillinger
-              <span class="material-symbols-outlined">keyboard_arrow_down</span>
-            </button>
-          </div>
-        </div>
+        <button id="modelinfoButton" class="link" onclick={() => { modelTampering = !modelTampering; showModal = true }}>
+          <span class="button-text">Instillinger</span>
+        </button>
+      </div>
+    </div>
 
     <div class="output" bind:this={chatWindow}>
       {#if userParams.messageHistory.length === 1}
@@ -357,12 +372,14 @@ const resizeBase64Image = (base64, width, height) => {
       </label>
     </div>
   {/if}
-  <br>
-  <p style="font-size: 14px;font-color: light-grey">
-    Husk at språkmodeller lager tekst som kan inneholde feil. Vurder alltid om bruken av språkteknologi passer med formålet ditt.<br> 
-    Ikke send inn data som kan være sensitive eller inneholder informasjon som ikke kan deles offentlig. <a href="https://www.vestfoldfylke.no/no/meny/tjenester/opplaring/digitale-laringsressurser-til-videregaende-opplaring/veileder-for-kunstig-intelligens/">Les mer om bruk av {appName} her.</a></p>
-  <br>
-
+  {#if (viewportWidth < 768)}
+  <p id="disclaimer">Husk at språkmodeller lager tekst som kan inneholde feil. <a href="https://www.vestfoldfylke.no/no/meny/tjenester/opplaring/digitale-laringsressurser-til-videregaende-opplaring/veileder-for-kunstig-intelligens/">Les mer om bruk av {appName} her.</p>
+  {:else}
+    <p id="disclaimer">
+      Husk at språkmodeller lager tekst som kan inneholde feil. Vurder alltid om bruken av språkteknologi passer med formålet ditt.<br> 
+      Ikke send inn data som kan være sensitive eller inneholder informasjon som ikke kan deles offentlig. <a href="https://www.vestfoldfylke.no/no/meny/tjenester/opplaring/digitale-laringsressurser-til-videregaende-opplaring/veileder-for-kunstig-intelligens/">Les mer om bruk av {appName} her.</a>
+    </p>
+  {/if}
   <Modal bind:showModal buttonText="Lagre">
     {#snippet header()}
         <h2 >{modelinfoModell}</h2>
@@ -550,10 +567,42 @@ textarea {
     margin-bottom: 10px !important;
   }
 
+  #disclaimer {
+    font-size: 14px;
+    color: rgb(92, 92, 92);
+    padding-top: 10px;
+  }
+
   @media only screen and (max-width: 768px) {
     main {
-      height: calc(80vh - 100px);
+      height: 100%; /*calc(80vh - 100px);*/
       margin: 2px;
+    }
+    
+    #disclaimer {
+      font-size: 12px;
+    }
+
+    .modellSelect {
+      width: 320px;
+      margin-right: 5px;
+    }
+
+    .modelTampering > h2 {
+      font-size: 1rem;
+    }
+
+    .button-text {
+      display: none;
+    }
+
+    #modelinfoButton {
+      padding: 5px 9px 0px 9px;
+    }
+    #modelinfoButton::before {
+      content: "\e8b8"; /* Unicode for cog wheel icon */
+      font-family: 'Material Icons';
+      font-size: 1.5rem;
     }
   }
 </style>

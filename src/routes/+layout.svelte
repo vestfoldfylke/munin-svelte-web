@@ -145,6 +145,7 @@
     /* For mobile phones: */
     .topbar {
       padding: 5px 0px;
+      height: 50px;
     }
     .toptop {
       padding: 5px;
