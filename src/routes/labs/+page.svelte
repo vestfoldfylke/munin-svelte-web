@@ -98,7 +98,7 @@
     isWaiting = true
     try {
       // Fagbotter
-      if (userParams.valgtModell === "option10" || userParams.valgtModell === "option11" || userParams.valgtModell === "option14" || userParams.valgtModell === "option15") {
+      if (userParams.valgtModell === "option10" || userParams.valgtModell === "option11") {
         userParams.messageHistory.push({
           role: "user",
           content: userParams.message,
@@ -110,6 +110,20 @@
         userParams.newThread = false
         userParams.threadId = respons.thread_id
         await handleNDLARequest(); // Kildekall: Henter relevante artikler fra NDLA
+        scrollToBottom(chatWindow)
+        isWaiting = false
+      } else if (userParams.valgtModell === "option14" || userParams.valgtModell === "option15") {
+        userParams.messageHistory.push({
+          role: "user",
+          content: userParams.message,
+        })
+        userParams.message = ""
+        respons = await openAiAssistant(userParams)
+        const vasketRespons = respons.messages[0].content[0].text.value.replace(/【\d+:\d+†source】/g, ''); // Pynter på responsen
+        userParams.messageHistory.push({ role: "assistant", content: vasketRespons, assistant: "RegelverksBotten" })
+        userParams.newThread = false
+        userParams.threadId = respons.thread_id
+        // await handleNDLARequest(); // Kildekall: Henter relevante artikler fra NDLA
         scrollToBottom(chatWindow)
         isWaiting = false
       }
@@ -240,7 +254,7 @@
           <option value="option10" default selected>Labs Skogmo Praterobot - Helsefremmende arbeid</option>
           <option value="option11">Labs Skogmo Planleggingshjelper - Helsefremmende arbeid</option>
           <option value="option14">Labs Skogmo Lovverkhjelpen</option>
-          <option value="option12">Test - Enkel strukturert respons</option>
+          <!-- <option value="option12">Test - Enkel strukturert respons</option> -->
           <option value="option15">Test - Plan og Bygg</option>
         </select>
         <div class="showNhideBtns">
@@ -294,12 +308,12 @@
         />
       {:else if isWaiting}
         {#each userParams.messageHistory as chatMessage}
-          <ChatBlobs role={chatMessage.role} content={chatMessage.content} />
+          <ChatBlobs role={chatMessage.role} content={chatMessage.content} assistant={"Fag-botten"} />
         {/each}
-        <ChatBlobs role={"assistant"} content={"..."} />
+        <ChatBlobs role={"assistant"} content={"..."} assistant={"Fag-botten"}/>
       {:else}
         {#each userParams.messageHistory as chatMessage}
-          <ChatBlobs role={chatMessage.role} content={chatMessage.content} assistant={"HO-botten"} />
+          <ChatBlobs role={chatMessage.role} content={chatMessage.content} assistant={"Fag-botten"} />
         {/each}
       {/if}
     </div>
@@ -314,7 +328,7 @@
         on:keypress={onKeyPress}
       />
       
-      <input class="sendButton" type="button" on:click={brukervalg} on:keypress={onKeyPress} value={`Spør HO-botten`} />
+      <input class="sendButton" type="button" on:click={brukervalg} on:keypress={onKeyPress} value={`Spør Fag-botten`} />
     </div>
     {#if isError}
       <Modal bind:showModal>
