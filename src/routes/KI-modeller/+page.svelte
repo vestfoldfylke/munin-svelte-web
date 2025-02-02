@@ -133,15 +133,17 @@
           response = await noraChat(userParams);
           break;
         case "option3":
+          console.log(userParams);
+          userParams.synligKontekst = false;
+          response = await openAiAssistant(userParams);
+          console.log(response);
+          break;
         case "option4":
         case "option5":
         case "option6":
         case "option7":
         case "option8":
           response = await openAiAssistant(userParams);
-          userParams.newThread = false;
-          userParams.threadId = response.thread_id;
-          response = response.messages[0].content[0].text.value;
           break;
         case "option13":
           response = await multimodalMistral(userParams);
@@ -149,7 +151,6 @@
         default:
           throw new Error("Ugyldig modellvalg");
       }
-
       userParams.messageHistory.push({ role: "assistant", content: response, model: modelinfoModell});
       isWaiting = false;
     } catch (error) {
@@ -279,10 +280,10 @@ const resizeBase64Image = (base64, width, height) => {
           <option value="option13" default>Mistral</option>
           <option value="option1">GPT-4o</option>
           <option value="option2">Nora - Eksperimentell</option>
-          <option value="option3">Matematikkens byggesteiner</option>
+          <!--<option value="option3">Matematikkens byggesteiner</option> // Disablet intill videre
           <option value="option4">Teoretisk matematikk Nivå 1</option>
           <option value="option5">Teoretisk matematikk Nivå 2</option>
-          <option value="option8">Geologi - Eksperimentell</option>
+          <option value="option8">Geologi - Eksperimentell</option> -->
         </select>
         <button id="modelinfoButton" class="link" onclick={() => { modelTampering = !modelTampering; showModal = true }}>
           <span class="button-text">Instillinger</span>

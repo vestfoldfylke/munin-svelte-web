@@ -43,10 +43,13 @@ export const testStructured = async (userParams) => {
    return response
 }
 
-export const nbTranscript = async (filliste) => {
+export const nbTranscript = async (filliste, metadata) => {
   console.log("Første fil: ", filliste)
   const datapakken = new FormData()
   datapakken.append('filer', filliste)
+  datapakken.append('filnavn', metadata.filnavn)
+  datapakken.append('spraak', metadata.spraak)
+  datapakken.append('format', metadata.format)
   const accessToken = await getHuginToken()
   console.log("lydfil: ", filliste)
   const r = await axios.post(`${import.meta.env.VITE_AI_API_URI}/nbTranscript`, datapakken, {
