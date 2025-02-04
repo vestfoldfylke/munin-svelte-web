@@ -132,7 +132,7 @@
 {/if}
   <br>
   <div id="transkriptOutput">
-    Den ferdige transkripsjonen/oppsummeringen blir sendes til deg på epost i løpet av kort tid.
+    Den ferdige transkripsjonen/oppsummeringen sendes til deg på epost i løpet av kort tid.
   </div>
 {/if}
 <!-- Download button -->
