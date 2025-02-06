@@ -32,8 +32,8 @@
         <!-- <CardButton header={'Om tjenesten'} imgPath={ravner} imgAlt={'Bilde av Hugin og Munin'} gotoPath={'/about'} paragraph={''} boolValue={true}><span class="material-symbols-outlined">raven</span></CardButton> -->
         <CardButton header={'KI-modeller'} imgPath={chat} imgAlt={'Ikon bilde av en snakkebobble'} gotoPath={'/KI-modeller'} paragraph={''} boolValue={true}><span class="material-symbols-outlined">chat</span></CardButton>
         {#if token.roles.includes(`${appName.toLowerCase()}.admin`)}
-          <!-- <CardButton header={'Dokumentspørring'} imgPath={doc} imgAlt={'Ikon bilde av et dokument'} gotoPath={'/docQuery'} paragraph={'Trykk her hvis du vil bruke KI til spørre og jobbe med egne dokumenter.'} boolValue={true}><span class="material-symbols-outlined">find_in_page</span></CardButton> -->
-          <CardButton header={'Transkripsjon'} imgPath={doc} imgAlt={'Ikon bilde av et dokument'} gotoPath={'/transcript'} paragraph={''} boolValue={true}><span class="material-symbols-outlined">interpreter_mode</span></CardButton>
+          <!-- <CardButton header={'Dokumentspørring'} imgPath={doc} imgAlt={'Ikon bilde av et dokument'} gotoPath={'/docQuery'} paragraph={'Trykk her hvis du vil bruke KI til spørre og jobbe med egne dokumenter.'} boolValue={true}><span class="material-symbols-outlined">find_in_page</span></CardButton> --> 
+          <!-- <CardButton header={'Transkripsjon'} imgPath={doc} imgAlt={'Ikon bilde av et dokument'} gotoPath={'/transcript'} paragraph={''} boolValue={true}><span class="material-symbols-outlined">interpreter_mode</span></CardButton> -->
         {/if}
         {#if token.roles.includes(`${appName.toLowerCase()}.labs`) || token.roles.includes(`${appName.toLowerCase()}.admin`)}
           <CardButton header={'Pilot'} imgPath={eksperiment} imgAlt={'Ikon bilde av et reagensrør'} gotoPath={'/labs'} paragraph={''} boolValue={true}><span class="material-symbols-outlined">experiment</span></CardButton>

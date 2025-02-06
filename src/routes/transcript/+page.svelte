@@ -16,6 +16,11 @@
   let timer = $state(0);
   let timerInterval;
   const appName=import.meta.env.VITE_APP_NAME
+  let metadata = $state({
+    "filnavn": "",
+    "spraak": "",
+    "format": ""
+  });
 
   onMount(async () => {
     if ( import.meta.env.VITE_MOCK_API && import.meta.env.VITE_MOCK_API === "true" ) {
@@ -35,6 +40,7 @@
     };
 
     mediaRecorder.onstop = () => {
+      metadata.filnavn = 'mittopptak.wav';
       audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
       audioUrl = URL.createObjectURL(audioBlob);
       audioChunks = [];
@@ -61,6 +67,7 @@
   const handleAudioFileSelect = (event) => {
     const selectedFile = event.target.files[0];
     if (selectedFile) {
+      metadata.filnavn = selectedFile.name;
       // Lager blob til transkripsjon og url for avspilling
       audioBlob = new Blob([selectedFile], { type: 'audio/wav' });
       audioUrl = URL.createObjectURL(audioBlob);
@@ -70,7 +77,7 @@
 
   const sendTilTranscript = async () => {
     console.log('Sending to transcript');
-    ferdigTranskript = await nbTranscript(audioBlob);
+    ferdigTranskript = await nbTranscript(audioBlob, metadata);
     // console.log(ferdigTranskript);
   };
 </script>
@@ -86,11 +93,32 @@
   <h2>Modell: Nasjonalbibliotektets nb-whisper-medium</h2>
   <p>Tjenesten er under utvikling og kan være ustabil. Husk at du ikke må sende inn lydklipp som inneholder sensitiv informasjon.</p>
   <br><br>
+  <select bind:value={metadata.spraak}>
+    <option value="" disabled>Velg språk</option>
+    <option value="norsk">Norsk</option>
+    <option value="engelsk">Engelsk</option>
+    <option value="tysk">Tysk</option>
+    <option value="fransk">Fransk</option>
+    <option value="spansk">Spansk</option>
+    <option value="ukarinsk">Ukrainsk</option>
+  </select>
+  <select bind:value={metadata.format}>
+    <option value="" disabled>Velg format</option>
+    <option value="motereferat">Møtereferat</option>
+    <option value="kort_oppsummering">Kort oppsummering</option>
+    <option value="fyldig_oppsummering">Fyldig oppsummering</option>
+    <option value="full_transkripsjon">Full transkripsjon</option>
+  </select>
+  <br>
+  <br>
   <button onclick={startRecording}>Start opptak</button>
   <button onclick={stopRecording}>Stopp opptak</button>
   <button onclick={sendTilTranscript}>Transkriber opptak</button>
   <!-- Opplasting av lydfil -->
   <input type="file" accept="audio/*" id="audioFile" name="audioFile" onchange={handleAudioFileSelect} />
+  {#if metadata.selectedFileName}
+    <p>Valgt fil: {metadata.selectedFileName}</p>
+  {/if}
   <br>
   {#if audioUrl}
       <!-- Avspilling fra audioUrl-objektet -->
@@ -104,7 +132,7 @@
 {/if}
   <br>
   <div id="transkriptOutput">
-    {ferdigTranskript}
+    Den ferdige transkripsjonen/oppsummeringen sendes til deg på epost i løpet av kort tid.
   </div>
 {/if}
 <!-- Download button -->

@@ -47,7 +47,7 @@
   // Starter med en velkomstmelding
   userParams.messageHistory.push({
     role: "assistant",
-    content: `Velkommen til ${appName} og HO-botten! Hva kan jeg hjelpe deg med i dag?`,
+    content: `Velkommen til ${appName} og Fag-botten! Hva kan jeg hjelpe deg med i dag?`,
   })
 
   onMount(async () => {
@@ -93,6 +93,23 @@
     }
   }
 
+   // Henter nøkkelord til søk på Lovdata basert på tekstuttrekk fra responsen ttil språkmodellen
+   async function handleLovverkRequest() {
+    try {
+      // Strukturerer responsen fra Hugin
+      const structTest = await structureResponse(userParams);
+      console.log("structTest", structTest)
+      // Lager en ny systemmelding med lenker søk på Lovdata basert på nøkkelord fra responsen til Hugin
+      userParams.messageHistory.push({
+        role: "assistant",
+        content: "Les mer om: " + structTest.nøkkelord + " på: <a target='_blank' href='https://lovdata.no/sok?q=" + structTest.nøkkelord + "'>Lovdata</a>",
+      });
+    } catch (error) {
+      console.error("Error fetching articles from Lovverket:", error);
+    }
+  }
+
+
   // Kaller på valgt modell med tilhørende parametre basert på brukerens valg
   const brukervalg = async () => {
     isWaiting = true
@@ -113,7 +130,7 @@
         scrollToBottom(chatWindow)
         isWaiting = false
       } else if (userParams.valgtModell === "option14" || userParams.valgtModell === "option15") {
-        userParams.messageHistory.push({
+          userParams.messageHistory.push({
           role: "user",
           content: userParams.message,
         })
@@ -123,7 +140,7 @@
         userParams.messageHistory.push({ role: "assistant", content: vasketRespons, assistant: "RegelverksBotten" })
         userParams.newThread = false
         userParams.threadId = respons.thread_id
-        // await handleNDLARequest(); // Kildekall: Henter relevante artikler fra NDLA
+        if (userParams.valgtModell === "option14") { await handleLovverkRequest(); } // Kildekall: Henter relevante artikler fra Lovdata
         scrollToBottom(chatWindow)
         isWaiting = false
       }
