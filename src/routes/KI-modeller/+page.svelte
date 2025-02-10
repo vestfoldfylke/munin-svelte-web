@@ -286,7 +286,7 @@ const resizeBase64Image = (base64, width, height) => {
           <option value="option8">Geologi - Eksperimentell</option> -->
         </select>
         <button id="modelinfoButton" class="link" onclick={() => { modelTampering = !modelTampering; showModal = true }}>
-          <span class="button-text">Instillinger</span>
+          <span class="button-text">Innstillinger</span>
         </button>
       </div>
     </div>
