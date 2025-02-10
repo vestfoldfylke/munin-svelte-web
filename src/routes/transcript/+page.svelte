@@ -124,7 +124,6 @@
       <!-- Avspilling fra audioUrl-objektet -->
       <audio controls src = {audioUrl}></audio>
       <a href={audioUrl} download="recording.wav">
-        <button>Last ned opptak</button>
       </a>
   {/if}
   {#if recording}
