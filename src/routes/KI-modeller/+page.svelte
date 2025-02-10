@@ -373,6 +373,17 @@ const resizeBase64Image = (base64, width, height) => {
       </label>
     </div>
   {/if}
+  {#if appName === 'Hugin'}
+    {#if (viewportWidth < 768)}
+    <p id="disclaimer">Husk at språkmodeller lager tekst som kan inneholde feil. <a href="https://telemarkfylke.no/no/veileder-for-kunstig-intelligens/">Les mer om bruk av {appName} her.</p>
+    {:else}
+      <p id="disclaimer">
+        Husk at språkmodeller lager tekst som kan inneholde feil. Vurder alltid om bruken av språkteknologi passer med formålet ditt.<br> 
+        Ikke send inn data som kan være sensitive eller inneholder informasjon som ikke kan deles offentlig. <a href="https://telemarkfylke.no/no/veileder-for-kunstig-intelligens/">Les mer om bruk av {appName} her.</a>
+      </p>
+    {/if}
+  {/if}
+  {#if appName === 'Munin'}
   {#if (viewportWidth < 768)}
   <p id="disclaimer">Husk at språkmodeller lager tekst som kan inneholde feil. <a href="https://www.vestfoldfylke.no/no/meny/tjenester/opplaring/digitale-laringsressurser-til-videregaende-opplaring/veileder-for-kunstig-intelligens/">Les mer om bruk av {appName} her.</p>
   {:else}
@@ -381,6 +392,7 @@ const resizeBase64Image = (base64, width, height) => {
       Ikke send inn data som kan være sensitive eller inneholder informasjon som ikke kan deles offentlig. <a href="https://www.vestfoldfylke.no/no/meny/tjenester/opplaring/digitale-laringsressurser-til-videregaende-opplaring/veileder-for-kunstig-intelligens/">Les mer om bruk av {appName} her.</a>
     </p>
   {/if}
+{/if}
   <Modal bind:showModal buttonText="Lagre">
     {#snippet header()}
         <h2 >{modelinfoModell}</h2>
