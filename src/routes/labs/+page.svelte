@@ -129,7 +129,7 @@
         await handleNDLARequest(); // Kildekall: Henter relevante artikler fra NDLA
         scrollToBottom(chatWindow)
         isWaiting = false
-      } else if (userParams.valgtModell === "option14" || userParams.valgtModell === "option15") {
+      } else if (userParams.valgtModell === "option14" || userParams.valgtModell === "option15" || userParams.valgtModell === "option16") {
           userParams.messageHistory.push({
           role: "user",
           content: userParams.message,
@@ -273,6 +273,7 @@
           <option value="option14">Labs Skogmo Lovverkhjelpen</option>
           <!-- <option value="option12">Test - Enkel strukturert respons</option> -->
           <option value="option15">Test - Plan og Bygg</option>
+          <option value="option16">Test - Pythonhjelpen</option>
         </select>
         <div class="showNhideBtns">
           {#if modelTampering}
