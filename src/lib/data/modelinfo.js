@@ -85,5 +85,17 @@ export const modelinfo = {
     description: 'Eksperimentell bot til bruk i HO/Helsefremmende arbeid for lærere',
     synligKontekst: false,
     illustrasjon: ''
-  }
+  },
+  option15: {
+    navn: 'Labs Skogmo - Elev',
+    description: 'Eksperimentell bot til bruk i HO/Helsefremmende arbeid for elever',
+    synligKontekst: false,
+    illustrasjon: ''
+  },
+  option16: {
+    navn: 'Labs Pythonhjelpen',
+    description: 'Eksperimentell bot til bruk som hjelp til programmering i Python',
+    synligKontekst: false,
+    illustrasjon: ''
+  },
 }
