@@ -4,6 +4,7 @@ import { params } from '$lib/data/modelparams'
 import { getHuginToken } from '../useApi'
 import { z } from "zod";
 import { zodResponseFormat } from "openai/helpers/zod";
+import { jwtDecode } from "jwt-decode";
 
 // Importere skjemaer fra eget bibliotek etterhvert
 const Superheltinfo = z.object({
@@ -43,11 +44,17 @@ export const testStructured = async (userParams) => {
    return response
 }
 
-export const nbTranscript = async (filliste) => {
+export const nbTranscript = async (filliste, metadata) => {
   console.log("Første fil: ", filliste)
+  const accessToken = await getHuginToken()
+  const user_upn = jwtDecode(accessToken).upn
+
   const datapakken = new FormData()
   datapakken.append('filer', filliste)
-  const accessToken = await getHuginToken()
+  datapakken.append('filnavn', metadata.filnavn)
+  datapakken.append('spraak', metadata.spraak)
+  datapakken.append('format', metadata.format)
+  datapakken.append('upn', user_upn);
   console.log("lydfil: ", filliste)
   const r = await axios.post(`${import.meta.env.VITE_AI_API_URI}/nbTranscript`, datapakken, {
     method: 'post',
