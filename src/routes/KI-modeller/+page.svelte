@@ -280,10 +280,10 @@ const resizeBase64Image = (base64, width, height) => {
           <option value="option13" default>Mistral</option>
           <option value="option1">GPT-4o</option>
           <option value="option2">Nora - Eksperimentell</option>
-          <!--<option value="option3">Matematikkens byggesteiner</option> // Disablet intill videre
+          <option value="option3">Matematikkens byggesteiner</option>
           <option value="option4">Teoretisk matematikk Nivå 1</option>
           <option value="option5">Teoretisk matematikk Nivå 2</option>
-          <option value="option8">Geologi - Eksperimentell</option> -->
+          <option value="option8">Geologi - Eksperimentell</option>
         </select>
         <button id="modelinfoButton" class="link" onclick={() => { modelTampering = !modelTampering; showModal = true }}>
           <span class="button-text">Innstillinger</span>

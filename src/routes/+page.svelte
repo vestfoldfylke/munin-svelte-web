@@ -40,10 +40,10 @@
         {/if}
       </div>
       {#if appName === 'Hugin'}
-        <h2>{appName} - En <a target="_blank" href="https://telemarkfylke.no/no/veileder-for-kunstig-intelligens/"> KI-tjeneste </a> for {import.meta.env.VITE_COUNTY} fylkeskommune</h2>
+        <h3>{appName} - En KI-tjeneste for {import.meta.env.VITE_COUNTY} fylkeskommune</h3>
       {/if}
       {#if appName === 'Munin'}
-        <h2>{appName} - En <a target="_blank" href="https://www.vestfoldfylke.no/no/meny/tjenester/opplaring/digitale-laringsressurser-til-videregaende-opplaring/munin/"> KI-tjeneste </a> for {import.meta.env.VITE_COUNTY} fylkeskommune</h2>
+        <h3>{appName} - En <a target="_blank" href="https://www.vestfoldfylke.no/no/meny/tjenester/opplaring/digitale-laringsressurser-til-videregaende-opplaring/munin/"> KI-tjeneste </a> for {import.meta.env.VITE_COUNTY} fylkeskommune</h3>
       {/if}
     {/if}
   </main>
