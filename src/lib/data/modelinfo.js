@@ -1,4 +1,4 @@
-// Dette er informasjon som brukes i for å vise informasjon om modellene som er tilgjengelige og hvilke felt som skal vises i frontend.
+// Dette er informasjon som brukes for å vise informasjon om modellene som er tilgjengelige og hvilke felt som skal vises i frontend.
 export const modelinfo = {
   option1: {
     navn: 'GPT-4o',
@@ -35,14 +35,12 @@ export const modelinfo = {
     description: 'NDLA Religion er en eksperimentell assistent som forholder seg NDLA sine ressurser om religion. Alle responser er basert på innholdet i disse ressursene. I tillegg til læringsressursene fra NDLA, er assistenten instruert til å respondere i henhold til læreplanen i faget. (REL01-02)<br><br><b>Husk at KI lager tekst som kan inneholde feil. Sjekk alltid flere kilder og bruk sunn fornuft når du bruker KI.<b>',
     synligKontekst: false,
     illustrasjon: 'NDLA.png'
-
   },
   option7: {
     navn: 'VTR - eksperimentell assistent',
     description: 'VTR er en eksperimentell ekspertbot som er trent på en håndull rapporter',
     synligKontekst: false,
     illustrasjon: ''
-
   },
   option8: {
     navn: 'Geologibotten - eksperimentell assistent',
@@ -57,7 +55,7 @@ export const modelinfo = {
     illustrasjon: 'GPT4o.png'
   },
   option10: {
-    navn: 'Labs elev - Helsefremmende arbeid',
+    navn: 'HO-botten',
     description: 'Eksperimentell bot til bruk i HO/Helsefremmende arbeid for elever',
     synligKontekst: false,
     illustrasjon: ''
