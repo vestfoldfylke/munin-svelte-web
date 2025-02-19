@@ -60,8 +60,7 @@ export const openAiAssistant = async (userParams) => {
       authorization: `Bearer ${accessToken}`
     }
   })
-  console.log(response)
-  return response.data.messages[0].content[0].text.value
+  return response.data
 }
 
 export const docQueryOpenAi = async (filliste, up) => {

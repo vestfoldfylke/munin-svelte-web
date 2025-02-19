@@ -116,6 +116,7 @@ async function handleNDLARequest() {
       userParams.messageHistory.push({
         role: "assistant",
         content: `Les mer om dette på NDLA-sidene: <br> <a target="_blank" href="https://ndla.no/article-iframe/nb/article/${ndla[0].id}">${ndla[0].title.title}</a> og <a target="_blank" href="https://ndla.no/article-iframe/nb/article/${ndla[1].id}">${ndla[1].title.title}</a> eller på <a target="_blank" href="https://ndla.no/article-iframe/nb/article/${ndla[2].id}">${ndla[2].title.title}</a><br>`,
+        model: "NDLA"
       });
     } catch (error) {
       console.error("Error fetching articles from NDLA:", error);
@@ -132,6 +133,7 @@ async function handleNDLARequest() {
       userParams.messageHistory.push({
         role: "assistant",
         content: "Les mer om: " + structTest.nøkkelord + " på: <a target='_blank' href='https://lovdata.no/sok?q=" + structTest.nøkkelord + "'>Lovdata</a>",
+        model: "Lovdata"
       });
     } catch (error) {
       console.error("Error fetching articles from Lovverket:", error);
@@ -170,8 +172,8 @@ async function handleNDLARequest() {
         console.log(userParams.valgtModell)
         respons = await openAiAssistant(userParams)
         console.log("respons", respons)
-        const vasketRespons = respons.replace(/【\d+:\d+†source】/g, ''); // Pynter på responsen
-        userParams.messageHistory.push({ role: "assistant", content: vasketRespons, assistant: "HO-Botten" })
+        const vasketRespons = respons.messages[0].content[0].text.value.replace(/【\d+:\d+†source】/g, ''); // Pynter på responsen
+        userParams.messageHistory.push({ role: "assistant", content: vasketRespons, model: modelinfoModell })
         userParams.newThread = false
         userParams.threadId = respons.thread_id
         await handleNDLARequest(); // Kildekall: Henter relevante artikler fra NDLA
@@ -180,14 +182,13 @@ async function handleNDLARequest() {
         console.log(userParams.valgtModell)
         respons = await openAiAssistant(userParams)
         console.log("respons", respons)
-        userParams.messageHistory.push({ role: "assistant", content: respons, assistant: "HO-Botten" })
+        userParams.messageHistory.push({ role: "assistant", content: respons.messages[0].content[0].text.value, model: modelinfoModell })
         userParams.newThread = false
         userParams.threadId = respons.thread_id
-
+        if (userParams.valgtModell === "option14") { await handleLovverkRequest(); } // Kildekall: Henter relevante artikler fra Lovdata
       } else {
         throw new Error("Ugyldig modellvalg");
       }
-      userParams.messageHistory.push({ role: "assistant", content: response, model: modelinfoModell });
     } catch (error) {
       isError = true;
       errorMessage = error;

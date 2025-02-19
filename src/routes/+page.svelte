@@ -27,7 +27,7 @@
       </div> 
     {:else}
       <div class="centerstuff">
-        <CardButton header={'KI-modeller'} imgPath={chat} imgAlt={'Ikon bilde av en snakkebobble'} gotoPath={'/KI-modeller'} paragraph={''} boolValue={true}><span class="material-symbols-outlined">chat</span></CardButton>
+        <CardButton header={'Chat'} imgPath={chat} imgAlt={'Ikon bilde av en snakkebobble'} gotoPath={'/KI-modeller'} paragraph={''} boolValue={true}><span class="material-symbols-outlined">chat</span></CardButton>
         {#if token.roles.includes(`${appName.toLowerCase()}.admin`)}
           <CardButton header={'Transkripsjon'} imgPath={doc} imgAlt={'Ikon bilde av et dokument'} gotoPath={'/transcript'} paragraph={''} boolValue={true}><span class="material-symbols-outlined">interpreter_mode</span></CardButton>
         {/if}
