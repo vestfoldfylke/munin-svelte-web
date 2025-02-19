@@ -69,6 +69,7 @@
 
   // Fester scroll til bunnen av chatvinduet
   const scrollToBottom = async (node) => {
+    if (!node) return;
     tick().then(() => {
       node.scroll({ top: node.scrollHeight, behavior: "smooth" })
     })
@@ -277,13 +278,13 @@ const resizeBase64Image = (base64, width, height) => {
       <h2>Modellvelger</h2>
       <div class="boxyHeader">
         <select class="modellSelect" onchange={valgtModell}>
-          <option value="option13" default>Mistral</option>
-          <option value="option1">GPT-4o</option>
-          <option value="option2">Nora - Eksperimentell</option>
+          <option value="option1" default >GPT-4o - OpenAI</option>
+          <option value="option13">Mistral - Europeisk språkmodell</option>
+          <option value="option2">Nora - Eksperimentell norsk språkmodell</option>
           <option value="option3">Matematikkens byggesteiner</option>
           <option value="option4">Teoretisk matematikk Nivå 1</option>
           <option value="option5">Teoretisk matematikk Nivå 2</option>
-          <option value="option8">Geologi - Eksperimentell</option>
+          <option value="option8">Geologi - Eksperimentell fagbott</option>
         </select>
         <button id="modelinfoButton" class="link" onclick={() => { modelTampering = !modelTampering; showModal = true }}>
           <span class="button-text">Innstillinger</span>
