@@ -308,9 +308,12 @@ const resizeBase64Image = (base64, width, height) => {
         <select class="modellSelect" onchange={valgtModell}>
           <option value="option10" default selected>Labs Skogmo Praterobot - Helsefremmende arbeid</option>
           <option value="option11">Labs Skogmo Planleggingshjelper - Helsefremmende arbeid</option>
-          <option value="option14">Labs Skogmo Lovverkhjelpen</option>
-          <!-- <option value="option12">Test - Enkel strukturert respons</option> -->
-          <option value="option15">Test - Plan og Bygg</option>
+          <!-- Botter kun for TFK -->
+            {#if appName === 'Hugin'}
+            <option value="option14">Labs Skogmo Lovverkhjelpen</option>
+            <!-- <option value="option12">Test - Enkel strukturert respons</option> -->
+            <option value="option15">Test - Plan og Bygg</option>
+            {/if}
           <option value="option16">Test - Pythonhjelpen</option>
         </select>
         <button id="modelinfoButton" class="link" onclick={() => { modelTampering = !modelTampering; showModal = true }}>
