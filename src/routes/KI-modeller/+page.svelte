@@ -123,44 +123,27 @@
 
     try {
       let response;
-      switch (userParams.valgtModell) {
-        case "option1":
-          response = await multimodalOpenAi(userParams);
-          break;
-        case "option2":
-          userParams.synligKontekst = false;
-          response = await noraChat(userParams);
-          break;
-        case "option3":
-          console.log(userParams);
-          userParams.synligKontekst = false;
-          response = await openAiAssistant(userParams);
-          console.log(response);
-          break;
-        case "option4":
-        case "option5":
-        case "option6":
-        case "option7":
-        case "option8":
-          response = await openAiAssistant(userParams);
-          break;
-        case "option13":
-          response = await multimodalMistral(userParams);
-          break;
-        default:
-          throw new Error("Ugyldig modellvalg");
+      if (userParams.valgtModell === "option1") {
+        response = await multimodalOpenAi(userParams);
+      } else if (userParams.valgtModell === "option13") {
+        response = await multimodalMistral(userParams);
+      } else if (["option2", "option3", "option4", "option5", "option6", "option7", "option8"].includes(userParams.valgtModell)) {
+        userParams.synligKontekst = false;
+        response = await openAiAssistant(userParams);
+      } else {
+        throw new Error("Ugyldig modellvalg");
       }
-      userParams.messageHistory.push({ role: "assistant", content: response, model: modelinfoModell});
-      isWaiting = false;
+      userParams.messageHistory.push({ role: "assistant", content: response, model: modelinfoModell });
     } catch (error) {
-      isError = true
-      errorMessage = error
-      isWaiting = false
+      isError = true;
+      errorMessage = error;
       userParams.messageHistory.push({
-        role: "assistant",
-        content: "Noe gikk galt. Prøv igjen.",
-        model: modelinfoModell
-      })
+      role: "assistant",
+      content: "Noe gikk galt. Prøv igjen.",
+      model: modelinfoModell
+      });
+    } finally {
+      isWaiting = false;
     }
   }
 
