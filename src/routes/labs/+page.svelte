@@ -24,7 +24,7 @@
     valgtModell: "option10", // Default modell Mistral
     base64String: "",
     temperatur: 0.7, // Default temperatur
-    synligKontekst: true,  
+    synligKontekst: false,  
     assistant: "Mistral",
     newThread: true,
     threadId: "",
