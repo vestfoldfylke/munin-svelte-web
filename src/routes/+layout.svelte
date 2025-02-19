@@ -1,6 +1,7 @@
 <script>
   import "../app.css"; // Add global css (and make it hot reload)
-  import logoTFK from "$lib/images/TFK_logo.png";
+  import logoTFK from "$lib/images/TFK_logo.C1Rt3xma-h100.png";
+  import logoTFK_mobile from "$lib/images/TFK_logo.C1Rt3xma-h50.png";
   import logoVFK from "$lib/images/VFK_logo.png";
   import { goto } from "$app/navigation";
   import { page } from "$app/stores";
@@ -16,12 +17,17 @@
   /** @type {Props} */
   let { children } = $props();
 
-  let logo = $state("")
-  if(import.meta.env.VITE_COUNTY === 'Telemark') {
-    logo = logoTFK
+  let logo = $state("");
+  let logo_mobile = $state("");
+  if (import.meta.env.VITE_COUNTY === 'Telemark') {
+    logo = logoTFK;
+    logo_mobile = logoTFK_mobile;
   } else {
-    logo = logoVFK
+    logo = logoVFK;
+    logo_mobile = logoVFK;
   }
+
+
 
   const appName = import.meta.env.VITE_APP_NAME
 
@@ -75,7 +81,7 @@
     <div class="topbar">
       <div class="toptop">
         <div>
-          <a href="/"><img class="logo" src={logo} alt="Hugin og Munin" style="margin-right: 50px;"/></a>
+            <a href="/"><img class="logo" src={logo} alt="Hugin og Munin" style="margin-right: 50px;" srcset="{logo_mobile} 768w, {logo} 769w"/></a>
         </div>
         <a href="/" title="Gå til forsiden" class="appTitle"><h1>{ appName }</h1></a>
         <div class="topbarOptions">
