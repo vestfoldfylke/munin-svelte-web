@@ -11,7 +11,6 @@ export const multimodalOpenAi = async (userParams) => {
   payload.kontekst = userParams.kontekst
   payload.temperatur = userParams.temperatur
   payload.bilde_base64String = userParams.base64String
-
   const accessToken = await getHuginToken()
   // Call AZF-funksjon with payload
   const response = await axios.post(`${import.meta.env.VITE_AI_API_URI}/multimodalOpenAi`, payload, {
@@ -19,7 +18,8 @@ export const multimodalOpenAi = async (userParams) => {
       authorization: `Bearer ${accessToken}`
     }
   })
-  return response.data.choices[0].message.content
+
+  return response.data
 }
 
 export const noraChat = async (modellInfo) => {
@@ -53,9 +53,7 @@ export const openAiAssistant = async (userParams) => {
     messageHistory: userParams.messageHistory,
     vectorStore_id: ''
   }
-
   const accessToken = await getHuginToken()
-  console.log('assistantOpenAi', payload)
   const response = await axios.post(`${import.meta.env.VITE_AI_API_URI}/assistantOpenAi`, payload, {
     headers: {
       authorization: `Bearer ${accessToken}`

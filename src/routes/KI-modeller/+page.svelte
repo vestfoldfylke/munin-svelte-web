@@ -1,12 +1,10 @@
 <script>
-  import { run } from 'svelte/legacy';
-
   import { docQueryOpenAi } from "$lib/services/openAiTools"
   import { multimodalOpenAi, noraChat, openAiAssistant } from "../../lib/services/openAiTools"
   import { multimodalMistral } from "$lib/services/mistralTools"
   import { modelinfo } from "../../lib/data/modelinfo" // Tekstbeskrivelser om valgt modell
   import ChatBlobs from "$lib/components/ChatBlobs.svelte" // Komponent for å vise chatmeldinger
-  import ModelInfo from "../../lib/components/ModelInfo.svelte"
+  // import ModelInfo from "../../lib/components/ModelInfo.svelte"
   import "@material/web/button/elevated-button"
   import { onMount, tick } from "svelte"
   import { getHuginToken } from "../../lib/useApi"
@@ -22,7 +20,7 @@
     threadId: "",
     messageHistory: [],
     kontekst: "",
-    valgtModell: "option13", // Default modell Mistral
+    valgtModell: "option1", // Default modell Mistral
     base64String: "",
     temperatur: 0.7, // Default temperatur
     synligKontekst: true,  
@@ -69,6 +67,7 @@
 
   // Fester scroll til bunnen av chatvinduet
   const scrollToBottom = async (node) => {
+    if (!node) return;
     tick().then(() => {
       node.scroll({ top: node.scrollHeight, behavior: "smooth" })
     })
@@ -124,44 +123,29 @@
 
     try {
       let response;
-      switch (userParams.valgtModell) {
-        case "option1":
-          response = await multimodalOpenAi(userParams);
-          break;
-        case "option2":
-          userParams.synligKontekst = false;
-          response = await noraChat(userParams);
-          break;
-        case "option3":
-          console.log(userParams);
-          userParams.synligKontekst = false;
-          response = await openAiAssistant(userParams);
-          console.log(response);
-          break;
-        case "option4":
-        case "option5":
-        case "option6":
-        case "option7":
-        case "option8":
-          response = await openAiAssistant(userParams);
-          break;
-        case "option13":
-          response = await multimodalMistral(userParams);
-          break;
-        default:
-          throw new Error("Ugyldig modellvalg");
+      if (userParams.valgtModell === "option1") {
+        response = await multimodalOpenAi(userParams);
+        userParams.messageHistory.push({ role: "assistant", content: response.choices[0].message.content, model: modelinfoModell }); 
+      } else if (userParams.valgtModell === "option13") {
+        response = await multimodalMistral(userParams);
+        userParams.messageHistory.push({ role: "assistant", content: response.choices[0].message.content, model: modelinfoModell });
+      } else if (["option2", "option3", "option4", "option5", "option6", "option7", "option8"].includes(userParams.valgtModell)) {
+        userParams.synligKontekst = false;
+        response = await openAiAssistant(userParams);
+        userParams.messageHistory.push({ role: "assistant", content: response.messages[0].content[0].text.value, model: modelinfoModell }); 
+      } else {
+        throw new Error("Ugyldig modellvalg");
       }
-      userParams.messageHistory.push({ role: "assistant", content: response, model: modelinfoModell});
-      isWaiting = false;
     } catch (error) {
-      isError = true
-      errorMessage = error
-      isWaiting = false
+      isError = true;
+      errorMessage = error;
       userParams.messageHistory.push({
-        role: "assistant",
-        content: "Noe gikk galt. Prøv igjen.",
-        model: modelinfoModell
-      })
+      role: "assistant",
+      content: "Noe gikk galt. Prøv igjen.",
+      model: modelinfoModell
+      });
+    } finally {
+      isWaiting = false;
     }
   }
 
@@ -277,13 +261,13 @@ const resizeBase64Image = (base64, width, height) => {
       <h2>Modellvelger</h2>
       <div class="boxyHeader">
         <select class="modellSelect" onchange={valgtModell}>
-          <option value="option13" default>Mistral</option>
-          <option value="option1">GPT-4o</option>
-          <option value="option2">Nora - Eksperimentell</option>
-          <!--<option value="option3">Matematikkens byggesteiner</option> // Disablet intill videre
+          <option value="option1" default >GPT-4o - OpenAI</option>
+          <option value="option13">Mistral - Europeisk språkmodell</option>
+          <option value="option2">Nora - Eksperimentell norsk språkmodell</option>
+          <option value="option3">Matematikkens byggesteiner</option>
           <option value="option4">Teoretisk matematikk Nivå 1</option>
           <option value="option5">Teoretisk matematikk Nivå 2</option>
-          <option value="option8">Geologi - Eksperimentell</option> -->
+          <option value="option8">Geologi - Eksperimentell fagbott</option>
         </select>
         <button id="modelinfoButton" class="link" onclick={() => { modelTampering = !modelTampering; showModal = true }}>
           <span class="button-text">Innstillinger</span>
@@ -590,6 +574,7 @@ textarea {
     main {
       height: 100%; /*calc(80vh - 100px);*/
       margin: 2px;
+      margin-bottom: 0; /* reduce bottom whitespace */
     }
     
     #disclaimer {
