@@ -109,8 +109,6 @@ async function handleNDLARequest() {
 
       // Søker etter artikler på NDLA basert på nøkkelord fra responsen til Hugin
       const ndla = await getArticlesFromNDLA(structTest.nøkkelord);
-      console.log("Søk: ", structTest.nøkkelord); // Log the search term
-      console.log("NDLA: ", ndla); // Logger responsen fra NDLA
 
       // Lager en ny systemmelding med lenker til artiklene fra NDLA
       userParams.messageHistory.push({
@@ -128,7 +126,7 @@ async function handleNDLARequest() {
     try {
       // Strukturerer responsen fra Hugin
       const structTest = await structureResponse(userParams);
-      console.log("structTest", structTest)
+
       // Lager en ny systemmelding med lenker søk på Lovdata basert på nøkkelord fra responsen til Hugin
       userParams.messageHistory.push({
         role: "assistant",
@@ -166,12 +164,8 @@ async function handleNDLARequest() {
     })
 
     try {
-      let response;
-      console.log("userParams.valgtModell", userParams.valgtModell)
       if (userParams.valgtModell === "option10" || userParams.valgtModell === "option11") {
-        console.log(userParams.valgtModell)
         respons = await openAiAssistant(userParams)
-        console.log("respons", respons)
         const vasketRespons = respons.messages[0].content[0].text.value.replace(/【\d+:\d+†source】/g, ''); // Pynter på responsen
         userParams.messageHistory.push({ role: "assistant", content: vasketRespons, model: modelinfoModell })
         userParams.newThread = false
@@ -179,9 +173,7 @@ async function handleNDLARequest() {
         await handleNDLARequest(); // Kildekall: Henter relevante artikler fra NDLA
         scrollToBottom(chatWindow)
       } else if (userParams.valgtModell === "option14" || userParams.valgtModell === "option15" || userParams.valgtModell === "option16") {
-        console.log(userParams.valgtModell)
         respons = await openAiAssistant(userParams)
-        console.log("respons", respons)
         userParams.messageHistory.push({ role: "assistant", content: respons.messages[0].content[0].text.value, model: modelinfoModell })
         userParams.newThread = false
         userParams.threadId = respons.thread_id

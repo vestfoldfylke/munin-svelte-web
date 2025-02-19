@@ -45,7 +45,6 @@ export const noraChat = async (modellInfo) => {
 }
 
 export const openAiAssistant = async (userParams) => {
-  console.log(userParams.valgtModell)
   const payload = {
     assistant_id: params[userParams.valgtModell].assistant_id,
     new_thread: userParams.newThread,
@@ -53,7 +52,6 @@ export const openAiAssistant = async (userParams) => {
     messageHistory: userParams.messageHistory,
     vectorStore_id: ''
   }
-  console.log(payload)
   const accessToken = await getHuginToken()
   const response = await axios.post(`${import.meta.env.VITE_AI_API_URI}/assistantOpenAi`, payload, {
     headers: {
