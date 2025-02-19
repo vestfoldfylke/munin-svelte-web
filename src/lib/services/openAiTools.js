@@ -18,7 +18,8 @@ export const multimodalOpenAi = async (userParams) => {
       authorization: `Bearer ${accessToken}`
     }
   })
-  return response.data.choices[0].message.content
+
+  return response.data
 }
 
 export const noraChat = async (modellInfo) => {

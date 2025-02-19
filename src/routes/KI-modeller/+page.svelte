@@ -125,15 +125,17 @@
       let response;
       if (userParams.valgtModell === "option1") {
         response = await multimodalOpenAi(userParams);
+        userParams.messageHistory.push({ role: "assistant", content: response.choices[0].message.content, model: modelinfoModell }); 
       } else if (userParams.valgtModell === "option13") {
         response = await multimodalMistral(userParams);
+        userParams.messageHistory.push({ role: "assistant", content: response.choices[0].message.content, model: modelinfoModell });
       } else if (["option2", "option3", "option4", "option5", "option6", "option7", "option8"].includes(userParams.valgtModell)) {
         userParams.synligKontekst = false;
         response = await openAiAssistant(userParams);
+        userParams.messageHistory.push({ role: "assistant", content: response.messages[0].content[0].text.value, model: modelinfoModell }); 
       } else {
         throw new Error("Ugyldig modellvalg");
       }
-      userParams.messageHistory.push({ role: "assistant", content: response.messages[0].content[0].text.value, model: modelinfoModell });
     } catch (error) {
       isError = true;
       errorMessage = error;

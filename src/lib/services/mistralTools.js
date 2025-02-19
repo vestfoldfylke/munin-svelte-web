@@ -21,5 +21,5 @@ export const multimodalMistral = async (userParams) => {
     })
     // return response.data.choices[0].message.content
     console.log("Response: ", response.data.choices[0].message.content)
-    return response.data.choices[0].message.content
+    return response.data
   }
