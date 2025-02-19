@@ -22,7 +22,7 @@
     threadId: "",
     messageHistory: [],
     kontekst: "",
-    valgtModell: "option13", // Default modell Mistral
+    valgtModell: "option1", // Default modell Mistral
     base64String: "",
     temperatur: 0.7, // Default temperatur
     synligKontekst: true,  
