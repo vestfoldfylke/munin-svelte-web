@@ -1,12 +1,10 @@
 <script>
-  import { run } from 'svelte/legacy';
-
   import { docQueryOpenAi } from "$lib/services/openAiTools"
   import { multimodalOpenAi, noraChat, openAiAssistant } from "../../lib/services/openAiTools"
   import { multimodalMistral } from "$lib/services/mistralTools"
   import { modelinfo } from "../../lib/data/modelinfo" // Tekstbeskrivelser om valgt modell
   import ChatBlobs from "$lib/components/ChatBlobs.svelte" // Komponent for å vise chatmeldinger
-  import ModelInfo from "../../lib/components/ModelInfo.svelte"
+  // import ModelInfo from "../../lib/components/ModelInfo.svelte"
   import "@material/web/button/elevated-button"
   import { onMount, tick } from "svelte"
   import { getHuginToken } from "../../lib/useApi"
@@ -591,6 +589,7 @@ textarea {
     main {
       height: 100%; /*calc(80vh - 100px);*/
       margin: 2px;
+      margin-bottom: 0; /* reduce bottom whitespace */
     }
     
     #disclaimer {
