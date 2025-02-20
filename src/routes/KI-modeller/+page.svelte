@@ -343,7 +343,6 @@ const resizeBase64Image = (base64, width, height) => {
                 )}
               </p>
             </div>
-            <div class="errorMsg">{JSON.stringify(errorMessage)}</div>
           </Modal>
         {/if}
       {/if}
