@@ -89,28 +89,12 @@
     {:else if !token.roles.some( (r) => [`${appName.toLowerCase()}.admin`].includes(r) )}
       <p>Oi, du har ikke tilgang. Prøver du deg på noe lurt? 🤓</p>
 {:else}
-  <h1>Eksperimentell Selvbetjeningsløsning for transkripsjon av tale</h1>
-  <h1 style="color: red;">Akkurat nå er den under arbeid og fungerer ikke</h1>
+  <h1>Eksperimentell selvbetjeningsløsning for transkripsjon av tale</h1>
+  <h1 style="color: red;">Tjenesten er under uttesting og feil kan forekomme</h1>
   <h2>Modell: Nasjonalbibliotektets nb-whisper-medium</h2>
   <p>Her kan du spille inn eller laste opp lyd og så få en oppsummering eller møtereferat tilsendt på epost. Du kan kun laste opp lydfiler. Det ferdige resultatet blir sendt på epost til brukeren du er logget inn med.</p><br>
   <p><b>Tjenesten er under utvikling og kan være ustabil. Husk at du ikke må sende inn lydklipp som inneholder sensitiv informasjon.</b></p>
   <p>Slik bruker du tjenesten: Last opp lydklipp på mp3- eller wma-format. Den ferdige transkripsjonen blir sendt til deg på epost.</p>
-  <br><br>
-  <select bind:value={metadata.spraak}>
-    <option value="" disabled>Velg språk</option>
-    <option value="norsk">Norsk</option>
-    <option value="engelsk">Engelsk</option>
-    <option value="tysk">Tysk</option>
-    <option value="fransk">Fransk</option>
-    <option value="spansk">Spansk</option>
-    <option value="ukarinsk">Ukrainsk</option>
-  </select>
-  <select bind:value={metadata.format}>
-    <option value="" disabled>Velg format</option>
-    <option value="motereferat">Møtereferat</option>
-    <option value="oppsummering">Oppsummering</option>
-  </select>
-  <br>
   <br>
   <button onclick={startRecording}>Start opptak</button>
   <button onclick={stopRecording}>Stopp opptak</button>
