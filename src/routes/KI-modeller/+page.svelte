@@ -4,7 +4,6 @@
   import { multimodalMistral } from "$lib/services/mistralTools"
   import { modelinfo } from "../../lib/data/modelinfo" // Tekstbeskrivelser om valgt modell
   import ChatBlobs from "$lib/components/ChatBlobs.svelte" // Komponent for å vise chatmeldinger
-  // import ModelInfo from "../../lib/components/ModelInfo.svelte"
   import "@material/web/button/elevated-button"
   import { onMount, tick } from "svelte"
   import { getHuginToken } from "../../lib/useApi"
@@ -12,7 +11,7 @@
   import autosize from 'svelte-autosize';
   import Modal from "../../lib/components/Modal.svelte"
 
-  // Modell-parametere og payload
+  // Init state - Modell-parametere og payload
   const userParams = $state({
     message: "",
     assistant_id: "",
