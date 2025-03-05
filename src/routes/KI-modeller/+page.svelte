@@ -124,7 +124,10 @@
       let response;
       if (userParams.valgtModell === "option1") {
         response = await multimodalOpenAi(userParams);
-        userParams.messageHistory.push({ role: "assistant", content: response.choices[0].message.content, model: modelinfoModell }); 
+        userParams.messageHistory.push({ role: "assistant", content: response.choices[0].message.content, model: modelinfoModell });
+      } else if (userParams.valgtModell === "option2") {
+        response = await noraChat(userParams);
+        userParams.messageHistory.push({ role: "assistant", content: response, model: modelinfoModell });
       } else if (userParams.valgtModell === "option13") {
         response = await multimodalMistral(userParams);
         userParams.messageHistory.push({ role: "assistant", content: response.choices[0].message.content, model: modelinfoModell });
