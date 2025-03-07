@@ -4,7 +4,6 @@
   import { multimodalMistral } from "$lib/services/mistralTools"
   import { modelinfo } from "../../lib/data/modelinfo" // Tekstbeskrivelser om valgt modell
   import ChatBlobs from "$lib/components/ChatBlobs.svelte" // Komponent for å vise chatmeldinger
-  // import ModelInfo from "../../lib/components/ModelInfo.svelte"
   import "@material/web/button/elevated-button"
   import { onMount, tick } from "svelte"
   import { getHuginToken } from "../../lib/useApi"
@@ -12,7 +11,7 @@
   import autosize from 'svelte-autosize';
   import Modal from "../../lib/components/Modal.svelte"
 
-  // Modell-parametere og payload
+  // Init state - Modell-parametere og payload
   const userParams = $state({
     message: "",
     assistant_id: "",
@@ -125,11 +124,14 @@
       let response;
       if (userParams.valgtModell === "option1") {
         response = await multimodalOpenAi(userParams);
-        userParams.messageHistory.push({ role: "assistant", content: response.choices[0].message.content, model: modelinfoModell }); 
+        userParams.messageHistory.push({ role: "assistant", content: response.choices[0].message.content, model: modelinfoModell });
+      } else if (userParams.valgtModell === "option2") {
+        response = await noraChat(userParams);
+        userParams.messageHistory.push({ role: "assistant", content: response, model: modelinfoModell });
       } else if (userParams.valgtModell === "option13") {
         response = await multimodalMistral(userParams);
         userParams.messageHistory.push({ role: "assistant", content: response.choices[0].message.content, model: modelinfoModell });
-      } else if (["option2", "option3", "option4", "option5", "option6", "option7", "option8"].includes(userParams.valgtModell)) {
+      } else if (["option2", "option3", "option4", "option5", "option6", "option7", "option16"].includes(userParams.valgtModell)) {
         userParams.synligKontekst = false;
         response = await openAiAssistant(userParams);
         userParams.messageHistory.push({ role: "assistant", content: response.messages[0].content[0].text.value, model: modelinfoModell }); 
@@ -267,7 +269,7 @@ const resizeBase64Image = (base64, width, height) => {
           <option value="option3">Matematikkens byggesteiner</option>
           <option value="option4">Teoretisk matematikk Nivå 1</option>
           <option value="option5">Teoretisk matematikk Nivå 2</option>
-          <option value="option8">Geologi - Eksperimentell fagbott</option>
+          <option value="option16">Pythonhjelperen</option>
         </select>
         <button id="modelinfoButton" class="link" onclick={() => { modelTampering = !modelTampering; showModal = true }}>
           <span class="button-text">Innstillinger</span>
@@ -343,7 +345,6 @@ const resizeBase64Image = (base64, width, height) => {
                 )}
               </p>
             </div>
-            <div class="errorMsg">{JSON.stringify(errorMessage)}</div>
           </Modal>
         {/if}
       {/if}
