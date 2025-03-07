@@ -96,8 +96,9 @@
   <p><b>Tjenesten er under utvikling og kan være ustabil. Husk at du ikke må sende inn lydklipp som inneholder sensitiv informasjon.</b></p>
   <p>Slik bruker du tjenesten: Last opp lydklipp på mp3- eller wma-format. Den ferdige transkripsjonen blir sendt til deg på epost.</p>
   <br>
-  <button onclick={startRecording}>Start opptak</button>
-  <button onclick={stopRecording}>Stopp opptak</button>
+  <button onclick={recording ? stopRecording : startRecording}>
+    {recording ? 'Stopp opptak' : 'Start opptak'}
+  </button>
   <!-- Opplasting av lydfil -->
   <input type="file" accept="audio/*" id="audioFile" name="audioFile" onchange={handleAudioFileSelect} />
   {#if metadata.selectedFileName}
@@ -106,8 +107,8 @@
   <br>
   {#if audioUrl}
       <!-- Avspilling fra audioUrl-objektet -->
-      <audio controls src = {audioUrl}></audio><br>
-      <button onclick={sendTilTranscript}>Send til transkripsjon</button>
+      <audio controls src={audioUrl}></audio><br>
+      <button onclick={sendTilTranscript} disabled={ferdigTranskript !== "Her kommer transkripsjonen"}>Send til transkripsjon</button>
       <button><a href={audioUrl} download="recording.wav">Last ned opptak</a></button>
   {/if}
   {#if recording}
