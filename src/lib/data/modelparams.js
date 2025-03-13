@@ -1,6 +1,6 @@
 
 export const params = {
-  option1: {
+  option1: { // Overført
     message: '',
     messageHistory: '',
     kontekst: '',
@@ -8,7 +8,7 @@ export const params = {
     base64String: ''
   },
   option2: {
-    question: '',
+    question: '', // Overført
     parameters: {
       stream: false,
       max_tokens: 500,
@@ -23,7 +23,7 @@ export const params = {
     }
   },
   option3: { // Matematikkens byggesteiner
-    message: '',
+    message: '', // Overført
     kontekst: '',
     model: 'gpt-4o',
     assistant_id: import.meta.env.VITE_ASSISTANT_MB,
@@ -132,7 +132,15 @@ export const params = {
     assistant_id: import.meta.env.VITE_ASSISTANT_LABS_PYTHON,
     new_thread: true,
     thread_id: ''
-  }
+  },
+  option17: { // Eks
+    message: '',
+    kontekst: '',
+    model: 'gpt-4o',
+    assistant_id: import.meta.env.VITE_ASSISTANT_LABS_DEMOTEST,
+    new_thread: true,
+    thread_id: ''
+  },
 }
 
 

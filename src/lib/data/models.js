@@ -1,0 +1,90 @@
+const models =
+    [
+        {
+            id: '0',
+            metadata: {
+                navn: 'GPT-4o',
+                description: 'Denne modellen bruker <a href="https://openai.com/index/hello-gpt-4o/">OpenAIs GPT-4o</a> til å generere tekst basert på en gitt kontekst og melding. GPT-4o er den nyeste versjonen av GPT-4, og er trent på en stor mengde data fra internett. Modellen er trent på å generere tekst som ligner på menneskelig skrevet tekst, og kan brukes til en rekke oppgaver som tekstgenerering, oversettelse og spørsmål-svar. Du må selv legge inn kontektst og temperatur slik at modellen får de egenskapene du ønsker. Denne modellen har også mulighet for bildeanalyse. Trykk på tannhjulet og last opp et bilde. Modellen vil analysere bildet og kan generere tekst basert på dette.',
+                synligKontekst: true,
+                illustrasjon: 'GPT4o.png',
+                tile: 'chat',
+                endpoint: 'multimodalOpenAI',
+                assistant: false
+            },
+            params: {
+                message: '',
+                messageHistory: '',
+                kontekst: '',
+                model: 'gpt-4o',
+                base64String: '' 
+            }
+        },
+        {
+            id: '1',
+            metadata: {
+                navn: 'NoraLLM',
+                description: 'Nora er en familie med norske språkmodeller utviklet av språkteknologigruppen ved Universitet i Oslo (UiO), i samarbeid med blant annet Nasjonalbiblioteket, og er trent på norske tekster (bokmål og nynorsk). Til forskjell fra store språkmodelleer som GPT-4o, så er ikke Nora-modellen i Hugin en ferdigutviklet samtalerobot, som er laget for chat. Nora-modellen har som formål å vise hvordan en språkmodell som er trent på norske data kan skape tekst som bedre representerer norsk språk og kultur. I tillegg er mindre, åpne og spesialiserte modeller mer bærekraftige enn de virkelig store språkmodellene, fra de store multinasjonale teknologiselskapene.',
+                synligKontekst: false,
+                illustrasjon: '',
+                tile: 'chat',
+                endpoint: 'noraChat',
+                assistant: false
+            },
+            params: {
+                question: '',
+                parameters: {
+                    stream: false,
+                    max_tokens: 500,
+                    max_new_tokens: 1024,
+                    top_k: 64,
+                    top_p: 0.9,
+                    stop: ['<|im_end|>'],
+                    temperature: 0.2,
+                    do_sample: true,
+                    repetition_penalty: 1.0,
+                    return_full_text: true
+                }
+            }
+        },
+        {
+            id: '2',
+            metadata: {
+                navn: 'Matematikkens byggesteiner',
+                description: '<a href="https://sindreheggen.wordpress.com/boker/">Matematikkens byggesteiner</a> er en lærebok som dekker de fleste temaer i matematikk fra grunnskolen til og med 1P/2P på videregående. Denne assistenten svarer på spørsmål om matematikk basert på innholdet i denne boken. Alle responser er basert på innholdet i boken, og assistenten er instruert til kun å gi svar som er relevante for matematikk. Læreboken er skrevet av Sindre Sogge Heggen og publisert på <a href="https://sindrsh.github.io/openmathbooks/" target="_blank">Github - Open Math Books</a> under en Creative Commons-lisens. CC BY-NC-SA 4.0<br><br><b>Husk at KI lager tekst som kan inneholde feil. Sjekk alltid flere kilder og bruk sunn fornuft når du bruker KI.<b>',
+                synligKontekst: false,
+                illustrasjon: '',
+                tile: 'chat',
+                endpoint: 'assistantOpenAi',
+                assistant: true
+            },
+            params: {
+                message: '',
+                kontekst: '',
+                model: 'gpt-4o',
+                assistant_id: import.meta.env.VITE_ASSISTANT_MB,
+                new_thread: true,
+                thread_id: ''
+            }
+        },
+        {
+            id: '3',
+            metadata: {
+                navn: 'HO-botten',
+                description: 'Eksperimentell bot til bruk i HO/Helsefremmende arbeid for elever',
+                synligKontekst: false,
+                illustrasjon: '',
+                tile: 'labs',
+                endpoint: 'assistantOpenAi',
+                assistant: true
+            },
+            params: { // Skogmo - Elev
+                message: '',
+                kontekst: '',
+                model: 'gpt-4o',
+                assistant_id: import.meta.env.VITE_ASSISTANT_SKOGMO_ELEV,
+                new_thread: true,
+                thread_id: ''
+            },
+        }
+
+    ]

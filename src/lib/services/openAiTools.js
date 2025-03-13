@@ -55,6 +55,7 @@ export const openAiAssistant = async (userParams) => {
     vectorStore_id: ''
   }
   const accessToken = await getHuginToken()
+  console.log('openAiAssistant', payload)
   const response = await axios.post(`${import.meta.env.VITE_AI_API_URI}/assistantOpenAi`, payload, {
     headers: {
       authorization: `Bearer ${accessToken}`

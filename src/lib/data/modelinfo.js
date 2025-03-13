@@ -96,4 +96,10 @@ export const modelinfo = {
     synligKontekst: false,
     illustrasjon: ''
   },
+  option17: {
+    navn: 'Labs - Eks',
+    description: 'Eksperimentell bot til demo',
+    synligKontekst: false,
+    illustrasjon: ''
+  }
 }

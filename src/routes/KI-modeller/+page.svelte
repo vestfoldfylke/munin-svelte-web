@@ -131,7 +131,7 @@
       } else if (userParams.valgtModell === "option13") {
         response = await multimodalMistral(userParams);
         userParams.messageHistory.push({ role: "assistant", content: response.choices[0].message.content, model: modelinfoModell });
-      } else if (["option2", "option3", "option4", "option5", "option6", "option7", "option16"].includes(userParams.valgtModell)) {
+      } else if (["option2", "option3", "option4", "option5", "option6", "option7", "option16","option17"].includes(userParams.valgtModell)) {
         userParams.synligKontekst = false;
         response = await openAiAssistant(userParams);
         userParams.messageHistory.push({ role: "assistant", content: response.messages[0].content[0].text.value, model: modelinfoModell }); 
@@ -270,12 +270,15 @@ const resizeBase64Image = (base64, width, height) => {
           <option value="option4">Teoretisk matematikk Nivå 1</option>
           <option value="option5">Teoretisk matematikk Nivå 2</option>
           <option value="option16">Pythonhjelperen</option>
+          <option value="option17">DemoTestBotten</option>
         </select>
         <button id="modelinfoButton" class="link" onclick={() => { modelTampering = !modelTampering; showModal = true }}>
           <span class="button-text">Innstillinger</span>
         </button>
       </div>
     </div>
+
+    <!-- For-each som ityererer over modell-confogfila og populerer selectmenmyen -->
 
     <div class="output" bind:this={chatWindow}>
       {#if userParams.messageHistory.length === 1}
