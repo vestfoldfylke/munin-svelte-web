@@ -3,6 +3,29 @@ import axios from 'axios'
 import { params } from '$lib/data/modelparams'
 import { getHuginToken } from '../useApi'
 
+
+
+export const responseOpenAi = async (userParams) => {
+  // Template API-call
+  console.log('responseOpenAi')
+  const accessToken = await getHuginToken()
+  const payload = {
+    userMessage: userParams.message,
+    response_id: userParams.response_id,
+    imageBase64: userParams.base64String,
+  }
+  console.log('responseOpenAi payload', payload.imageBase64)
+  // Call AZF-funksjon with payload
+  const response = await axios.post(`${import.meta.env.VITE_AI_API_URI}/responseOpenAi`, payload, {
+    headers: {
+      authorization: `Bearer ${accessToken}`
+    }
+  })
+  console.log('Svar responseOpenAi', response)
+  return response
+}
+
+
 export const multimodalOpenAi = async (userParams) => {
   // Template API-call
   const payload = params[userParams.valgtModell]
@@ -13,7 +36,7 @@ export const multimodalOpenAi = async (userParams) => {
   payload.bilde_base64String = userParams.base64String
   const accessToken = await getHuginToken()
   // Call AZF-funksjon with payload
-  const response = await axios.post(`${import.meta.env.VITE_AI_API_URI}/multimodalOpenAi`, payload, {
+  const response = await axios.post(`${import.meta.env.VITE_AI_API_URI}/multmodlaOpenAi`, payload, {
     headers: {
       authorization: `Bearer ${accessToken}`
     }

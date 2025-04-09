@@ -1,10 +1,10 @@
 <script>
   import { docQueryOpenAi } from "$lib/services/openAiTools"
-  import { multimodalOpenAi, noraChat, openAiAssistant } from "../../lib/services/openAiTools"
+  import { responseOpenAi, multimodalOpenAi, noraChat, openAiAssistant } from "../../lib/services/openAiTools"
   import { multimodalMistral } from "$lib/services/mistralTools"
   import { modelinfo } from "../../lib/data/modelinfo" // Tekstbeskrivelser om valgt modell
+  import { models } from "../../lib/data/models" // Modellkonfigurasjon
   import ChatBlobs from "$lib/components/ChatBlobs.svelte" // Komponent for å vise chatmeldinger
-  import "@material/web/button/elevated-button"
   import { onMount, tick } from "svelte"
   import { getHuginToken } from "../../lib/useApi"
   import IconSpinner from "../../lib/components/IconSpinner.svelte"
@@ -14,6 +14,7 @@
   // Init state - Modell-parametere og payload
   const userParams = $state({
     message: "",
+    response_id: null,
     assistant_id: "",
     newThread: true,
     threadId: "",
@@ -31,13 +32,15 @@
     filArray: "",
   })
 
+console.log(models[0])
+
   // Variabler for håndtering av data og innhold i frontend
   let files = $state();
   let svar;
   let showModal = $state(false)
   let selectedFiles = $state(null)
   let respons = $state()
-  let modelinfoModell = $state(modelinfo[userParams.valgtModell].navn)
+  let modelinfoModell =  $state(models[0].metadata.navn)// $state(modelinfo[userParams.valgtModell].navn)
   let modelinfoBeskrivelse = $state(modelinfo[userParams.valgtModell].description)
   let modelTampering = $state(false) // Viser modellinformasjon
   let token = $state(null)
@@ -99,10 +102,12 @@
 
   // Håndterer valg av modell og oppdaterere modellinformasjon på siden
   function valgtModell(event) {
+    console.log("Valgt modell: ", event.target.value)
+    // Oppdaterer valgt modell
     userParams.valgtModell = event.target.value
-    modelinfoModell = modelinfo[userParams.valgtModell].navn
-    modelinfoBeskrivelse = modelinfo[userParams.valgtModell].description
-    userParams.synligKontekst = modelinfo[userParams.valgtModell].synligKontekst
+    modelinfoModell = models.find(model => model.id === userParams.valgtModell).metadata.navn
+    modelinfoBeskrivelse = models.find(model => model.id === userParams.valgtModell).metadata.description
+    userParams.synligKontekst = models.find(model => model.id === userParams.valgtModell).metadata.synligKontekst
   }
 
   // Kaller på valgt modell med tilhørende parametre basert på brukerens valg
@@ -122,16 +127,19 @@
 
     try {
       let response;
+      console.log("Valgt modell: ", userParams.valgtModell)
       if (userParams.valgtModell === "option1") {
-        response = await multimodalOpenAi(userParams);
-        userParams.messageHistory.push({ role: "assistant", content: response.choices[0].message.content, model: modelinfoModell });
+        response = await responseOpenAi(userParams);
+        console.log("Response fra responseOpenAi: ", response)
+        userParams.response_id = response.data.id
+        userParams.messageHistory.push({ role: "assistant", content: response.data.output_text , model: modelinfoModell });
       } else if (userParams.valgtModell === "option2") {
         response = await noraChat(userParams);
         userParams.messageHistory.push({ role: "assistant", content: response, model: modelinfoModell });
       } else if (userParams.valgtModell === "option13") {
         response = await multimodalMistral(userParams);
         userParams.messageHistory.push({ role: "assistant", content: response.choices[0].message.content, model: modelinfoModell });
-      } else if (["option2", "option3", "option4", "option5", "option6", "option7", "option16","option17"].includes(userParams.valgtModell)) {
+      } else if (["option2", "option3", "option4", "option5", "option6", "option7", "option16"].includes(userParams.valgtModell)) {
         userParams.synligKontekst = false;
         response = await openAiAssistant(userParams);
         userParams.messageHistory.push({ role: "assistant", content: response.messages[0].content[0].text.value, model: modelinfoModell }); 
@@ -151,37 +159,37 @@
     }
   }
 
-  // Justerer størrelsen på opplastede bilder
-const resizeBase64Image = (base64, width, height) => {
-    // Opprett et canvas-element
-    const canvas = document.createElement('canvas');
-    // Opprett et bilde-element fra base64-strengen
-    const image = new Image();
-    image.src = base64;
-    // Returner en Promise som løses når bildet er lastet
-    return new Promise((resolve, reject) => {
-        image.onload = () => {
-            // Beregn bildets aspektforhold
-            const aspectRatio = image.width / image.height;
-            // Beregn beste passform-dimensjoner for canvas
-            if (width / height > aspectRatio) {
-                canvas.width = height * aspectRatio;
-                canvas.height = height;
-            } else {
-                canvas.width = width;
-                canvas.height = width / aspectRatio;
-            }
-            // Tegn bildet på canvas
-            const context = canvas.getContext('2d');
-            if (context) {
-                context.drawImage(image, 0, 0, canvas.width, canvas.height);
-            }
-            // Løs Promisen med det skalerte bildet som en base64-streng
-            resolve(canvas.toDataURL('image/jpeg'));
-        };
-        image.onerror = reject;
-    });
-};
+//   // Justerer størrelsen på opplastede bilder
+// const resizeBase64Image = (base64, width, height) => {
+//     // Opprett et canvas-element
+//     const canvas = document.createElement('canvas');
+//     // Opprett et bilde-element fra base64-strengen
+//     const image = new Image();
+//     image.src = base64;
+//     // Returner en Promise som løses når bildet er lastet
+//     return new Promise((resolve, reject) => {
+//         image.onload = () => {
+//             // Beregn bildets aspektforhold
+//             const aspectRatio = image.width / image.height;
+//             // Beregn beste passform-dimensjoner for canvas
+//             if (width / height > aspectRatio) {
+//                 canvas.width = height * aspectRatio;
+//                 canvas.height = height;
+//             } else {
+//                 canvas.width = width;
+//                 canvas.height = width / aspectRatio;
+//             }
+//             // Tegn bildet på canvas
+//             const context = canvas.getContext('2d');
+//             if (context) {
+//                 context.drawImage(image, 0, 0, canvas.width, canvas.height);
+//             }
+//             // Løs Promisen med det skalerte bildet som en base64-streng
+//             resolve(canvas.toDataURL('image/jpeg'));
+//         };
+//         image.onerror = reject;
+//     });
+// };
 
   // Konverterer opplastet fil til base64
   const handleFileSelect = async (event) => {
@@ -194,15 +202,17 @@ const resizeBase64Image = (base64, width, height) => {
         try {
           userParams.messageHistory.push({
             role: "user",
-            content: await resizeBase64Image(reader.result, 400, 400),
+            content: reader.result// await resizeBase64Image(reader.result, 400, 400),
           })
           userParams.base64String = reader.result
+          console.log("Base64 Image:", reader.result);
           scrollToBottom(chatWindow)
         } catch (error) {
           console.log("Noe gikk galt", error)
         }
       }
       reader.readAsDataURL(file) // This method reads the file as a base64 string
+      console.log("Base64 Image:", reader.result);
     }
   }
 
@@ -259,26 +269,23 @@ const resizeBase64Image = (base64, width, height) => {
   {:else if !token.roles.some( (r) => [`${appName.toLowerCase()}.basic`, `${appName.toLowerCase()}.admin`].includes(r) )}
     <p>Oi, du har ikke tilgang. Prøver du deg på noe lurt? 🤓</p>
   {:else}
+
+    <!-- For-each som itererer over modell-confogfila og populerer selectmenmyen -->
     <div class="modelTampering">
       <h2>Modellvelger</h2>
       <div class="boxyHeader">
         <select class="modellSelect" onchange={valgtModell}>
-          <option value="option1" default >GPT-4o - OpenAI</option>
-          <option value="option13">Mistral - Europeisk språkmodell</option>
-          <option value="option2">Nora - Eksperimentell norsk språkmodell</option>
-          <option value="option3">Matematikkens byggesteiner</option>
-          <option value="option4">Teoretisk matematikk Nivå 1</option>
-          <option value="option5">Teoretisk matematikk Nivå 2</option>
-          <option value="option16">Pythonhjelperen</option>
-          <option value="option17">DemoTestBotten</option>
+          {#each models as model}
+            {#if model.metadata.tile === "chat"}
+              <option value={model.id}>{model.metadata.navn}</option>
+            {/if}
+          {/each}
         </select>
         <button id="modelinfoButton" class="link" onclick={() => { modelTampering = !modelTampering; showModal = true }}>
           <span class="button-text">Innstillinger</span>
         </button>
       </div>
     </div>
-
-    <!-- For-each som ityererer over modell-confogfila og populerer selectmenmyen -->
 
     <div class="output" bind:this={chatWindow}>
       {#if userParams.messageHistory.length === 1}
@@ -352,12 +359,7 @@ const resizeBase64Image = (base64, width, height) => {
         {/if}
       {/if}
       <label for="sendButton"><span class="material-symbols-outlined inputButton">send</span>
-        <input 
-          id="sendButton" 
-          type="button" 
-          onclick={files && files.length > 0 ? sporDokument : brukervalg}
-          value={`Spør ${appName}`} 
-          style="display: none;"/>
+        <input id="sendButton" type="button" onclick={files && files.length > 0 ? sporDokument : brukervalg} value={`Spør ${appName}`} style="display: none;"/>
       </label>
     </div>
   {/if}
