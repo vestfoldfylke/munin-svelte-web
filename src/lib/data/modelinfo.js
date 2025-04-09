@@ -96,4 +96,10 @@ export const modelinfo = {
     synligKontekst: false,
     illustrasjon: ''
   },
+  option17: {
+    navn: 'ADP',
+    description: 'Eksperimentell bot til bruk for ADP',
+    synligKontekst: false,
+    illustrasjon: ''
+  },
 }

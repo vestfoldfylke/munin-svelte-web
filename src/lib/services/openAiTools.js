@@ -39,6 +39,7 @@ export const noraChat = async (modellInfo) => {
         authorization: `Bearer ${accessToken}`
       }
     })
+    console.log(response.data)
     return response.data
   } else {
     return 'Nora er tilgjengelig på hverdager mellom 08:00 og 16:00. Prøv igjen senere.'
