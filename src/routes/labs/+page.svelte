@@ -271,17 +271,18 @@ const resizeBase64Image = (base64, width, height) => {
           content: userParams.message
         })
     try {
-      respons = await docQueryOpenAi(files, userParams).then((response) => {
-        const l = JSON.parse(response).data.messages.length;
-        svar = JSON.parse(response).data.messages[l - 1].content[0].text.value;
-        // Get last message from data.messages
-        userParams.newThread = false;
-        userParams.vectorStoreId = JSON.parse(response).data.vectorStore_id;
-        userParams.threadId = JSON.parse(response).data.thread_id;
-        userParams.fil = files[0].name;
-      });
-      userParams.messageHistory.push({ role: "assistant", content: svar, model: modelinfoModell });
-      isWaiting = false
+      console.log("userParams", userParams.fil)
+      // respons = await docQueryOpenAi(files, userParams).then((response) => {
+      //   const l = JSON.parse(response).data.messages.length;
+      //   svar = JSON.parse(response).data.messages[l - 1].content[0].text.value;
+      //   // Get last message from data.messages
+      //   userParams.newThread = false;
+      //   userParams.vectorStoreId = JSON.parse(response).data.vectorStore_id;
+      //   userParams.threadId = JSON.parse(response).data.thread_id;
+      //   userParams.fil = files[0].name;
+      // });
+      // userParams.messageHistory.push({ role: "assistant", content: svar, model: modelinfoModell });
+      // isWaiting = false
     } catch (e) {
       console.log("Oj, noe gikk galt!", e);
     }
