@@ -301,20 +301,6 @@ console.log(models[0])
         onkeypress={(e) => onKeyPress(e, dokFiles && dokFiles.length > 0 ? handleFileSelect : brukervalg)}></textarea>
 
       {#if token.roles.some( (r) => [`${appName.toLowerCase()}.admin`].includes(r) )}
-        <!-- {#if userParams.valgtModell === "option1" || userParams.valgtModell === "option13"}
-          <label for="fileButton"><span class="material-symbols-outlined inputButton">cloud_upload</span>
-            <input style="display:none;" bind:files={files} id="fileButton" multiple type="file" accept=".xls, .xlsx, .docx, .pdf, .txt, .json, .md, .pptx" />
-          </label>
-          {#if files && files.length > 0}
-            <div class="fileName flash">
-              {files[0].name}
-              <button 
-                class="removeFile" 
-                onclick={() => { files = null; selectedFiles = []; document.getElementById('fileButton').value = '';}} 
-                aria-label="Remove file">X</button>
-            </div>
-          {/if}
-        {/if} -->
         {#if userParams.valgtModell === "option1"}
         <label for="fileButton"><span class="material-symbols-outlined inputButton">cloud_upload</span>
           <input id="fileButton" type="file" bind:files={dokFiles} onchange={handleFileSelect} accept=".pdf, .docx, .pptx" multiple style="display:none;" />

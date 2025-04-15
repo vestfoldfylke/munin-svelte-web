@@ -3,12 +3,34 @@ export const models =
         {
             id: '0',
             metadata: {
-                navn: 'GPT-4oooo',
-                description: 'Dennnne modellen bruker <a href="https://openai.com/index/hello-gpt-4o/">OpenAIs GPT-4o</a> til å generere tekst basert på en gitt kontekst og melding. GPT-4o er den nyeste versjonen av GPT-4, og er trent på en stor mengde data fra internett. Modellen er trent på å generere tekst som ligner på menneskelig skrevet tekst, og kan brukes til en rekke oppgaver som tekstgenerering, oversettelse og spørsmål-svar. Du må selv legge inn kontektst og temperatur slik at modellen får de egenskapene du ønsker. Denne modellen har også mulighet for bildeanalyse. Trykk på tannhjulet og last opp et bilde. Modellen vil analysere bildet og kan generere tekst basert på dette.',
+                navn: 'GPT-4.1',
+                description: 'Dennnne modellen bruker <a href="https://openai.com/index/gpt-4-1//">OpenAIs GPT-4o</a> til å generere tekst basert på en gitt kontekst og melding. GPT-4o er den nyeste versjonen av GPT-4, og er trent på en stor mengde data fra internett. Modellen er trent på å generere tekst som ligner på menneskelig skrevet tekst, og kan brukes til en rekke oppgaver som tekstgenerering, oversettelse og spørsmål-svar. Du må selv legge inn kontektst og temperatur slik at modellen får de egenskapene du ønsker. Denne modellen har også mulighet for bildeanalyse. Trykk på tannhjulet og last opp et bilde. Modellen vil analysere bildet og kan generere tekst basert på dette.',
                 synligKontekst: true,
                 illustrasjon: 'GPT4o.png',
                 tile: 'chat',
                 endpoint: 'responseOpenAI',
+                assistant: false,
+                fileupload: true,
+                imageuplaod: true,
+                tools: []
+            },
+            params: {
+                message: '',
+                messageHistory: '',
+                kontekst: '',
+                model: 'gpt-4.1',
+                base64String: '' 
+            }
+        },
+        {
+            id: '13',
+            metadata: {
+                navn: 'Mistral',
+                description: 'Dennnne modellen bruker <a href="https://openai.com/index/hello-gpt-4o/">OpenAIs GPT-4o</a> til å generere tekst basert på en gitt kontekst og melding. GPT-4o er den nyeste versjonen av GPT-4, og er trent på en stor mengde data fra internett. Modellen er trent på å generere tekst som ligner på menneskelig skrevet tekst, og kan brukes til en rekke oppgaver som tekstgenerering, oversettelse og spørsmål-svar. Du må selv legge inn kontektst og temperatur slik at modellen får de egenskapene du ønsker. Denne modellen har også mulighet for bildeanalyse. Trykk på tannhjulet og last opp et bilde. Modellen vil analysere bildet og kan generere tekst basert på dette.',
+                synligKontekst: true,
+                illustrasjon: 'GPT4o.png',
+                tile: 'chat',
+                endpoint: 'multimodalMistral',
                 assistant: false,
                 fileupload: true,
                 imageuplaod: true,
