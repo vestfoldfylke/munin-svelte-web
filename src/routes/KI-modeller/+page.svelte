@@ -1,14 +1,14 @@
 <script>
-  import { responseOpenAi, noraChat, openAiAssistant } from "../../lib/services/openAiTools"
-  import { multimodalMistral } from "$lib/services/mistralTools"
-  import { modelinfo } from "../../lib/data/modelinfo" // Tekstbeskrivelser om valgt modell
-  import { models } from "../../lib/data/models" // Modellkonfigurasjon
-  import ChatBlobs from "$lib/components/ChatBlobs.svelte" // Komponent for å vise chatmeldinger
-  import { onMount, tick } from "svelte"
-  import { getHuginToken } from "../../lib/useApi"
-  import IconSpinner from "../../lib/components/IconSpinner.svelte"
-  import autosize from 'svelte-autosize';
-  import Modal from "../../lib/components/Modal.svelte"
+  import { responseOpenAi, noraChat, openAiAssistant } from "$lib/services/openAiTools";
+  import { multimodalMistral } from "$lib/services/mistralTools";
+  // import { modelinfo } from "$lib/data/modelinfo"; // Tekstbeskrivelser om valgt modell
+  import { models } from "$lib/data/models"; // Modellkonfigurasjon
+  import ChatBlobs from "$lib/components/ChatBlobs.svelte"; // Komponent for å vise chatmeldinger
+  import { onMount, tick } from "svelte";
+  import { getHuginToken } from "$lib/useApi";
+  import IconSpinner from "$lib/components/IconSpinner.svelte";
+  import autosize from "svelte-autosize";
+  import Modal from "$lib/components/Modal.svelte";
 
   // Init state - Modell-parametere og payload
   const userParams = $state({
@@ -18,37 +18,30 @@
     dokFiles: [],
     assistant_id: "",
     newThread: true,
+    vectorStoreId: "", 
     threadId: "",
     messageHistory: [],
     kontekst: "",
-    valgtModell: "option1", // Default modell Mistral
-    base64String: "",
+    valgtModell: "0",
+    // base64String: "",
     temperatur: 0.7, // Default temperatur
-    synligKontekst: true,  
-    assistant: "Mistral",
-    newThread: true,
-    threadId: "",
-    vectorStoreId: "",      
-    fil: "Fil ikke valgt",
-    filArray: "",
+    synligKontekst: true,      
   })
 
 console.log(models[0])
 
   // Variabler for håndtering av data og innhold i frontend
+  let imageFiles = $state(null)
   let dokFiles = $state(null);
   let fileSelect = $state(false)
-  let svar;
-  let showModal = $state(false)
-  let imageFiles = $state(null)
-  let respons = $state()
-  let modelinfoModell =  $state(models[0].metadata.navn)// $state(modelinfo[userParams.valgtModell].navn)
-  let modelinfoBeskrivelse = $state(modelinfo[userParams.valgtModell].description)
+  let modelinfoModell =  $state(models[userParams.valgtModell].metadata.navn)// $state(modelinfo[userParams.valgtModell].navn)
+  let modelinfoBeskrivelse = $state(models[userParams.valgtModell].metadata.description) // $state(modelinfo[userParams.valgtModell].beskrivelse)
   let modelTampering = $state(false) // Viser modellinformasjon
   let token = $state(null)
   let chatWindow = $state()
   let isWaiting = $state(false) // Venter på svar fra modell
   let isError = $state(false)
+  let showModal = $state(false)
   let errorMessage = $state("")
   let inputMessage = $state("")
   let viewportWidth = $state(window.innerWidth)
@@ -106,17 +99,16 @@ console.log(models[0])
   function valgtModell(event) {
     console.log("Valgt modell: ", event.target.value)
     // Oppdaterer valgt modell
-    userParams.valgtModell = event.target.value
+    userParams.valgtModell = event.target.value // model.id
     modelinfoModell = models.find(model => model.id === userParams.valgtModell).metadata.navn
     modelinfoBeskrivelse = models.find(model => model.id === userParams.valgtModell).metadata.description
     userParams.synligKontekst = models.find(model => model.id === userParams.valgtModell).metadata.synligKontekst
   }
 
-  // Kaller på valgt modell med tilhørende parametre basert på brukerens valg
+  // Kaller på valgt modell med tilhørende parametre basert på brukerens valg 
   const brukervalg = async () => {
     isWaiting = true
-
-    // Get the textarea and set the height
+    // Get the textarea and set the height -- Hvorfor er dette her?
     const textarea = document.querySelector("textarea")
     textarea.style.height = "60px"
     userParams.message = inputMessage
@@ -130,7 +122,7 @@ console.log(models[0])
     try {
       let response;
       console.log("Valgt modell: ", userParams.valgtModell)
-      if (userParams.valgtModell === "option1") {
+      if (userParams.valgtModell === "0") {
         response = await responseOpenAi(userParams);
         console.log("Response fra responseOpenAi: ", response)
         userParams.response_id = response.data.id
@@ -138,7 +130,7 @@ console.log(models[0])
       } else if (userParams.valgtModell === "option2") {
         response = await noraChat(userParams);
         userParams.messageHistory.push({ role: "assistant", content: response, model: modelinfoModell });
-      } else if (userParams.valgtModell === "option13") {
+      } else if (userParams.valgtModell === "13") {
         response = await multimodalMistral(userParams);
         userParams.messageHistory.push({ role: "assistant", content: response.choices[0].message.content, model: modelinfoModell });
       } else if (["option2", "option3", "option4", "option5", "option6", "option7", "option16"].includes(userParams.valgtModell)) {
@@ -301,7 +293,7 @@ console.log(models[0])
         onkeypress={(e) => onKeyPress(e, dokFiles && dokFiles.length > 0 ? handleFileSelect : brukervalg)}></textarea>
 
       {#if token.roles.some( (r) => [`${appName.toLowerCase()}.admin`].includes(r) )}
-        {#if userParams.valgtModell === "option1"}
+        {#if userParams.valgtModell === "0" || userParams.valgtModell ==="13" }
         <label for="fileButton"><span class="material-symbols-outlined inputButton">cloud_upload</span>
           <input id="fileButton" type="file" bind:files={dokFiles} onchange={handleFileSelect} accept=".pdf, .docx, .pptx" multiple style="display:none;" />
         </label>
@@ -474,13 +466,6 @@ textarea {
     width: 100%;
   }
 
-  .fileName {
-    display: inline-block;
-    position: relative;
-    padding-right: 20px;
-    margin-bottom: 15px;
-  }
-
   @keyframes flash {
     0% {
       background-color: transparent;
@@ -491,26 +476,6 @@ textarea {
     100% {
       background-color: transparent;
     }
-  }
-
-  .flash {
-  animation: flash 2s ease-in-out;
-  }
-
-  .removeFile {
-    position: absolute;
-    top: -5px;
-    right: 0px;
-    background: darkgreen;
-    color: white;
-    border-radius: 50%;
-    width: 12px !important;
-    height: 12px !important;
-    display: flex;
-    justify-content: center;
-    cursor: pointer;
-    border: 1px solid lightgreen;
-    font-size: 0.6rem;
   }
 
   .modellSelect {
