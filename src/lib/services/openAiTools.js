@@ -1,11 +1,10 @@
 // Bibliotek for å håndtere API-kall til AZF-funksjoner
 import axios from 'axios'
 import { params } from '$lib/data/modelparams'
+import { models } from "$lib/data/models"; // Modellkonfigurasjon
 import { getHuginToken } from '../useApi'
 
 export const responseOpenAi = async (userParams) => {
-  // Template API-call
-  console.log('responseOpenAi')
   const accessToken = await getHuginToken()
   const payload = {
     userMessage: userParams.message,
@@ -14,9 +13,6 @@ export const responseOpenAi = async (userParams) => {
     dokFiles: userParams.dokFiles,
   }
 
-  console.log('payload', userParams.dokFiles[0])
-
-  // Call AZF-funksjon with payload
   const response = await axios.post(`${import.meta.env.VITE_AI_API_URI}/responseOpenAi`, payload, {
     headers: {
       authorization: `Bearer ${accessToken}`
@@ -44,15 +40,16 @@ export const multimodalOpenAi = async (userParams) => {
   return response.data
 }
 
-export const noraChat = async (modellInfo) => {
+export const noraChat = async (userParams) => {
   // Sjekker om det er hverdag mellom 08:00 og 16:00
   const isWeekday = (date = new Date()) => date.getDay() % 6 !== 0
   const isDaytime = (date = new Date()) => date.getHours() >= 8 && date.getHours() < 16
   console.log(isWeekday(), isDaytime())
-  // Messagehandling
-  const payload = params[modellInfo.valgtModell]
-  const indexLastMessage = modellInfo.messageHistory.length - 1
-  payload.question = modellInfo.messageHistory[indexLastMessage].content
+
+  let modelIndex = models.findIndex((model) => model.metadata.navn === 'NoraLLM')
+
+  const payload = models[modelIndex].params
+  payload.question = userParams.message
 
   const accessToken = await getHuginToken()
   if (isWeekday() && isDaytime()) {

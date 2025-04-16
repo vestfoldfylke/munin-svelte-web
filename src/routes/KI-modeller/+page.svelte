@@ -1,7 +1,7 @@
 <script>
-  import { responseOpenAi, noraChat, openAiAssistant } from "$lib/services/openAiTools";
+  import { responseOpenAi } from "$lib/services/openAiTools";
   import { multimodalMistral } from "$lib/services/mistralTools";
-  // import { modelinfo } from "$lib/data/modelinfo"; // Tekstbeskrivelser om valgt modell
+  import { noraChat } from "$lib/services/huggingFaceTools";
   import { models } from "$lib/data/models"; // Modellkonfigurasjon
   import ChatBlobs from "$lib/components/ChatBlobs.svelte"; // Komponent for å vise chatmeldinger
   import { onMount, tick } from "svelte";
@@ -16,14 +16,9 @@
     response_id: null,
     imageB64: [],
     dokFiles: [],
-    assistant_id: "",
-    newThread: true,
-    vectorStoreId: "", 
-    threadId: "",
     messageHistory: [],
     kontekst: "",
     valgtModell: "0",
-    // base64String: "",
     temperatur: 0.7, // Default temperatur
     synligKontekst: true,      
   })
@@ -127,7 +122,7 @@ console.log(models[0])
         console.log("Response fra responseOpenAi: ", response)
         userParams.response_id = response.data.id
         userParams.messageHistory.push({ role: "assistant", content: response.data.output_text , model: modelinfoModell });
-      } else if (userParams.valgtModell === "option2") {
+      } else if (userParams.valgtModell === "1") {
         response = await noraChat(userParams);
         userParams.messageHistory.push({ role: "assistant", content: response, model: modelinfoModell });
       } else if (userParams.valgtModell === "13") {
