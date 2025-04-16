@@ -90,6 +90,9 @@ console.log(models[0])
     };
   });
 
+
+  // Logikk og funksjoner for håndtering av brukerinput og valg av modell
+
   // Håndterer valg av modell og oppdaterere modellinformasjon på siden
   function valgtModell(event) {
     console.log("Valgt modell: ", event.target.value)
@@ -156,7 +159,6 @@ console.log(models[0])
     fileSelect = true
     if ( fileType.split("/")[0] === "image" ) {
       userParams.imageB64 = []
-      userParams.base64String = ""
       for (let i = 0; i < imageFiles.length; i++) {
         const file = imageFiles[i]
         const reader = new FileReader()
@@ -166,7 +168,6 @@ console.log(models[0])
               role: "user",
               content: reader.result
             })
-            userParams.base64String = reader.result
             userParams.imageB64.push(reader.result)
             // console.log("Base64 Image:",i , reader.result);
             scrollToBottom(chatWindow)
@@ -187,7 +188,7 @@ console.log(models[0])
         }
       }
       for (let i = 0; i < dokFiles.length; i++) {
-        const file = dokFiles[i]
+        // const file = dokFiles[i]
         const reader = new FileReader()
         reader.onloadend = async () => {
           try {
@@ -196,18 +197,17 @@ console.log(models[0])
               content: dokFiles[i].name
             })
             userParams.dokFiles.push(reader.result)
-            userParams.filArray.push(file.name)
-            // console.log("Base64 Image:",i , reader.result);
             scrollToBottom(chatWindow)
           } catch (error) {
             console.log("Noe gikk galt", error)
           }
         }
-        reader.readAsDataURL(file) // This method reads the file as a base64 string
+        reader.readAsDataURL(dokFiles[i]) // This method reads the file as a base64 string
       }
     }
   }
 
+  // Håndterer tastetrykk i textarea
   const onKeyPress = async (e, callback) => {
     if (e.charCode === 13 && !e.shiftKey) {
       e.preventDefault()
@@ -288,12 +288,16 @@ console.log(models[0])
         onkeypress={(e) => onKeyPress(e, dokFiles && dokFiles.length > 0 ? handleFileSelect : brukervalg)}></textarea>
 
       {#if token.roles.some( (r) => [`${appName.toLowerCase()}.admin`].includes(r) )}
-        {#if userParams.valgtModell === "0" || userParams.valgtModell ==="13" }
+        {#if userParams.valgtModell === "0" }
         <label for="fileButton"><span class="material-symbols-outlined inputButton">cloud_upload</span>
-          <input id="fileButton" type="file" bind:files={dokFiles} onchange={handleFileSelect} accept=".pdf, .docx, .pptx" multiple style="display:none;" />
+          <input id="fileButton" type="file" bind:files={dokFiles} onchange={handleFileSelect} accept=".pdf" multiple style="display:none;" />
         </label>
+        <label for="imageButton"><span class="material-symbols-outlined inputButton">add_photo_alternate</span>
+          <input id="imageButton" type="file" bind:files={imageFiles} onchange={handleFileSelect} accept="image/*" multiple style="display: none;"/></label>
+        {/if}
+        {#if userParams.valgtModell === "13" }
           <label for="imageButton"><span class="material-symbols-outlined inputButton">add_photo_alternate</span>
-            <input id="imageButton" type="file" bind:files={imageFiles} onchange={handleFileSelect} accept="image/*" multiple style="display: none;"/></label>
+            <input id="imageButton" type="file" bind:files={imageFiles} onchange={handleFileSelect} accept="image/jpeg" multiple style="display: none;"/></label>
         {/if}
         {#if isError}
           <Modal bind:showModal>
