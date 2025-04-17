@@ -1,10 +1,7 @@
 <script>
-  import { docQueryOpenAi } from "$lib/services/openAiTools"
-  import { multimodalOpenAi, noraChat, openAiAssistant } from "../../lib/services/openAiTools"
-  import { multimodalMistral } from "$lib/services/mistralTools"
+  import { openAiAssistant } from "$lib/services/openAiTools"
   import { modelinfo } from "../../lib/data/modelinfo" // Tekstbeskrivelser om valgt modell
   import ChatBlobs from "$lib/components/ChatBlobs.svelte" // Komponent for å vise chatmeldinger
-  // import ModelInfo from "../../lib/components/ModelInfo.svelte"
   import "@material/web/button/elevated-button"
   import { onMount, tick } from "svelte"
   import { getHuginToken } from "../../lib/useApi"

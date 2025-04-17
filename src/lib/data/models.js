@@ -99,7 +99,7 @@ export const models =
                 description: 'Eksperimentell bot til bruk i HO/Helsefremmende arbeid for elever',
                 synligKontekst: false,
                 illustrasjon: '',
-                tile: 'labs',
+                tile: 'skolebott',
                 endpoint: 'assistantOpenAi',
                 assistant: true
             },

@@ -22,12 +22,12 @@ export const responseOpenAi = async (userParams) => {
 }
 
 export const openAiAssistant = async (userParams) => {
+  console.log('openAiAssistant', userParams)
   const payload = {
-    assistant_id: params[userParams.valgtModell].assistant_id,
-    new_thread: userParams.newThread,
-    thread_id: userParams.threadId,
+    assistant_id: userParams.assistant_id,
+    new_thread: userParams.new_thread,
+    thread_id: userParams.thread_id,
     messageHistory: userParams.messageHistory,
-    vectorStore_id: ''
   }
   const accessToken = await getHuginToken()
   console.log('openAiAssistant', payload)
