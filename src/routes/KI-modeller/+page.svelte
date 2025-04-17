@@ -23,8 +23,6 @@
     synligKontekst: true,      
   })
 
-console.log(models[0])
-
   // Variabler for håndtering av data og innhold i frontend
   let imageFiles = $state(null)
   let dokFiles = $state(null);
@@ -95,8 +93,6 @@ console.log(models[0])
 
   // Håndterer valg av modell og oppdaterere modellinformasjon på siden
   function valgtModell(event) {
-    console.log("Valgt modell: ", event.target.value)
-    // Oppdaterer valgt modell
     userParams.valgtModell = event.target.value // model.id
     modelinfoModell = models.find(model => model.id === userParams.valgtModell).metadata.navn
     modelinfoBeskrivelse = models.find(model => model.id === userParams.valgtModell).metadata.description
@@ -119,10 +115,8 @@ console.log(models[0])
 
     try {
       let response;
-      console.log("Valgt modell: ", userParams.valgtModell)
       if (userParams.valgtModell === "0") {
         response = await responseOpenAi(userParams);
-        console.log("Response fra responseOpenAi: ", response)
         userParams.response_id = response.data.id
         userParams.messageHistory.push({ role: "assistant", content: response.data.output_text , model: modelinfoModell });
       } else if (userParams.valgtModell === "1") {
@@ -155,7 +149,6 @@ console.log(models[0])
   const handleFileSelect = async (event) => {
     const files = event.target.files
     const fileType = files[0].type
-    console.log("File type: ", fileType)
     fileSelect = true
     if ( fileType.split("/")[0] === "image" ) {
       userParams.imageB64 = []
@@ -169,7 +162,6 @@ console.log(models[0])
               content: reader.result
             })
             userParams.imageB64.push(reader.result)
-            // console.log("Base64 Image:",i , reader.result);
             scrollToBottom(chatWindow)
           } catch (error) {
             console.log("Noe gikk galt", error)
@@ -215,12 +207,6 @@ console.log(models[0])
     }
   }
 
-  let isBeta = false;
-  if (window.location.search.includes('?beta')) {
-  isBeta = true;
-  }
-
-  $inspect(userParams.messageHistory)
 </script>
 
 <svelte:head>
@@ -287,9 +273,9 @@ console.log(models[0])
         bind:value={inputMessage}
         onkeypress={(e) => onKeyPress(e, dokFiles && dokFiles.length > 0 ? handleFileSelect : brukervalg)}></textarea>
 
-      {#if token.roles.some( (r) => [`${appName.toLowerCase()}.admin`].includes(r) )}
+      {#if token.roles.some( (r) => [`${appName.toLowerCase()}.admin`].includes(r))}
         {#if userParams.valgtModell === "0" }
-        <label for="fileButton"><span class="material-symbols-outlined inputButton">cloud_upload</span>
+        <label for="fileButton"><span class="material-symbols-outlined inputButton">picture_as_pdf</span>
           <input id="fileButton" type="file" bind:files={dokFiles} onchange={handleFileSelect} accept=".pdf" multiple style="display:none;" />
         </label>
         <label for="imageButton"><span class="material-symbols-outlined inputButton">add_photo_alternate</span>
