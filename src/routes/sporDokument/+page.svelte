@@ -180,26 +180,12 @@
         autocomplete="off" 
         placeholder={`Skriv inn ledetekst (Shift + Enter for flere linjer)`} 
         bind:value={inputMessage}
-        onkeypress={(e) => onKeyPress(e, dokFiles && dokFiles.length > 0 ? sporDokument : brukervalg)}></textarea>
+        onkeypress={(e) => onKeyPress(e, sporDokument)}></textarea>
         <label for="fileButton"><span class="material-symbols-outlined inputButton">cloud_upload</span>
           <input style="display:none;" bind:files={dokFiles} id="fileButton" multiple type="file" accept=".xls, .xlsx, .docx, .pdf, .txt, .json, .md, .pptx" />
         </label>
         {#if isError}
-          <Modal bind:showModal>
-            {#snippet header()}
-              <h2>Error</h2>
-            {/snippet}
-            <h3>Noe gikk galt ⛔</h3>
-            <div class="centerstuff">
-              <p>
-                {JSON.stringify(
-                  errorMessage.response?.data ||
-                    errorMessage.stack ||
-                    errorMessage.message
-                )}
-              </p>
-            </div>
-          </Modal>
+          {console.log("Error:", errorMessage)}
         {/if}
 
       <label for="sendButton"><span class="material-symbols-outlined inputButton">send</span>
