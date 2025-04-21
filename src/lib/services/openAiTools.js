@@ -39,37 +39,35 @@ export const openAiAssistant = async (userParams) => {
   return response.data
 }
 
-export const docQueryOpenAi = async (filliste, up) => {
-  // Template API-call
-  const payload = {
-    assistant_id: import.meta.env.VITE_ASSISTANT_DOCQUERY,
-    new_thread: up.newThread,
-    vectorStore_id: up.vectorStoreId,
-    thread_id: up.threadId,
-    filer: filliste
-  }
-
-  const datapakken = new FormData()
-  datapakken.append('assistant_id', payload.assistant_id)
-  datapakken.append('thread_id', payload.thread_id)
-  datapakken.append('new_thread', payload.new_thread)
-  datapakken.append('vectorStore_id', payload.vectorStore_id)
-  datapakken.append('message', up.message)
-  datapakken.append('filer', filliste[0])
+export const docQueryOpenAi = async (userParams) => {
 
   const accessToken = await getHuginToken()
 
-  const r = await axios.post(`${import.meta.env.VITE_AI_API_URI}/docQueryOpenAiV2`, datapakken, {
-    method: 'post',
-    data: datapakken,
+  const formData = new FormData();
+  formData.append('assistant_id', userParams.assistant_id);
+  formData.append('response_id', userParams.response_id);
+  formData.append('thread_id', userParams.thread_id);
+  formData.append('new_thread', userParams.new_thread);
+  formData.append('vectorStore_id', userParams.vectorStore_id);
+  formData.append('userMessage', userParams.message);
+  formData.append('messageHistory', JSON.stringify(userParams.messageHistory));
+
+  if (userParams.dokFiles && userParams.dokFiles.length > 0) {
+    for (let i = 0; i < userParams.dokFiles.length; i++) {
+      formData.append('filer', userParams.dokFiles[i]);
+    }
+  }
+
+  const payload = formData;
+
+  console.log('docQueryOpenAi', userParams.response_id)
+  console.log("vectorStore_id", userParams.vectorStore_id)
+ 
+  const response = await axios.post(`${import.meta.env.VITE_AI_API_URI}/docQueryOpenAiV2`, payload, {
     headers: {
-      'Content-Type': 'multipart/form-data',
       authorization: `Bearer ${accessToken}`
     }
   })
-  payload.assistant_id = r.data.assistant_id
-  payload.thread_id = r.data.thread_id
-  payload.vectorStore_id = r.data.vectorStore_id
-  payload.new_thread = 'false'
-  return JSON.stringify(r)
+  console.log('docQueryOpenAi response', response)
+  return response.data
 }

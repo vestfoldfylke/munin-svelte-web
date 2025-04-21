@@ -79,7 +79,7 @@ export const models =
                 description: '<a href="https://sindreheggen.wordpress.com/boker/">Matematikkens byggesteiner</a> er en lærebok som dekker de fleste temaer i matematikk fra grunnskolen til og med 1P/2P på videregående. Denne assistenten svarer på spørsmål om matematikk basert på innholdet i denne boken. Alle responser er basert på innholdet i boken, og assistenten er instruert til kun å gi svar som er relevante for matematikk. Læreboken er skrevet av Sindre Sogge Heggen og publisert på <a href="https://sindrsh.github.io/openmathbooks/" target="_blank">Github - Open Math Books</a> under en Creative Commons-lisens. CC BY-NC-SA 4.0<br><br><b>Husk at KI lager tekst som kan inneholde feil. Sjekk alltid flere kilder og bruk sunn fornuft når du bruker KI.<b>',
                 synligKontekst: false,
                 illustrasjon: '',
-                tile: 'labs',
+                tile: 'skolebott',
                 endpoint: 'assistantOpenAi',
                 assistant: true
             },
@@ -108,6 +108,46 @@ export const models =
                 kontekst: '',
                 model: 'gpt-4o',
                 assistant_id: import.meta.env.VITE_ASSISTANT_SKOGMO_ELEV,
+                new_thread: true,
+                thread_id: ''
+            },
+        },
+        {
+            id: '11',
+            metadata: {
+                navn: 'Labs lærer - Helsefremmende arbeid',
+                description: 'Eksperimentell bot til bruk i HO/Helsefremmende arbeid for lærere',
+                synligKontekst: false,
+                illustrasjon: '',
+                tile: 'skolebott',
+                endpoint: 'assistantOpenAi',
+                assistant: true
+            },
+            params: { // Skogmo - Lærer
+                message: '',
+                kontekst: '',
+                model: 'gpt-4o',
+                assistant_id: import.meta.env.VITE_ASSISTANT_SKOGMO_LAERER,
+                new_thread: true,
+                thread_id: ''
+            }
+        },
+        {
+            id: '16',
+            metadata: {
+                navn: 'Pythonhjelpen',
+                description: 'Eksperimentell bot til bruk som programmeringsstøtte for elever',
+                synligKontekst: false,
+                illustrasjon: '',
+                tile: 'skolebott',
+                endpoint: 'assistantOpenAi',
+                assistant: true
+            },
+            params: { // Pythonhjelpen
+                message: '',
+                kontekst: '',
+                model: 'gpt-4o',
+                assistant_id: import.meta.env.VITE_ASSISTANT_LABS_PYTHON,
                 new_thread: true,
                 thread_id: ''
             },

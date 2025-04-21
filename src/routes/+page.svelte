@@ -31,6 +31,7 @@
         <CardButton header={'Chat'} imgPath={chat} imgAlt={'Ikon bilde av en snakkebobble'} gotoPath={'/KI-modeller'} paragraph={''} boolValue={true}><span class="material-symbols-outlined">chat</span></CardButton>
         {#if token.roles.includes(`${appName.toLowerCase()}.admin`)}
           <CardButton header={'Transkripsjon'} imgPath={doc} imgAlt={'Ikon bilde av et dokument'} gotoPath={'/transcript'} paragraph={''} boolValue={true}><span class="material-symbols-outlined">interpreter_mode</span></CardButton>
+          <CardButton header={'Dokumentchat'} imgPath={doc} imgAlt={'Ikon bilde av et dokument'} gotoPath={'/sporDokument'} paragraph={''} boolValue={true}><span class="material-symbols-outlined">quick_reference_all</span></CardButton>
         {/if}
         {#if token.roles.includes(`${appName.toLowerCase()}.labs`) || token.roles.includes(`${appName.toLowerCase()}.admin`)}
           <CardButton header={'Skolebotter'} imgPath={eksperiment} imgAlt={'Ikon bilde av et reagensrør'} gotoPath={'/skolebotter'} paragraph={''} boolValue={true}><span class="material-symbols-outlined">school</span></CardButton>
