@@ -3,6 +3,7 @@
   import { getHuginToken } from "../../lib/useApi"
   import { onMount, } from "svelte"
   import IconSpinner from "../../lib/components/IconSpinner.svelte"
+  import { checkRoles } from '$lib/helpers/checkRoles';
 
 
   // Global variabler
@@ -36,7 +37,6 @@
 
     mediaRecorder.ondataavailable = event => {
       audioChunks.push(event.data);
-      console.log(event.data);
     };
 
     mediaRecorder.onstop = () => {
@@ -48,8 +48,6 @@
       timer = 0;
     };
 
-    console.log('Recording started');
-    console.log(mediaRecorder);
     mediaRecorder.start();
     recording = true;
     timerInterval = setInterval(() => {
@@ -76,9 +74,7 @@
   };
 
   const sendTilTranscript = async () => {
-    console.log('Sending to transcript');
     ferdigTranskript = await nbTranscript(audioBlob, metadata);
-    // console.log(ferdigTranskript);
   };
 </script>
 
@@ -86,7 +82,7 @@
       <div class="loading">
         <IconSpinner width={"32px"} />
       </div>
-    {:else if !token.roles.some( (r) => [`${appName.toLowerCase()}.admin`].includes(r) )}
+    {:else if !checkRoles(token, [`${appName.toLowerCase()}.admin`, `${appName.toLowerCase()}.transkripsjon`])}
       <p>Oi, du har ikke tilgang. Prøver du deg på noe lurt? 🤓</p>
 {:else}
   <h1>Eksperimentell selvbetjeningsløsning for transkripsjon av tale</h1>

@@ -7,7 +7,6 @@ export const noraChat = async (userParams) => {
     // Sjekker om det er hverdag mellom 08:00 og 16:00
     const isWeekday = (date = new Date()) => date.getDay() % 6 !== 0
     const isDaytime = (date = new Date()) => date.getHours() >= 8 && date.getHours() < 16
-    console.log(isWeekday(), isDaytime())
   
     let modelIndex = models.findIndex((model) => model.metadata.navn === 'NoraLLM')
   
@@ -21,7 +20,6 @@ export const noraChat = async (userParams) => {
           authorization: `Bearer ${accessToken}`
         }
       })
-      console.log(response.data)
       return response.data
     } else {
       return 'Nora er tilgjengelig på hverdager mellom 08:00 og 16:00. Prøv igjen senere.'

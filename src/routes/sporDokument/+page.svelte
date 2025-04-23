@@ -6,7 +6,7 @@
   import { getHuginToken } from "$lib/useApi";
   import IconSpinner from "$lib/components/IconSpinner.svelte";
   import autosize from "svelte-autosize";
-  import Modal from "$lib/components/Modal.svelte";
+  import { checkRoles } from '$lib/helpers/checkRoles';
 
   // Init state - Modell-parametere og payload
   const userParams = $state({
@@ -97,7 +97,9 @@
   }
 
   async function sporDokument() {
-    // console.log(dokFiles)
+
+    // Disable fileInput-button
+    document.getElementById("fileButton").disabled = true
     userParams.dokFiles = dokFiles
     isWaiting = true
     userParams.message = inputMessage
@@ -116,9 +118,7 @@
           content: userParams.message
         })
     try {
-      console.log("UP:", userParams)
       let respons = await docQueryOpenAi(userParams);
-      console.log("Respons fra OpenAI:", respons.tools[0].vector_store_ids[0])
       userParams.response_id = respons.id
       userParams.vectorStore_id = respons.tools[0].vector_store_ids[0]
       userParams.new_thread = false
@@ -129,7 +129,7 @@
       })
       isWaiting = false
     } catch (e) {
-      console.log("Oj, noe gikk galt!", e);
+      console.log("Oj, noe gikk galt!");
     }
   }
 
@@ -144,7 +144,7 @@
     <div class="loading">
       <IconSpinner width={"32px"} />
     </div>
-  {:else if !token.roles.some( (r) => [`${appName.toLowerCase()}.basic`, `${appName.toLowerCase()}.admin`].includes(r) )}
+  {:else if !checkRoles(token, [`${appName.toLowerCase()}.admin`, `${appName.toLowerCase()}.transkripsjon`])}
     <p>Oi, du har ikke tilgang. Prøver du deg på noe lurt? 🤓</p>
   {:else}
 
@@ -185,7 +185,7 @@
           <input style="display:none;" bind:files={dokFiles} id="fileButton" multiple type="file" accept=".xls, .xlsx, .docx, .pdf, .txt, .json, .md, .pptx" />
         </label>
         {#if isError}
-          {console.log("Error:", errorMessage)}
+          {console.log("Error:")}
         {/if}
 
       <label for="sendButton"><span class="material-symbols-outlined inputButton">send</span>

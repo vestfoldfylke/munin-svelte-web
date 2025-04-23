@@ -22,7 +22,6 @@ export const responseOpenAi = async (userParams) => {
 }
 
 export const openAiAssistant = async (userParams) => {
-  console.log('openAiAssistant', userParams)
   const payload = {
     assistant_id: userParams.assistant_id,
     new_thread: userParams.new_thread,
@@ -30,7 +29,6 @@ export const openAiAssistant = async (userParams) => {
     messageHistory: userParams.messageHistory,
   }
   const accessToken = await getHuginToken()
-  console.log('openAiAssistant', payload)
   const response = await axios.post(`${import.meta.env.VITE_AI_API_URI}/assistantOpenAi`, payload, {
     headers: {
       authorization: `Bearer ${accessToken}`
@@ -59,15 +57,11 @@ export const docQueryOpenAi = async (userParams) => {
   }
 
   const payload = formData;
-
-  console.log('docQueryOpenAi', userParams.response_id)
-  console.log("vectorStore_id", userParams.vectorStore_id)
  
   const response = await axios.post(`${import.meta.env.VITE_AI_API_URI}/docQueryOpenAiV2`, payload, {
     headers: {
       authorization: `Bearer ${accessToken}`
     }
   })
-  console.log('docQueryOpenAi response', response)
   return response.data
 }

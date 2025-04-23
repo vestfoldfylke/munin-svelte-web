@@ -239,7 +239,7 @@ const resizeBase64Image = (base64, width, height) => {
           userParams.base64String = reader.result
           scrollToBottom(chatWindow)
         } catch (error) {
-          console.log("Noe gikk galt", error)
+          console.log("Noe gikk galt")
         }
       }
       reader.readAsDataURL(file) // This method reads the file as a base64 string
@@ -267,23 +267,6 @@ const resizeBase64Image = (base64, width, height) => {
           role: "user",
           content: userParams.message
         })
-    try {
-      console.log("userParams", userParams.fil)
-      // respons = await docQueryOpenAi(files, userParams).then((response) => {
-      //   const l = JSON.parse(response).data.messages.length;
-      //   svar = JSON.parse(response).data.messages[l - 1].content[0].text.value;
-      //   // Get last message from data.messages
-      //   userParams.newThread = false;
-      //   userParams.vectorStoreId = JSON.parse(response).data.vectorStore_id;
-      //   userParams.threadId = JSON.parse(response).data.thread_id;
-      //   userParams.fil = files[0].name;
-      // });
-      // userParams.messageHistory.push({ role: "assistant", content: svar, model: modelinfoModell });
-      // isWaiting = false
-    } catch (e) {
-      console.log("Oj, noe gikk galt!", e);
-    }
-  }
 
   $inspect(userParams.messageHistory)
 </script>

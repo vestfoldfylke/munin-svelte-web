@@ -39,7 +39,6 @@
       const msalClient = await getMsalClient();
       if (msalClient.getActiveAccount()) {
         account = msalClient.getActiveAccount();
-        // console.log(await getHuginToken(true));
       }
       if (!account) {
         const loginResponse = await login(false, $page.url.pathname); // Sends you to ms auth, and redirects you back here with the msalClient set with active account

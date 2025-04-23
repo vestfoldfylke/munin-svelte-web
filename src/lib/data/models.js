@@ -4,7 +4,7 @@ export const models =
             id: '0',
             metadata: {
                 navn: 'GPT-4.1',
-                description: 'Dennnne modellen bruker <a href="https://openai.com/index/gpt-4-1//">OpenAIs GPT-4o</a> til å generere tekst basert på en gitt kontekst og melding. GPT-4o er den nyeste versjonen av GPT-4, og er trent på en stor mengde data fra internett. Modellen er trent på å generere tekst som ligner på menneskelig skrevet tekst, og kan brukes til en rekke oppgaver som tekstgenerering, oversettelse og spørsmål-svar. Du må selv legge inn kontektst og temperatur slik at modellen får de egenskapene du ønsker. Denne modellen har også mulighet for bildeanalyse. Trykk på tannhjulet og last opp et bilde. Modellen vil analysere bildet og kan generere tekst basert på dette.',
+                description: 'Dennnfdsjjdlsjflsdjlne modellen bruker <a href="https://openai.com/index/gpt-4-1//">OpenAIs GPT-4o</a> til å generere tekst basert på en gitt kontekst og melding. GPT-4o er den nyeste versjonen av GPT-4, og er trent på en stor mengde data fra internett. Modellen er trent på å generere tekst som ligner på menneskelig skrevet tekst, og kan brukes til en rekke oppgaver som tekstgenerering, oversettelse og spørsmål-svar. Du må selv legge inn kontektst og temperatur slik at modellen får de egenskapene du ønsker. Denne modellen har også mulighet for bildeanalyse. Trykk på tannhjulet og last opp et bilde. Modellen vil analysere bildet og kan generere tekst basert på dette.',
                 synligKontekst: true,
                 illustrasjon: 'GPT4o.png',
                 tile: 'chat',
@@ -150,7 +150,25 @@ export const models =
                 assistant_id: import.meta.env.VITE_ASSISTANT_LABS_PYTHON,
                 new_thread: true,
                 thread_id: ''
+            }},
+            {
+            id: '16',
+            metadata: {
+                navn: 'UDP',
+                description: 'Eksperimentell bot til bruk som programmeridcfdslfjkdsøfkjøsdfkøngsstøtte for elever',
+                synligKontekst: false,
+                illustrasjon: '',
+                tile: 'skolebott',
+                endpoint: 'assistantOpenAi',
+                assistant: true
+            },
+            params: { // Pythonhjelpen
+                message: '',
+                kontekst: '',
+                model: 'gpt-4o',
+                assistant_id: "asst_lNkfjIaI6yP6eKpDsgCvVHHk",
+                new_thread: true,
+                thread_id: ''
             },
         }
-
     ]

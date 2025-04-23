@@ -164,7 +164,7 @@
             userParams.imageB64.push(reader.result)
             scrollToBottom(chatWindow)
           } catch (error) {
-            console.log("Noe gikk galt", error)
+            console.log("Noe gikk galt")
           }
         }
         reader.readAsDataURL(file) // This method reads the file as a base64 string
@@ -191,7 +191,7 @@
             userParams.dokFiles.push(reader.result)
             scrollToBottom(chatWindow)
           } catch (error) {
-            console.log("Noe gikk galt", error)
+            console.log("Noe gikk galt")
           }
         }
         reader.readAsDataURL(dokFiles[i]) // This method reads the file as a base64 string

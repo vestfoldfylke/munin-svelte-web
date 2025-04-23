@@ -7,6 +7,7 @@
   import IconSpinner from "$lib/components/IconSpinner.svelte";
   import autosize from "svelte-autosize";
   import Modal from "$lib/components/Modal.svelte";
+  import { checkRoles } from '$lib/helpers/checkRoles';
 
   // Init state - Modell-parametere og payload
   const userParams = $state({
@@ -86,7 +87,6 @@
   function valgtModell(event) {
     userParams.new_thread = true
     userParams.assistant_id = event.target.value
-    console.log(models.find(model => model.params.assistant_id === userParams.assistant_id).metadata.navn)
     modelinfoModell = models.find(model => model.params.assistant_id === userParams.assistant_id).metadata.navn
     modelinfoBeskrivelse = models.find(model => model.params.assistant_id === userParams.assistant_id).metadata.description
     userParams.synligKontekst = models.find(model => model.params.assistant_id === userParams.assistant_id).metadata.synligKontekst
@@ -146,7 +146,7 @@
     <div class="loading">
       <IconSpinner width={"32px"} />
     </div>
-  {:else if !token.roles.some( (r) => [`${appName.toLowerCase()}.basic`, `${appName.toLowerCase()}.admin`].includes(r) )}
+    {:else if !checkRoles(token, [`${appName.toLowerCase()}.admin`, `${appName.toLowerCase()}.skolebotter`])}
     <p>Oi, du har ikke tilgang. Prøver du deg på noe lurt? 🤓</p>
   {:else}
 
