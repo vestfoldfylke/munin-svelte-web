@@ -169,7 +169,7 @@ async function handleNDLARequest() {
         userParams.threadId = respons.thread_id
         await handleNDLARequest(); // Kildekall: Henter relevante artikler fra NDLA
         scrollToBottom(chatWindow)
-      } else if (userParams.valgtModell === "option14" || userParams.valgtModell === "option15" || userParams.valgtModell === "option16") {
+      } else if (userParams.valgtModell === "option14" || userParams.valgtModell === "option15" || userParams.valgtModell === "option16" || userParams.valgtModell === "option17") {
         respons = await openAiAssistant(userParams)
         userParams.messageHistory.push({ role: "assistant", content: respons.messages[0].content[0].text.value, model: modelinfoModell })
         userParams.newThread = false
@@ -296,6 +296,7 @@ const resizeBase64Image = (base64, width, height) => {
             <option value="option15">Test - Plan og Bygg</option>
             {/if}
           <option value="option16">Test - Pythonhjelpen</option>
+          <option value="option17">ADP-bot</option>
         </select>
         <button id="modelinfoButton" class="link" onclick={() => { modelTampering = !modelTampering; showModal = true }}>
           <span class="button-text">Innstillinger</span>
