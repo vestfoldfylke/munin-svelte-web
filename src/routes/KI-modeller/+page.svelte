@@ -1,49 +1,40 @@
 <script>
-  import { docQueryOpenAi } from "$lib/services/openAiTools"
-  import { multimodalOpenAi, noraChat, openAiAssistant } from "../../lib/services/openAiTools"
-  import { multimodalMistral } from "$lib/services/mistralTools"
-  import { modelinfo } from "../../lib/data/modelinfo" // Tekstbeskrivelser om valgt modell
-  import ChatBlobs from "$lib/components/ChatBlobs.svelte" // Komponent for å vise chatmeldinger
-  import "@material/web/button/elevated-button"
-  import { onMount, tick } from "svelte"
-  import { getHuginToken } from "../../lib/useApi"
-  import IconSpinner from "../../lib/components/IconSpinner.svelte"
-  import autosize from 'svelte-autosize';
-  import Modal from "../../lib/components/Modal.svelte"
+  import { responseOpenAi } from "$lib/services/openAiTools";
+  import { multimodalMistral } from "$lib/services/mistralTools";
+  import { noraChat } from "$lib/services/huggingFaceTools";
+  import { models } from "$lib/data/models"; // Modellkonfigurasjon
+  import ChatBlobs from "$lib/components/ChatBlobs.svelte"; // Komponent for å vise chatmeldinger
+  import { onMount, tick } from "svelte";
+  import { getHuginToken } from "$lib/useApi";
+  import IconSpinner from "$lib/components/IconSpinner.svelte";
+  import autosize from "svelte-autosize";
+  import Modal from "$lib/components/Modal.svelte";
 
   // Init state - Modell-parametere og payload
   const userParams = $state({
     message: "",
-    assistant_id: "",
-    newThread: true,
-    threadId: "",
+    response_id: null,
+    imageB64: [],
+    dokFiles: [],
     messageHistory: [],
     kontekst: "",
-    valgtModell: "option1", // Default modell Mistral
-    base64String: "",
+    valgtModell: "0",
     temperatur: 0.7, // Default temperatur
-    synligKontekst: true,  
-    assistant: "Mistral",
-    newThread: true,
-    threadId: "",
-    vectorStoreId: "",      
-    fil: "Fil ikke valgt",
-    filArray: "",
+    synligKontekst: true,      
   })
 
   // Variabler for håndtering av data og innhold i frontend
-  let files = $state();
-  let svar;
-  let showModal = $state(false)
-  let selectedFiles = $state(null)
-  let respons = $state()
-  let modelinfoModell = $state(modelinfo[userParams.valgtModell].navn)
-  let modelinfoBeskrivelse = $state(modelinfo[userParams.valgtModell].description)
+  let imageFiles = $state(null)
+  let dokFiles = $state(null);
+  let fileSelect = $state(false)
+  let modelinfoModell =  $state(models[userParams.valgtModell].metadata.navn)// $state(modelinfo[userParams.valgtModell].navn)
+  let modelinfoBeskrivelse = $state(models[userParams.valgtModell].metadata.description) // $state(modelinfo[userParams.valgtModell].beskrivelse)
   let modelTampering = $state(false) // Viser modellinformasjon
   let token = $state(null)
   let chatWindow = $state()
   let isWaiting = $state(false) // Venter på svar fra modell
   let isError = $state(false)
+  let showModal = $state(false)
   let errorMessage = $state("")
   let inputMessage = $state("")
   let viewportWidth = $state(window.innerWidth)
@@ -97,19 +88,21 @@
     };
   });
 
+
+  // Logikk og funksjoner for håndtering av brukerinput og valg av modell
+
   // Håndterer valg av modell og oppdaterere modellinformasjon på siden
   function valgtModell(event) {
-    userParams.valgtModell = event.target.value
-    modelinfoModell = modelinfo[userParams.valgtModell].navn
-    modelinfoBeskrivelse = modelinfo[userParams.valgtModell].description
-    userParams.synligKontekst = modelinfo[userParams.valgtModell].synligKontekst
+    userParams.valgtModell = event.target.value // model.id
+    modelinfoModell = models.find(model => model.id === userParams.valgtModell).metadata.navn
+    modelinfoBeskrivelse = models.find(model => model.id === userParams.valgtModell).metadata.description
+    userParams.synligKontekst = models.find(model => model.id === userParams.valgtModell).metadata.synligKontekst
   }
 
-  // Kaller på valgt modell med tilhørende parametre basert på brukerens valg
+  // Kaller på valgt modell med tilhørende parametre basert på brukerens valg 
   const brukervalg = async () => {
     isWaiting = true
-
-    // Get the textarea and set the height
+    // Get the textarea and set the height -- Hvorfor er dette her?
     const textarea = document.querySelector("textarea")
     textarea.style.height = "60px"
     userParams.message = inputMessage
@@ -122,13 +115,14 @@
 
     try {
       let response;
-      if (userParams.valgtModell === "option1") {
-        response = await multimodalOpenAi(userParams);
-        userParams.messageHistory.push({ role: "assistant", content: response.choices[0].message.content, model: modelinfoModell });
-      } else if (userParams.valgtModell === "option2") {
+      if (userParams.valgtModell === "0") {
+        response = await responseOpenAi(userParams);
+        userParams.response_id = response.data.id
+        userParams.messageHistory.push({ role: "assistant", content: response.data.output_text , model: modelinfoModell });
+      } else if (userParams.valgtModell === "1") {
         response = await noraChat(userParams);
         userParams.messageHistory.push({ role: "assistant", content: response, model: modelinfoModell });
-      } else if (userParams.valgtModell === "option13") {
+      } else if (userParams.valgtModell === "13") {
         response = await multimodalMistral(userParams);
         userParams.messageHistory.push({ role: "assistant", content: response.choices[0].message.content, model: modelinfoModell });
       } else if (["option2", "option3", "option4", "option5", "option6", "option7", "option16"].includes(userParams.valgtModell)) {
@@ -151,61 +145,61 @@
     }
   }
 
-  // Justerer størrelsen på opplastede bilder
-const resizeBase64Image = (base64, width, height) => {
-    // Opprett et canvas-element
-    const canvas = document.createElement('canvas');
-    // Opprett et bilde-element fra base64-strengen
-    const image = new Image();
-    image.src = base64;
-    // Returner en Promise som løses når bildet er lastet
-    return new Promise((resolve, reject) => {
-        image.onload = () => {
-            // Beregn bildets aspektforhold
-            const aspectRatio = image.width / image.height;
-            // Beregn beste passform-dimensjoner for canvas
-            if (width / height > aspectRatio) {
-                canvas.width = height * aspectRatio;
-                canvas.height = height;
-            } else {
-                canvas.width = width;
-                canvas.height = width / aspectRatio;
-            }
-            // Tegn bildet på canvas
-            const context = canvas.getContext('2d');
-            if (context) {
-                context.drawImage(image, 0, 0, canvas.width, canvas.height);
-            }
-            // Løs Promisen med det skalerte bildet som en base64-streng
-            resolve(canvas.toDataURL('image/jpeg'));
-        };
-        image.onerror = reject;
-    });
-};
-
   // Konverterer opplastet fil til base64
   const handleFileSelect = async (event) => {
-    selectedFiles = event.target.files
-    const file = selectedFiles[0]
-
-    if (file) {
-      const reader = new FileReader()
-      reader.onloadend = async () => {
-        try {
-          userParams.messageHistory.push({
-            role: "user",
-            content: await resizeBase64Image(reader.result, 400, 400),
-          })
-          userParams.base64String = reader.result
-          scrollToBottom(chatWindow)
-        } catch (error) {
-          console.log("Noe gikk galt", error)
+    const files = event.target.files
+    const fileType = files[0].type
+    fileSelect = true
+    if ( fileType.split("/")[0] === "image" ) {
+      userParams.imageB64 = []
+      for (let i = 0; i < imageFiles.length; i++) {
+        const file = imageFiles[i]
+        const reader = new FileReader()
+        reader.onloadend = async () => {
+          try {
+            userParams.messageHistory.push({
+              role: "user",
+              content: reader.result
+            })
+            userParams.imageB64.push(reader.result)
+            scrollToBottom(chatWindow)
+          } catch (error) {
+            console.log("Noe gikk galt")
+          }
+        }
+        reader.readAsDataURL(file) // This method reads the file as a base64 string
+    }
+    } else if ( fileType.split("/")[0] === "application" ) {
+      userParams.dokFiles = []
+      userParams.filArray = []
+      for (let i = 0; i < dokFiles.length; i++) {
+        const file = dokFiles[i]
+        if ( file.size > 32 * 1024 * 1024 || file.type !== "application/pdf" ) {
+          alert("En eller flere filer er ikke pdf eller er for store. Maks 32MB")
+          return
         }
       }
-      reader.readAsDataURL(file) // This method reads the file as a base64 string
+      for (let i = 0; i < dokFiles.length; i++) {
+        // const file = dokFiles[i]
+        const reader = new FileReader()
+        reader.onloadend = async () => {
+          try {
+            userParams.messageHistory.push({
+              role: "user",
+              content: dokFiles[i].name
+            })
+            userParams.dokFiles.push(reader.result)
+            scrollToBottom(chatWindow)
+          } catch (error) {
+            console.log("Noe gikk galt")
+          }
+        }
+        reader.readAsDataURL(dokFiles[i]) // This method reads the file as a base64 string
+      }
     }
   }
 
+  // Håndterer tastetrykk i textarea
   const onKeyPress = async (e, callback) => {
     if (e.charCode === 13 && !e.shiftKey) {
       e.preventDefault()
@@ -213,38 +207,6 @@ const resizeBase64Image = (base64, width, height) => {
     }
   }
 
-  let isBeta = false;
-  if (window.location.search.includes('?beta')) {
-  isBeta = true;
-  }
-
-  async function sporDokument() {
-    userParams.fil = files ? files[0].name : "Ingen fil valgt"
-    isWaiting = true
-    userParams.message = inputMessage
-    inputMessage = ""
-    userParams.messageHistory.push({
-          role: "user",
-          content: userParams.message
-        })
-    try {
-      respons = await docQueryOpenAi(files, userParams).then((response) => {
-        const l = JSON.parse(response).data.messages.length;
-        svar = JSON.parse(response).data.messages[l - 1].content[0].text.value;
-        // Get last message from data.messages
-        userParams.newThread = false;
-        userParams.vectorStoreId = JSON.parse(response).data.vectorStore_id;
-        userParams.threadId = JSON.parse(response).data.thread_id;
-        userParams.fil = files[0].name;
-      });
-      userParams.messageHistory.push({ role: "assistant", content: svar, model: modelinfoModell });
-      isWaiting = false
-    } catch (e) {
-      console.log("Oj, noe gikk galt!", e);
-    }
-  }
-
-  $inspect(userParams.messageHistory)
 </script>
 
 <svelte:head>
@@ -259,17 +221,17 @@ const resizeBase64Image = (base64, width, height) => {
   {:else if !token.roles.some( (r) => [`${appName.toLowerCase()}.basic`, `${appName.toLowerCase()}.admin`].includes(r) )}
     <p>Oi, du har ikke tilgang. Prøver du deg på noe lurt? 🤓</p>
   {:else}
+
+    <!-- For-each som itererer over modell-confogfila og populerer selectmenmyen -->
     <div class="modelTampering">
       <h2>Modellvelger</h2>
       <div class="boxyHeader">
         <select class="modellSelect" onchange={valgtModell}>
-          <option value="option1" default >GPT-4o - OpenAI</option>
-          <option value="option13">Mistral - Europeisk språkmodell</option>
-          <option value="option2">Nora - Eksperimentell norsk språkmodell</option>
-          <option value="option3">Matematikkens byggesteiner</option>
-          <option value="option4">Teoretisk matematikk Nivå 1</option>
-          <option value="option5">Teoretisk matematikk Nivå 2</option>
-          <option value="option16">Pythonhjelperen</option>
+          {#each models as model}
+            {#if model.metadata.tile === "chat"}
+              <option value={model.id}>{model.metadata.navn}</option>
+            {/if}
+          {/each}
         </select>
         <button id="modelinfoButton" class="link" onclick={() => { modelTampering = !modelTampering; showModal = true }}>
           <span class="button-text">Innstillinger</span>
@@ -309,26 +271,19 @@ const resizeBase64Image = (base64, width, height) => {
         autocomplete="off" 
         placeholder={`Skriv inn ledetekst (Shift + Enter for flere linjer)`} 
         bind:value={inputMessage}
-        onkeypress={(e) => onKeyPress(e, files && files.length > 0 ? sporDokument : brukervalg)}></textarea>
+        onkeypress={(e) => onKeyPress(e, dokFiles && dokFiles.length > 0 ? handleFileSelect : brukervalg)}></textarea>
 
-      {#if token.roles.some( (r) => [`${appName.toLowerCase()}.admin`].includes(r) )}
-        {#if userParams.valgtModell === "option1" || userParams.valgtModell === "option13"}
-          <label for="fileButton"><span class="material-symbols-outlined inputButton">cloud_upload</span>
-            <input style="display:none;" bind:files={files} id="fileButton" multiple type="file" accept=".xls, .xlsx, .docx, .pdf, .txt, .json, .md, .pptx" />
-          </label>
-          {#if files && files.length > 0}
-            <div class="fileName flash">
-              {files[0].name}
-              <button 
-                class="removeFile" 
-                onclick={() => { files = null; selectedFiles = []; document.getElementById('fileButton').value = '';}} 
-                aria-label="Remove file">X</button>
-            </div>
-          {/if}
+      {#if token.roles.some( (r) => [`${appName.toLowerCase()}.admin`].includes(r))}
+        {#if userParams.valgtModell === "0" }
+        <label for="fileButton"><span class="material-symbols-outlined inputButton">picture_as_pdf</span>
+          <input id="fileButton" type="file" bind:files={dokFiles} onchange={handleFileSelect} accept=".pdf" multiple style="display:none;" />
+        </label>
+        <label for="imageButton"><span class="material-symbols-outlined inputButton">add_photo_alternate</span>
+          <input id="imageButton" type="file" bind:files={imageFiles} onchange={handleFileSelect} accept="image/*" multiple style="display: none;"/></label>
         {/if}
-        {#if userParams.valgtModell === "option1" || userParams.valgtModell === "option13"}
+        {#if userParams.valgtModell === "13" }
           <label for="imageButton"><span class="material-symbols-outlined inputButton">add_photo_alternate</span>
-          <input id="imageButton" type="file" bind:files={selectedFiles} onchange={handleFileSelect} accept="image/*" style="display: none;"/></label>
+            <input id="imageButton" type="file" bind:files={imageFiles} onchange={handleFileSelect} accept="image/jpeg" multiple style="display: none;"/></label>
         {/if}
         {#if isError}
           <Modal bind:showModal>
@@ -349,12 +304,7 @@ const resizeBase64Image = (base64, width, height) => {
         {/if}
       {/if}
       <label for="sendButton"><span class="material-symbols-outlined inputButton">send</span>
-        <input 
-          id="sendButton" 
-          type="button" 
-          onclick={files && files.length > 0 ? sporDokument : brukervalg}
-          value={`Spør ${appName}`} 
-          style="display: none;"/>
+        <input id="sendButton" type="button" onclick={brukervalg} value={`Spør ${appName}`} style="display: none;"/>
       </label>
     </div>
   {/if}
@@ -501,13 +451,6 @@ textarea {
     width: 100%;
   }
 
-  .fileName {
-    display: inline-block;
-    position: relative;
-    padding-right: 20px;
-    margin-bottom: 15px;
-  }
-
   @keyframes flash {
     0% {
       background-color: transparent;
@@ -518,26 +461,6 @@ textarea {
     100% {
       background-color: transparent;
     }
-  }
-
-  .flash {
-  animation: flash 2s ease-in-out;
-  }
-
-  .removeFile {
-    position: absolute;
-    top: -5px;
-    right: 0px;
-    background: darkgreen;
-    color: white;
-    border-radius: 50%;
-    width: 12px !important;
-    height: 12px !important;
-    display: flex;
-    justify-content: center;
-    cursor: pointer;
-    border: 1px solid lightgreen;
-    font-size: 0.6rem;
   }
 
   .modellSelect {
