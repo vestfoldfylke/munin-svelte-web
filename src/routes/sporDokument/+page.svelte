@@ -97,7 +97,7 @@
   }
 
   async function sporDokument() {
-
+    // ToDo: sjekk at det er valgt fil
     // Disable fileInput-button
     document.getElementById("fileButton").disabled = true
     userParams.dokFiles = dokFiles
