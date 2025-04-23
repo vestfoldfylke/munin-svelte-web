@@ -266,9 +266,9 @@ const resizeBase64Image = (base64, width, height) => {
     userParams.messageHistory.push({
           role: "user",
           content: userParams.message
-        })
+        });
+  }
 
-  $inspect(userParams.messageHistory)
 </script>
 
 <svelte:head>
