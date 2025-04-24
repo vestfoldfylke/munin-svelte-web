@@ -6,8 +6,8 @@
   import { checkRoles } from '$lib/helpers/checkRoles';
 
 
-  // Global variabler
-  let mediaRecorder;
+// Global variabler
+let mediaRecorder;
   let audioChunks = [];
   let audioBlob;
   let audioUrl = $state();
@@ -88,63 +88,63 @@
       </div>
     {:else if !checkRoles(token, [`${appName.toLowerCase()}.admin`, `${appName.toLowerCase()}.transkripsjon`])}
       <p>Oi, du har ikke tilgang. Prøver du deg på noe lurt? 🤓</p>
-{:else}
-  <h1>Eksperimentell selvbetjeningsløsning for transkripsjon av tale</h1>
-  
-  <p style="margin-top:10px">Her kan du spille inn eller laste opp lyd og få transkripsjonen tilsendt på epost til brukeren du er logget inn med.</p>
-  <div class="alert"><p><b>Tjenesten er under utvikling og kan være ustabil. Husk at du ikke må sende inn lydklipp som inneholder sensitiv informasjon.</b></p></div>
-  <h2>Spill inn lyd</h2>
-  <div style="margin-bottom: 10px;"><b>NB!</b> Husk å laste ned lydopptaket før du sender til transkribering. Lydopptaket slettes etter at det er sendt avgårde. </div>
-  
-  <button onclick={recording ? stopRecording : startRecording}>
-    {recording ? 'Stopp opptak' : 'Start opptak'}
-  </button>
-
-  {#if recording}
-  <p>Opptak pågår: {timer}s</p>
-  {/if}
-  <br />
-  {#if audioUrl}
-    <p>
-      <!-- Avspilling fra audioUrl-objektet -->
-      <audio controls src = {audioUrl}></audio><br>
-      <button id="transButton" onclick={sendTilTranscript}>Send til transkripsjon</button>
-      <button><a href={audioUrl} download="recording.wav">Last ned opptak</a></button>
-    </p>
-  {/if}
-
-    <!-- Opplasting av lydfil -->
-    <h2 style="margin-top: 10px">Eller last opp en lydfil</h2>
-    <p>Last opp lydklipp på mp3- eller wma-format. Den ferdige transkripsjonen blir sendt til deg på epost.</p>
+      {:else}
+      <h1>Eksperimentell selvbetjeningsløsning for transkripsjon av tale</h1>
+      
+      <p style="margin-top:10px">Her kan du spille inn eller laste opp lyd og få transkripsjonen tilsendt på epost til brukeren du er logget inn med.</p>
+      <div class="alert"><p><b>Tjenesten er under utvikling og kan være ustabil. Husk at du ikke må sende inn lydklipp som inneholder sensitiv informasjon.</b></p></div>
+      <h2>Spill inn lyd</h2>
+      <div style="margin-bottom: 10px;"><b>NB!</b> Husk å laste ned lydopptaket før du sender til transkribering. Lydopptaket slettes etter at det er sendt avgårde. </div>
+      
+      <button onclick={recording ? stopRecording : startRecording}>
+        {recording ? 'Stopp opptak' : 'Start opptak'}
+      </button>
+    
+      {#if recording}
+      <p>Opptak pågår: {timer}s</p>
+      {/if}
+      <br />
+      {#if audioUrl}
+        <p>
+          <!-- Avspilling fra audioUrl-objektet -->
+          <audio controls src = {audioUrl}></audio><br>
+          <button id="transButton" onclick={sendTilTranscript}>Send til transkripsjon</button>
+          <button><a href={audioUrl} download="recording.wav">Last ned opptak</a></button>
+        </p>
+      {/if}
+    
+        <!-- Opplasting av lydfil -->
+        <h2 style="margin-top: 10px">Eller last opp en lydfil</h2>
+        <p>Last opp lydklipp på mp3- eller wma-format. Den ferdige transkripsjonen blir sendt til deg på epost.</p>
+        <br />
+      <input type="file" accept="audio/*" id="audioFile" name="audioFile" onchange={handleAudioFileSelect} />
+      {#if metadata.selectedFileName}
+        <p>Valgt fil: {metadata.selectedFileName}</p>
+      {/if}
+      <br>
+    {/if}
     <br />
-  <input type="file" accept="audio/*" id="audioFile" name="audioFile" onchange={handleAudioFileSelect} />
-  {#if metadata.selectedFileName}
-    <p>Valgt fil: {metadata.selectedFileName}</p>
-  {/if}
-  <br>
-{/if}
-<br />
-Modell: Nasjonalbibliotektets nb-whisper-medium
-<!-- Download button -->
- 
-<style>
-  audio {
-    margin-top: 20px;
-  }
-
-  button {
-    margin-right: 10px;
-    margin-bottom: 10px;
-  }
-
-  .alert {
-    background-color: #f8d7da;
-    color: #721c24;
-    padding: 20px;
-    margin-top: 10px;
-    margin-bottom: 20px;
-    border: 1px solid #f5c6cb;
-    border-radius: 5px;
-  }
-
-</style>
+    Modell: Nasjonalbibliotektets nb-whisper-medium
+    <!-- Download button -->
+     
+    <style>
+      audio {
+        margin-top: 20px;
+      }
+    
+      button {
+        margin-right: 10px;
+        margin-bottom: 10px;
+      }
+    
+      .alert {
+        background-color: #f8d7da;
+        color: #721c24;
+        padding: 20px;
+        margin-top: 10px;
+        margin-bottom: 20px;
+        border: 1px solid #f5c6cb;
+        border-radius: 5px;
+      }
+    
+    </style>
