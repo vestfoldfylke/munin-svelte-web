@@ -274,7 +274,7 @@
         autocomplete="off" 
         placeholder={`Skriv inn ledetekst (Shift + Enter for flere linjer)`} 
         bind:value={inputMessage}
-        onkeypress={(e) => onKeyPress(e, dokFiles && dokFiles.length > 0 ? handleFileSelect : brukervalg)}></textarea>
+        onkeypress={(e) => onKeyPress(e, brukervalg)}></textarea>
 
       {#if token.roles.some( (r) => [`${appName.toLowerCase()}.admin`].includes(r))}
         {#if userParams.valgtModell === "0" }
