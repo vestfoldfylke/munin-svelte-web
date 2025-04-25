@@ -158,7 +158,7 @@ export const models =
                 description: 'Eksperimentell bot til bruk som programmeridcfdslfjkdsøfkjøsdfkøngsstøtte for elever',
                 synligKontekst: false,
                 illustrasjon: '',
-                tile: 'skolebott',
+                tile: 'orgbott',
                 endpoint: 'assistantOpenAi',
                 assistant: true
             },

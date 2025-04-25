@@ -40,6 +40,9 @@
         {#if checkRoles(token, [`${appName.toLowerCase()}.admin`, `${appName.toLowerCase()}.skolebotter`])}
           <CardButton header={'Skolebotter'} imgPath={eksperiment} imgAlt={'Ikon bilde av et reagensrør'} gotoPath={'/skolebotter'} paragraph={''} boolValue={true}><span class="material-symbols-outlined">school</span></CardButton>
         {/if}
+        {#if checkRoles(token, [`${appName.toLowerCase()}.admin`, `${appName.toLowerCase()}.skolebotter`])}
+          <CardButton header={'Organisasjonsbotter'} imgPath={eksperiment} imgAlt={'Ikon bilde av et dokumentbilde'} gotoPath={'/orgbotter'} paragraph={''} boolValue={true}><span class="material-symbols-outlined">work</span></CardButton>
+        {/if}
         {#if checkRoles(token, [`${appName.toLowerCase()}.admin`, `${appName.toLowerCase()}.labs`])}
           <CardButton header={'Pilot'} imgPath={eksperiment} imgAlt={'Ikon bilde av et reagensrør'} gotoPath={'/labs'} paragraph={''} boolValue={true}><span class="material-symbols-outlined">experiment</span></CardButton>
         {/if}
