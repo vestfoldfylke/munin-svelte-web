@@ -16,6 +16,7 @@
     response_id: null,
     imageB64: [],
     dokFiles: [],
+    model: "gpt-4.1",
     messageHistory: [],
     kontekst: "",
     valgtModell: "0",
@@ -94,6 +95,8 @@
   // Håndterer valg av modell og oppdaterere modellinformasjon på siden
   function valgtModell(event) {
     userParams.valgtModell = event.target.value // model.id
+    userParams.model = models.find(model => model.id === userParams.valgtModell).params.model
+    console.log("Modelll: ", userParams.model)
     modelinfoModell = models.find(model => model.id === userParams.valgtModell).metadata.navn
     modelinfoBeskrivelse = models.find(model => model.id === userParams.valgtModell).metadata.description
     userParams.synligKontekst = models.find(model => model.id === userParams.valgtModell).metadata.synligKontekst

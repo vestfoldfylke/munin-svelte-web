@@ -25,14 +25,10 @@
 
   // Variabler for håndtering av data og innhold i frontend
   let dokFiles = $state(null);
-  let modelinfoModell =  $state(models[userParams.valgtModell].metadata.navn)// $state(modelinfo[userParams.valgtModell].navn)
-  let modelinfoBeskrivelse = $state(models[userParams.valgtModell].metadata.description) // $state(modelinfo[userParams.valgtModell].beskrivelse)
   let token = $state(null)
   let chatWindow = $state()
   let isWaiting = $state(false) // Venter på svar fra modell
   let isError = $state(false)
-  let showModal = $state(false)
-  let errorMessage = $state("")
   let inputMessage = $state("")
   let viewportWidth = $state(window.innerWidth)
   const appName = import.meta.env.VITE_APP_NAME
@@ -96,6 +92,26 @@
     }
   }
 
+  let hasRun = false;
+  $effect(() => {
+    if (dokFiles && dokFiles.length > 0 && !hasRun) {
+      handleDokFilesChange();
+      hasRun = true;
+    }
+})
+
+function handleDokFilesChange() {
+  console.log("dokFiles has changed:", dokFiles);
+  let dokNames = "<br>"
+  for (let dokFile of dokFiles) {
+    dokNames += dokFile.name + "<br>"
+  }
+  userParams.messageHistory.push({
+    role: "user",
+    content: "<b>Du har lastet opp:</b> " + dokNames
+  })
+}
+
   async function sporDokument() {
     // ToDo: sjekk at det er valgt fil
     // Disable fileInput-button
@@ -104,15 +120,6 @@
     isWaiting = true
     userParams.message = inputMessage
     inputMessage = ""
-    let dokumentliste = "Dokumenter i minnet:<br>"
-    for (let dokName of dokFiles) {
-        dokumentliste += dokName.name + "<br>"
-      }
-    userParams.messageHistory.push({
-      role: "user",
-      content: dokumentliste
-    })
-
     userParams.messageHistory.push({
           role: "user",
           content: userParams.message

@@ -11,8 +11,9 @@ export const responseOpenAi = async (userParams) => {
     response_id: userParams.response_id,
     imageBase64: userParams.imageB64,
     dokFiles: userParams.dokFiles,
+    model: userParams.model,
   }
-
+  console.log('responseOpenAi payload', payload)
   const response = await axios.post(`${import.meta.env.VITE_AI_API_URI}/responseOpenAi`, payload, {
     headers: {
       authorization: `Bearer ${accessToken}`
