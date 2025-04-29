@@ -147,7 +147,7 @@
     <div class="loading">
       <IconSpinner width={"32px"} />
     </div>
-    {:else if !checkRoles(token, [`${appName.toLowerCase()}.admin`, `${appName.toLowerCase()}.orgbotter`])}
+    {:else if !checkRoles(token, [`${appName.toLowerCase()}.admin`, `${appName.toLowerCase()}.labs`])}
     <p>Oi, du har ikke tilgang. Prøver du deg på noe lurt? 🤓</p>
   {:else}
 
