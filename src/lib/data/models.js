@@ -152,7 +152,7 @@ export const models =
                 thread_id: ''
             }},
             {
-            id: '16',
+            id: '17',
             metadata: {
                 navn: 'ADP',
                 description: 'Eksperimentell bot til bruk som programmeridcfdslfjkdsøfkjøsdfkøngsstøtte for elever',
@@ -169,6 +169,26 @@ export const models =
                 assistant_id: import.meta.env.VITE_ASSISTANT_LABS_ADP,
                 new_thread: true,
                 thread_id: ''
-            },
-        }
+            }
+        },
+        {
+        id: '18',
+        metadata: {
+            navn: 'Liv - Privatisteksamen',
+            description: 'Eksperimentell bot til bruk for informasjon og hjelp til privatisteksamen.',
+            synligKontekst: false,
+            illustrasjon: '',
+            tile: 'labs',
+            endpoint: 'assistantOpenAi',
+            assistant: true
+        },
+        params: { // Pythonhjelpen
+            message: '',
+            kontekst: '',
+            model: 'gpt-4o',
+            assistant_id: import.meta.env.VITE_ASSISTANT_LABS_LIV_PRIVATISTEKSAMEN,
+            new_thread: true,
+            thread_id: ''
+        },
+    }
     ]

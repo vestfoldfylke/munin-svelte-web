@@ -16,6 +16,7 @@
     assistant_id: models.filter(model => model.metadata.tile === "orgbott")[0].params.assistant_id,
     new_thread: true,
     thread_id: '',
+    tile: "orgbott",
   })
 
   // Variabler for håndtering av data og innhold i frontend

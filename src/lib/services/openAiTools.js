@@ -28,6 +28,7 @@ export const openAiAssistant = async (userParams) => {
     new_thread: userParams.new_thread,
     thread_id: userParams.thread_id,
     messageHistory: userParams.messageHistory,
+    tile: userParams.tile,
   }
   const accessToken = await getHuginToken()
   const response = await axios.post(`${import.meta.env.VITE_AI_API_URI}/assistantOpenAi`, payload, {

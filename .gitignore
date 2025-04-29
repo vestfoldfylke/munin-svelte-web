@@ -4,6 +4,8 @@ node_modules
 src/lib/data/testfiles/*
 /.svelte-kit
 /package
+.vscode/*
+.vscode
 package-lock.json
 .env
 *.env
