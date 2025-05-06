@@ -13,10 +13,10 @@
   const userParams = $state({
     message: "",
     messageHistory: [],
-    assistant_id: models.filter(model => model.metadata.tile === "skolebott")[0].params.assistant_id,
+    assistant_id: models.filter(model => model.metadata.tile === "skolebotter")[0].params.assistant_id,
     new_thread: true,
     thread_id: '',
-    tile: "skolebott",
+    tile: "skolebotter",
   })
 
   // Variabler for håndtering av data og innhold i frontend
@@ -32,6 +32,14 @@
   let inputMessage = $state("")
   let viewportWidth = $state(window.innerWidth)
   const appName = import.meta.env.VITE_APP_NAME
+
+    // Kjører ved oppstart for å sette opp initial state
+    valgtModell({
+    target: {
+      value: models.filter(model => model.metadata.tile === "skolebotter")[0].params.assistant_id
+    }
+  })
+
 
   // Starter med en velkomstmelding
   userParams.messageHistory.push({
@@ -157,7 +165,7 @@
       <div class="boxyHeader">
         <select class="modellSelect" onchange={valgtModell}>
           {#each models as model}
-            {#if model.metadata.tile === "skolebott"}
+            {#if model.metadata.tile === "skolebotter"}
               <option value={model.params.assistant_id}>{model.metadata.navn}</option>
             {/if}
           {/each}
