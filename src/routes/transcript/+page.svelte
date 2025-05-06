@@ -3,6 +3,7 @@
   import { getHuginToken } from "../../lib/useApi"
   import { onMount, } from "svelte"
   import IconSpinner from "../../lib/components/IconSpinner.svelte"
+  import InfoBox from "$lib/components/InfoBox.svelte";
   import { checkRoles } from '$lib/helpers/checkRoles';
 
 
@@ -126,7 +127,88 @@ let mediaRecorder;
     <br />
     Modell: Nasjonalbibliotektets nb-whisper-medium
     <!-- Download button -->
-     
+     <br />
+     <br />
+    <InfoBox title="Personvernerklæring">
+      <h1>Personvernerklæring for Selvbetjeningsløsning for transkribering i Hugin</h1>
+
+      <h2>Innledning</h2>
+      <p>
+          Denne personvernerklæringen beskriver hvordan selvbetjeningsløsning for transkribering i Hugin samler inn og bruker personopplysninger når du bruker vår tjeneste for transkribering av lydopptak.
+          Ved å benytte tjenesten, godtar du behandling av dine personopplysninger i henhold til denne erklæringen.
+      </p>
+  
+      <h2>Hvor lagres dataene?</h2>
+      <ul>
+          <li>
+              <strong>Telemark fylkeskommunes Azure-installasjon</strong> (datasenter i Norge):<br>
+              Her lagres kun lydklippet som sendes inn.
+          </li>
+          <li>
+              <strong>Lokal server på fylkeshuset:</strong><br>
+              Her lages transkriberingen midlertidig før den sendes til bruker. Transkripsjonen slettes etter at den er sendt.
+          </li>
+      </ul>
+  
+      <h2>Hva samles inn</h2>
+      <ul>
+          <li>
+              <strong>Lydopptak:</strong> Når du laster opp eller leser inn lydfiler for transkribering.
+          </li>
+          <li>
+              <strong>Personlige opplysninger:</strong> Navn og e-postadresse som er nødvendig for å sende deg transkriberte tekster.
+          </li>
+          <li>
+              <strong>Bruksinformasjon:</strong> Statistikk over bruk og feillogger som lagres på lokal server. Disse dataene er anonymisert.
+          </li>
+      </ul>
+  
+      <h2>Formål</h2>
+      <ul>
+          <li>
+              <strong>Transkribering:</strong> For å transkribere lydopptakene du sender inn med norsk språkmodell.
+          </li>
+          <li>
+              <strong>Forbedring av tjenesten:</strong> For å analysere bruken av vår tjeneste og forbedre våre tjenester.
+          </li>
+      </ul>
+  
+      <h2>Deling av informasjon</h2>
+      <p>
+          Ingen informasjon deles eller gjenbrukes til andre eller i andre sammenhenger.
+          Det logges kun statistikk for bruk, men denne inneholder ingen informasjon om innhold.
+      </p>
+  
+      <h2>Sikkerhet</h2>
+      <p>
+          Innlogging skjer på fylkeskommunens tjenester. All dataoverføring skjer enten med HTTPS og/eller kryptert kommunikasjon.
+      </p>
+  
+      <h2>Lagring av data</h2>
+      <p>
+          Dine lydopptak og transkriberte dokumenter blir mellomlagret i inntil en time for prosessering. Alle data blir umiddelbart slettet når transkriberingen er gjort. 
+          Lydopptaket blir slettet i det det blir sendt til prosessering. Det kan være retention-policyer på tenant-nivå som muliggjør gjenoppretting av filer innen en viss tidsperiode.
+      </p>
+  
+      <h2>Dine rettigheter</h2>
+      <ul>
+          <li>
+              <strong>Innsyn:</strong> Du har rett til å be om innsyn i hvilke personopplysninger vi har lagret om deg.
+          </li>
+          <li>
+              <strong>Rettelse:</strong> Du kan be om å få korrigert feilaktige personopplysninger.
+          </li>
+          <li>
+              <strong>Sletting:</strong> Du kan be om sletting av dine personopplysninger, med visse unntak som kreves ved lov.
+          </li>
+      </ul>
+  
+      <h2>Kontaktinformasjon</h2>
+      <p>
+          Hvis du har spørsmål eller bekymringer om denne personvernerklæringen, vennligst kontakt oss på <a href="mailto:noen@telemarkfylke.no">noen@telemarkfylke.no</a>.
+      </p>
+      </InfoBox>
+
     <style>
       audio {
         margin-top: 20px;
