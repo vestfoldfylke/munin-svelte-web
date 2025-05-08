@@ -10,139 +10,155 @@
   import autosize from "svelte-autosize";
   import Modal from "$lib/components/Modal.svelte";
 
-  // Init state - Modell-parametere og payload
-  const userParams = $state({
-    message: "",
-    response_id: null,
-    imageB64: [],
-    dokFiles: [],
-    model: "gpt-4.1",
-    messageHistory: [],
-    kontekst: "",
-    valgtModell: "0",
-    temperatur: 0.7, // Default temperatur
-    synligKontekst: true,      
-  })
-
   // Variabler for håndtering av data og innhold i frontend
-  let imageFiles = $state(null)
-  let dokFiles = $state(null);
-  let fileSelect = $state(false)
-  let modelinfoModell =  $state(models[userParams.valgtModell].metadata.navn)// $state(modelinfo[userParams.valgtModell].navn)
-  let modelinfoBeskrivelse = $state(models[userParams.valgtModell].metadata.description) // $state(modelinfo[userParams.valgtModell].beskrivelse)
-  let modelTampering = $state(false) // Viser modellinformasjon
-  let token = $state(null)
-  let chatWindow = $state()
-  let isWaiting = $state(false) // Venter på svar fra modell
-  let isError = $state(false)
-  let showModal = $state(false)
-  let errorMessage = $state("")
-  let inputMessage = $state("")
-  let viewportWidth = $state(window.innerWidth)
-  const appName = import.meta.env.VITE_APP_NAME
+  let imageFiles = $state(null);
+  let dokFileInput = $state(null);
+  let fileSelect = $state(false);
+  let modelinfoModell = $state("");
+  let modelinfoBeskrivelse = $state("");
+  let modelTampering = $state(false); // Viser modellinformasjon
+  let token = $state(null);
+  let chatWindow = $state();
+  let isWaiting = $state(false); // Venter på svar fra modell
+  let isError = $state(false);
+  let showModal = $state(false);
+  let errorMessage = $state("");
+  let inputMessage = $state("");
+  let viewportWidth = $state(window.innerWidth);
+  let filArray = $state([]);
+  const appName = import.meta.env.VITE_APP_NAME;
+
+  // Initiell state - Modell-parametere og payload som sendes til proxy-api
+  let message = $state("");
+  let response_id = $state(null);
+  let imageB64 = $state([]);
+  let dokFiles = $state([]);
+  let model = $state("gpt-4.1");
+  let messageHistory = $state([]);
+  let kontekst = $state("");
+  let valgtModell = $state("0");
+  let temperatur = $state(0.7); // Default temperatur
+  let synligKontekst = $state(true);
+
 
   // Starter med en velkomstmelding
-  userParams.messageHistory.push({
+  messageHistory = [{
     role: "assistant",
     content: `Velkommen til ${appName}! Hva kan jeg hjelpe deg med i dag?`,
     model: `${appName}`
-  })
+  }];
 
+  // Oppdaterer modellinformasjon basert på valgt modell med $effect
+  $effect(() => {
+    const selectedModel = models.find(m => m.id === valgtModell);
+    if (selectedModel) {
+      model = selectedModel.params.model;
+      modelinfoModell = selectedModel.metadata.navn;
+      modelinfoBeskrivelse = selectedModel.metadata.description;
+      synligKontekst = selectedModel.metadata.synligKontekst;
+    }
+  });
+
+  // Henter token og setter opp event listeners
   onMount(async () => {
-    if ( import.meta.env.VITE_MOCK_API && import.meta.env.VITE_MOCK_API === "true" ) {
+    if (import.meta.env.VITE_MOCK_API && import.meta.env.VITE_MOCK_API === "true") {
       // Pretend to wait for api call
-      await new Promise((resolve) => setTimeout(resolve, 2000))
+      await new Promise((resolve) => setTimeout(resolve, 2000));
     }
-    token = await getHuginToken(true)
-  })
-
-  // Fester scroll til bunnen av chatvinduet
-  const scrollToBottom = async (node) => {
-    if (!node) return;
-    tick().then(() => {
-      node.scroll({ top: node.scrollHeight, behavior: "smooth" })
-    })
-  }
-
-  // Dette fikser scroll for brukerinput og AI output og "AI tenker"-chatboble
-  //TODO: Uten if...else scroller chatbobler bare delvis og jeg skjønner ikke hvorfor....
-  //TODO: Bilder scroller bare delvis, så ligger egen scrollToBottom i HandleFileSelect
-
-  $effect(() => scrollToBottom(chatWindow));
-
-  $effect(() => {
-    if (isWaiting) {
-      scrollToBottom(chatWindow);
-    } else {
-      scrollToBottom(chatWindow);
-    }
-  })
-
-  $effect(() => {
-  const updateWidth = () => {
+    token = await getHuginToken(true);
+    
+    const updateWidth = () => {
       viewportWidth = window.innerWidth;
     };
-
+    
     window.addEventListener('resize', updateWidth);
     return () => {
       window.removeEventListener('resize', updateWidth);
     };
   });
 
+  // Fester scroll til bunnen av chatvinduet
+  const scrollToBottom = async (node) => {
+    if (!node) return;
+    await tick();
+    node.scroll({ top: node.scrollHeight, behavior: "smooth" });
+  };
+
+  // Dette fikser scroll for brukerinput og AI output og "AI tenker"-chatboble
+  $effect(() => {
+    if (chatWindow) {
+      scrollToBottom(chatWindow);
+    }
+  });
+
+  $effect(() => {
+    if (messageHistory.length > 0 || isWaiting) {
+      scrollToBottom(chatWindow);
+    }
+  });
 
   // Logikk og funksjoner for håndtering av brukerinput og valg av modell
 
-  // Håndterer valg av modell og oppdaterere modellinformasjon på siden
-  function valgtModell(event) {
-    userParams.valgtModell = event.target.value // model.id
-    userParams.model = models.find(model => model.id === userParams.valgtModell).params.model
-    console.log("Modelll: ", userParams.model)
-    modelinfoModell = models.find(model => model.id === userParams.valgtModell).metadata.navn
-    modelinfoBeskrivelse = models.find(model => model.id === userParams.valgtModell).metadata.description
-    userParams.synligKontekst = models.find(model => model.id === userParams.valgtModell).metadata.synligKontekst
+  // Håndterer valg av modell
+  function handleModelChange(event) {
+    valgtModell = event.target.value;
+  }
+
+  // Hjelpefunksjon som samler alle parametere og bundler til et objekt
+  function getRequestParams() {
+    return {
+      message,
+      response_id,
+      imageB64,
+      dokFiles,
+      model,
+      messageHistory,
+      kontekst,
+      valgtModell,
+      temperatur,
+      synligKontekst,
+      filArray
+    };
   }
 
   // Kaller på valgt modell med tilhørende parametre basert på brukerens valg 
   const brukervalg = async () => {
-    isWaiting = true
-    // Get the textarea and set the height -- Hvorfor er dette her?
-    const textarea = document.querySelector("textarea")
-    textarea.style.height = "60px"
-    userParams.message = inputMessage
-    inputMessage = ""
-    userParams.messageHistory.push({
-      role: "user",
-      content: userParams.message,
-      model: modelinfoModell
-    })
+    if (!inputMessage.trim()) return; // Fix for å unngå tom input
+    
+    isWaiting = true;
+    // Get the textarea and set the height
+    const textarea = document.querySelector("textarea");
+    textarea.style.height = "60px";
+    
+    message = inputMessage;
+    inputMessage = "";
+    
+    messageHistory = [...messageHistory, { role: "user", content: message, model: modelinfoModell }];
 
     try {
       let response;
-      if (userParams.valgtModell === "0") {
-        response = await responseOpenAi(userParams);
-        userParams.response_id = response.data.id
-        userParams.messageHistory.push({ role: "assistant", content: response.data.output_text , model: modelinfoModell });
-      } else if (userParams.valgtModell === "1") {
-        response = await noraChat(userParams);
-        userParams.messageHistory.push({ role: "assistant", content: response, model: modelinfoModell });
-      } else if (userParams.valgtModell === "13") {
-        response = await multimodalMistral(userParams);
-        userParams.messageHistory.push({ role: "assistant", content: response.choices[0].message.content, model: modelinfoModell });
-      } else if (["option2", "option3", "option4", "option5", "option6", "option7", "option16"].includes(userParams.valgtModell)) {
-        userParams.synligKontekst = false;
-        response = await openAiAssistant(userParams);
-        userParams.messageHistory.push({ role: "assistant", content: response.messages[0].content[0].text.value, model: modelinfoModell }); 
+      const params = getRequestParams();
+      if (valgtModell === "0") {
+        response = await responseOpenAi(params);
+        response_id = response.data.id; // Til bruk i api-kallet for å oppdatere historikken i samtalen
+        messageHistory = [...messageHistory, { role: "assistant", content: response.data.output_text, model: modelinfoModell }];
+      } else if (valgtModell === "1") {
+        response = await noraChat(params);
+        messageHistory = [...messageHistory, { role: "assistant", content: response, model: modelinfoModell }];
+      } else if (valgtModell === "13") {
+        response = await multimodalMistral(params);
+        messageHistory = [...messageHistory, { role: "assistant", content: response.choices[0].message.content, model: modelinfoModell }];
       } else {
         throw new Error("Ugyldig modellvalg");
       }
     } catch (error) {
       isError = true;
       errorMessage = error;
-      userParams.messageHistory.push({
-      role: "assistant",
-      content: "Noe gikk galt. Prøv igjen.",
-      model: modelinfoModell
-      });
+      messageHistory = [...messageHistory, {
+        role: "assistant",
+        content: "Noe gikk galt. Prøv igjen.",
+        model: modelinfoModell
+      }];
     } finally {
       isWaiting = false;
     }
@@ -150,66 +166,74 @@
 
   // Konverterer opplastet fil til base64
   const handleFileSelect = async (event) => {
-    const files = event.target.files
-    const fileType = files[0].type
-    fileSelect = true
-    if ( fileType.split("/")[0] === "image" ) {
-      userParams.imageB64 = []
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+    
+    const fileType = files[0].type;
+    fileSelect = true;
+    
+    if (fileType.split("/")[0] === "image") {
+      imageB64 = [];
       for (let i = 0; i < imageFiles.length; i++) {
-        const file = imageFiles[i]
-        const reader = new FileReader()
+        const file = imageFiles[i];
+        const reader = new FileReader();
         reader.onloadend = async () => {
           try {
-            userParams.messageHistory.push({
+            messageHistory = [...messageHistory, {
               role: "user",
               content: reader.result
-            })
-            userParams.imageB64.push(reader.result)
-            scrollToBottom(chatWindow)
+            }];
+            imageB64 = [...imageB64, reader.result];
           } catch (error) {
-            console.log("Noe gikk galt")
+            console.log("Noe gikk galt");
           }
-        }
-        reader.readAsDataURL(file) // This method reads the file as a base64 string
-    }
-    } else if ( fileType.split("/")[0] === "application" ) {
-      userParams.dokFiles = []
-      userParams.filArray = []
-      for (let i = 0; i < dokFiles.length; i++) {
-        const file = dokFiles[i]
-        if ( file.size > 32 * 1024 * 1024 || file.type !== "application/pdf" ) {
-          alert("En eller flere filer er ikke pdf eller er for store. Maks 32MB")
-          return
+        };
+        reader.readAsDataURL(file); // This method reads the file as a base64 string
+      }
+    } else if (fileType.split("/")[0] === "application") {
+      dokFiles = [];
+      filArray = [];
+      
+      for (let i = 0; i < dokFileInput.length; i++) {
+        const file = dokFileInput[i];
+        if (file.size > 32 * 1024 * 1024 || file.type !== "application/pdf") {
+          alert("En eller flere filer er ikke pdf eller er for store. Maks 32MB");
+          return;
         }
       }
-      for (let i = 0; i < dokFiles.length; i++) {
-        // const file = dokFiles[i]
-        const reader = new FileReader()
+      
+      for (let i = 0; i < dokFileInput.length; i++) {
+        const file = dokFileInput[i];
+        const reader = new FileReader();
         reader.onloadend = async () => {
           try {
-            userParams.messageHistory.push({
+            messageHistory = [...messageHistory, {
               role: "user",
-              content: dokFiles[i].name
-            })
-            userParams.dokFiles.push(reader.result)
-            scrollToBottom(chatWindow)
+              content: file.name
+            }];
+            dokFiles = [...dokFiles, reader.result];
           } catch (error) {
-            console.log("Noe gikk galt")
+            console.log("Noe gikk galt");
           }
-        }
-        reader.readAsDataURL(dokFiles[i]) // This method reads the file as a base64 string
+        };
+        reader.readAsDataURL(file);
       }
     }
   }
 
   // Håndterer tastetrykk i textarea
-  const onKeyPress = async (e, callback) => {
-    if (e.charCode === 13 && !e.shiftKey) {
-      e.preventDefault()
-      callback()
+  const onKeyPress = (e, callback) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      callback();
     }
   }
 
+  // Toggles for UI elements
+  const toggleModelInfo = () => {
+    modelTampering = !modelTampering;
+    showModal = true;
+  };
 </script>
 
 <svelte:head>
@@ -225,36 +249,36 @@
     <p>Oi, du har ikke tilgang. Prøver du deg på noe lurt? 🤓</p>
   {:else}
 
-    <!-- For-each som itererer over modell-confogfila og populerer selectmenmyen -->
+    <!-- Modellvelger som itererer over modell-confogfila -->
     <div class="modelTampering">
       <h2>Modellvelger</h2>
       <div class="boxyHeader">
-        <select class="modellSelect" onchange={valgtModell}>
+        <select class="modellSelect" onchange={handleModelChange}>
           {#each models as model}
             {#if model.metadata.tile === "chat"}
               <option value={model.id}>{model.metadata.navn}</option>
             {/if}
           {/each}
         </select>
-        <button id="modelinfoButton" class="link" onclick={() => { modelTampering = !modelTampering; showModal = true }}>
+        <button id="modelinfoButton" class="link" onclick={toggleModelInfo}>
           <span class="button-text">Innstillinger</span>
         </button>
       </div>
     </div>
 
     <div class="output" bind:this={chatWindow}>
-      {#if userParams.messageHistory.length === 1}
+      {#if messageHistory.length === 1}
         <ChatBlobs
           role="assistant"
-          content={userParams.messageHistory[0].content}
+          content={messageHistory[0].content}
           assistant={`${appName}`}  />
       {:else if isWaiting}
-        {#each userParams.messageHistory as chatMessage}
+        {#each messageHistory as chatMessage}
           <ChatBlobs role={chatMessage.role} content={chatMessage.content} {...(chatMessage.role === "assistant" ? { assistant: chatMessage.model } : {})} />
         {/each}
         <ChatBlobs role={"assistant"} content={"..."} />
       {:else}
-        {#each userParams.messageHistory as chatMessage}
+        {#each messageHistory as chatMessage}
           {#if typeof chatMessage.content === "string"}
             <ChatBlobs 
               role={chatMessage.role} 
@@ -277,14 +301,14 @@
         onkeypress={(e) => onKeyPress(e, brukervalg)}></textarea>
 
       {#if token.roles.some( (r) => [`${appName.toLowerCase()}.admin`].includes(r))}
-        {#if userParams.valgtModell === "0" }
+        {#if valgtModell === "0" }
         <label for="fileButton"><span class="material-symbols-outlined inputButton">picture_as_pdf</span>
-          <input id="fileButton" type="file" bind:files={dokFiles} onchange={handleFileSelect} accept=".pdf" multiple style="display:none;" />
+          <input id="fileButton" type="file" bind:files={dokFileInput} onchange={handleFileSelect} accept=".pdf" multiple style="display:none;" />
         </label>
         <label for="imageButton"><span class="material-symbols-outlined inputButton">add_photo_alternate</span>
           <input id="imageButton" type="file" bind:files={imageFiles} onchange={handleFileSelect} accept="image/*" multiple style="display: none;"/></label>
         {/if}
-        {#if userParams.valgtModell === "13" }
+        {#if valgtModell === "13" }
           <label for="imageButton"><span class="material-symbols-outlined inputButton">add_photo_alternate</span>
             <input id="imageButton" type="file" bind:files={imageFiles} onchange={handleFileSelect} accept="image/jpeg" multiple style="display: none;"/></label>
         {/if}
@@ -313,7 +337,7 @@
   {/if}
   {#if appName === 'Hugin'}
     {#if (viewportWidth < 768)}
-    <p id="disclaimer">Husk at språkmodeller lager tekst som kan inneholde feil. <a href="https://telemarkfylke.no/no/veileder-for-kunstig-intelligens/">Les mer om bruk av {appName} her.</p>
+    <p id="disclaimer">Husk at språkmodeller lager tekst som kan inneholde feil. <a href="https://telemarkfylke.no/no/veileder-for-kunstig-intelligens/">Les mer om bruk av {appName} her.</a></p>
     {:else}
       <p id="disclaimer">
         Husk at språkmodeller lager tekst som kan inneholde feil. Vurder alltid om bruken av språkteknologi passer med formålet ditt.<br> 
@@ -322,59 +346,58 @@
     {/if}
   {/if}
   {#if appName === 'Munin'}
-  {#if (viewportWidth < 768)}
-  <p id="disclaimer">Husk at språkmodeller lager tekst som kan inneholde feil. <a href="https://www.vestfoldfylke.no/no/meny/tjenester/opplaring/digitale-laringsressurser-til-videregaende-opplaring/veileder-for-kunstig-intelligens/">Les mer om bruk av {appName} her.</p>
-  {:else}
-    <p id="disclaimer">
-      Husk at språkmodeller lager tekst som kan inneholde feil. Vurder alltid om bruken av språkteknologi passer med formålet ditt.<br> 
-      Ikke send inn data som kan være sensitive eller inneholder informasjon som ikke kan deles offentlig. <a href="https://www.vestfoldfylke.no/no/meny/tjenester/opplaring/digitale-laringsressurser-til-videregaende-opplaring/veileder-for-kunstig-intelligens/">Les mer om bruk av {appName} her.</a>
-    </p>
+    {#if (viewportWidth < 768)}
+      <p id="disclaimer">Husk at språkmodeller lager tekst som kan inneholde feil. <a href="https://www.vestfoldfylke.no/no/meny/tjenester/opplaring/digitale-laringsressurser-til-videregaende-opplaring/veileder-for-kunstig-intelligens/">Les mer om bruk av {appName} her.</a></p>
+    {:else}
+      <p id="disclaimer">
+        Husk at språkmodeller lager tekst som kan inneholde feil. Vurder alltid om bruken av språkteknologi passer med formålet ditt.<br> 
+        Ikke send inn data som kan være sensitive eller inneholder informasjon som ikke kan deles offentlig. <a href="https://www.vestfoldfylke.no/no/meny/tjenester/opplaring/digitale-laringsressurser-til-videregaende-opplaring/veileder-for-kunstig-intelligens/">Les mer om bruk av {appName} her.</a>
+      </p>
+    {/if}
   {/if}
-{/if}
   <Modal bind:showModal buttonText="Lagre">
     {#snippet header()}
-        <h2 >{modelinfoModell}</h2>
-      {/snippet}
+      <h2>{modelinfoModell}</h2>
+    {/snippet}
     {#snippet mainContent()}
-        <p >{@html modelinfoBeskrivelse}</p>
-      {/snippet}
-    {#if userParams.synligKontekst}
-    <textarea 
-      use:autosize
-      id="inputKontekst" 
-      placeholder="Her kan du legge inn kontekst til språkmodellen." 
-      bind:value={userParams.kontekst} 
-      rows="4" 
-      cols="auto">
-    </textarea>
-    <label for="temperatur">Temperatur: </label>
-      <input type="range" id="temperatur" name="temperatur" min="0" max="2" step="0.1" bind:value={userParams.temperatur}/>
-    {userParams.temperatur}
+      <p>{@html modelinfoBeskrivelse}</p>
+    {/snippet}
+    {#if synligKontekst}
+      <textarea 
+        use:autosize
+        id="inputKontekst" 
+        placeholder="Her kan du legge inn kontekst til språkmodellen." 
+        bind:value={kontekst} 
+        rows="4" 
+        cols="auto">
+      </textarea>
+      <label for="temperatur">Temperatur: </label>
+      <input type="range" id="temperatur" name="temperatur" min="0" max="2" step="0.1" bind:value={temperatur}/>
+      {temperatur}
     {/if}
   </Modal>
 </main>
 
 <style>
+  main {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-items: center;
+    height: calc(85vh);
+    margin: 10px;
+  }
 
-main {
-  display: flex;
-  flex-direction: column;
-  flex-wrap: nowrap;
-  justify-content: center;
-  align-items: center;
-  height: calc(85vh);
-  margin: 10px;
-}
+  #modelinfoButton {
+    border: 1px solid #ccc;
+    padding: 3px 10px 3px 10px;
+    background-color: #f5f5f5;
+    border-radius: 1rem;
+    text-decoration: none;
+  }
 
-#modelinfoButton {
-  border: 1px solid #ccc;
-  padding: 3px 10px 3px 10px;
-  background-color: #f5f5f5;
-  border-radius: 1rem;
-  text-decoration: none;
-}
-
-textarea {
+  textarea {
     display: block;
     width: 100%;
     overflow-y: scroll;
@@ -408,7 +431,7 @@ textarea {
   }
 
   #brukerInput:focus::placeholder {
-  color: transparent;
+    color: transparent;
   }
 
   .boxyHeader {

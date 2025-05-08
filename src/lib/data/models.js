@@ -3,7 +3,7 @@ export const models =
         {
             id: '0',
             metadata: {
-                navn: 'GPT-4.1',
+                navn: 'OpenAI ChatGPT 4.1',
                 description: 'Denne modellen bruker <a href="https://openai.com/index/gpt-4-1//">OpenAIs GPT-4.1</a> til å generere tekst basert på en gitt kontekst og melding. GPT-4o er den nyeste versjonen av GPT-4, og er trent på en stor mengde data fra internett. Modellen er trent på å generere tekst som ligner på menneskelig skrevet tekst, og kan brukes til en rekke oppgaver som tekstgenerering, oversettelse og spørsmål-svar. Du må selv legge inn kontektst og temperatur slik at modellen får de egenskapene du ønsker. Denne modellen har også mulighet for bilde og dokumentanalyse. Trykk på opplastingsknappene. Modellen vil analysere bildet eller dokumentet og kan generere tekst basert på dette.',
                 synligKontekst: true,
                 illustrasjon: '',
@@ -25,8 +25,8 @@ export const models =
         {
             id: '13',
             metadata: {
-                navn: 'Mistral',
-                description: 'Dennne modellen bruker <a href="https://mistral.ai/news/pixtral-large">Mistral Large</a> Mistral Large og Pixtral Large, er avanserte multimodal språkmodeller utviklet for å håndtere komplekse oppgaver som kombinerer tekst og bildeanalyse. Modellen er trent på en omfattende mengde data og er optimalisert for å generere tekst basert på en gitt kontekst, melding eller visuelle input. Mistral Large kan brukes til en rekke oppgaver som tekstgenerering, bildeanalyse og multimodal forståelse. For å bruke modellens bildeanalysefunksjon, kan du laste opp et bilde via opplastingsknappen. Modellen vil analysere bildet og generere tekst basert på innholdet. Dette gjør Mistral Large til et kraftig verktøy for både kreative og analytiske oppgaver.',
+                navn: 'Mistral Large',
+                description: 'Dennne modellen bruker <a href="https://mistral.ai/news/pixtral-large">Mistral</a>. Mistral Large og Pixtral Large, er avanserte multimodal språkmodeller utviklet for å håndtere komplekse oppgaver som kombinerer tekst og bildeanalyse. Modellen er trent på en omfattende mengde data og er optimalisert for å generere tekst basert på en gitt kontekst, melding eller visuelle input. Mistral Large kan brukes til en rekke oppgaver som tekstgenerering, bildeanalyse og multimodal forståelse. For å bruke modellens bildeanalysefunksjon, kan du laste opp et bilde via opplastingsknappen. Modellen vil analysere bildet og generere tekst basert på innholdet. Dette gjør Mistral Large til et kraftig verktøy for både kreative og analytiske oppgaver.',
                 synligKontekst: true,
                 illustrasjon: '',
                 tile: 'chat',
@@ -40,9 +40,6 @@ export const models =
                 message: '',
                 kontekst: '',
                 model: 'pixtral-large-latest',
-                assistant_id: '',
-                new_thread: false,
-                thread_id: '' 
             }
         },
         {
