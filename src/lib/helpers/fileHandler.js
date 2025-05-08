@@ -35,8 +35,6 @@ export const handleFileSelect = async (event, {
   let newImageB64 = [...imageB64];
   let newDokFiles = [...dokFiles];
   let newFilArray = [...filArray];
-  
-  console.log("fileType", fileType);
 
   // Function to read a file as DataURL and return a promise
   const readFileAsDataURL = (file) => {
@@ -58,7 +56,7 @@ export const handleFileSelect = async (event, {
         const dataUrl = await readFileAsDataURL(file);
         return dataUrl;
       } catch (error) {
-        console.error("Error reading image file:", error);
+        console.error("Error reading image file:");
         return null;
       }
     });
@@ -109,7 +107,7 @@ export const handleFileSelect = async (event, {
           dataUrl: dataUrl
         };
       } catch (error) {
-        console.error("Error reading document file:", error);
+        console.error("Error reading document file:");
         return null;
       }
     });
@@ -133,11 +131,6 @@ export const handleFileSelect = async (event, {
     });
   }
 
-  console.log("newMessageHistory", newMessageHistory);
-  console.log("newImageB64", newImageB64);
-  console.log("newDokFiles", newDokFiles);
-  console.log("newFilArray", newFilArray);
-  
   return {
     messageHistory: newMessageHistory,
     imageB64: newImageB64,
