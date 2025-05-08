@@ -9,6 +9,7 @@
   import IconSpinner from "$lib/components/IconSpinner.svelte";
   import autosize from "svelte-autosize";
   import Modal from "$lib/components/Modal.svelte";
+  import { handleFileSelect } from "$lib/helpers/fileHandler.js"; // Import the file handler
 
   // Variabler for håndtering av data og innhold i frontend
   let imageFiles = $state(null);
@@ -164,61 +165,23 @@
     }
   }
 
-  // Konverterer opplastet fil til base64
-  const handleFileSelect = async (event) => {
-    const files = event.target.files;
-    if (!files || files.length === 0) return;
+  // Bruker handleFileSelect fra filHandler.js for å håndtere filopplasting
+  const onFileSelect = async (event) => {
+    const result = await handleFileSelect(event, {
+      messageHistory,
+      imageFiles,
+      dokFileInput,
+      imageB64,
+      dokFiles,
+      filArray
+    });
     
-    const fileType = files[0].type;
-    fileSelect = true;
-    
-    if (fileType.split("/")[0] === "image") {
-      imageB64 = [];
-      for (let i = 0; i < imageFiles.length; i++) {
-        const file = imageFiles[i];
-        const reader = new FileReader();
-        reader.onloadend = async () => {
-          try {
-            messageHistory = [...messageHistory, {
-              role: "user",
-              content: reader.result
-            }];
-            imageB64 = [...imageB64, reader.result];
-          } catch (error) {
-            console.log("Noe gikk galt");
-          }
-        };
-        reader.readAsDataURL(file); // This method reads the file as a base64 string
-      }
-    } else if (fileType.split("/")[0] === "application") {
-      dokFiles = [];
-      filArray = [];
-      
-      for (let i = 0; i < dokFileInput.length; i++) {
-        const file = dokFileInput[i];
-        if (file.size > 32 * 1024 * 1024 || file.type !== "application/pdf") {
-          alert("En eller flere filer er ikke pdf eller er for store. Maks 32MB");
-          return;
-        }
-      }
-      
-      for (let i = 0; i < dokFileInput.length; i++) {
-        const file = dokFileInput[i];
-        const reader = new FileReader();
-        reader.onloadend = async () => {
-          try {
-            messageHistory = [...messageHistory, {
-              role: "user",
-              content: file.name
-            }];
-            dokFiles = [...dokFiles, reader.result];
-          } catch (error) {
-            console.log("Noe gikk galt");
-          }
-        };
-        reader.readAsDataURL(file);
-      }
-    }
+    // Update state variables with the returned values
+    messageHistory = result.messageHistory;
+    imageB64 = result.imageB64;
+    dokFiles = result.dokFiles;
+    filArray = result.filArray;
+    fileSelect = result.fileSelect;
   }
 
   // Håndterer tastetrykk i textarea
@@ -303,14 +266,14 @@
       {#if token.roles.some( (r) => [`${appName.toLowerCase()}.admin`].includes(r))}
         {#if valgtModell === "0" }
         <label for="fileButton"><span class="material-symbols-outlined inputButton">picture_as_pdf</span>
-          <input id="fileButton" type="file" bind:files={dokFileInput} onchange={handleFileSelect} accept=".pdf" multiple style="display:none;" />
+          <input id="fileButton" type="file" bind:files={dokFileInput} onchange={onFileSelect} accept=".pdf" multiple style="display:none;" />
         </label>
         <label for="imageButton"><span class="material-symbols-outlined inputButton">add_photo_alternate</span>
-          <input id="imageButton" type="file" bind:files={imageFiles} onchange={handleFileSelect} accept="image/*" multiple style="display: none;"/></label>
+          <input id="imageButton" type="file" bind:files={imageFiles} onchange={onFileSelect} accept="image/*" multiple style="display: none;"/></label>
         {/if}
         {#if valgtModell === "13" }
           <label for="imageButton"><span class="material-symbols-outlined inputButton">add_photo_alternate</span>
-            <input id="imageButton" type="file" bind:files={imageFiles} onchange={handleFileSelect} accept="image/jpeg" multiple style="display: none;"/></label>
+            <input id="imageButton" type="file" bind:files={imageFiles} onchange={onFileSelect} accept="image/jpeg" multiple style="display: none;"/></label>
         {/if}
         {#if isError}
           <Modal bind:showModal>
