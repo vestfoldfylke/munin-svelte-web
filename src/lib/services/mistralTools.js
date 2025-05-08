@@ -4,7 +4,8 @@ import { models } from "$lib/data/models"; // Modellkonfigurasjon
 import { getHuginToken } from '../useApi'
 
 export const multimodalMistral = async (userParams) => {
-    const modelIndex = models.findIndex((model) => model.metadata.navn === 'Mistral Large')
+    // Henter basis-konfigurasjon fra models.js og supplerer med brukerens parametre
+    const modelIndex = models.findIndex((model) => model.id === '13')
     const payload = models[modelIndex].params
     payload.message = userParams.message
     payload.messageHistory = userParams.messageHistory

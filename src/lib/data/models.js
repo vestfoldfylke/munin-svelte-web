@@ -5,7 +5,7 @@ export const models =
             metadata: {
                 navn: 'OpenAI ChatGPT 4.1',
                 description: 'Denne modellen bruker <a href="https://openai.com/index/gpt-4-1//">OpenAIs GPT-4.1</a> til å generere tekst basert på en gitt kontekst og melding. GPT-4o er den nyeste versjonen av GPT-4, og er trent på en stor mengde data fra internett. Modellen er trent på å generere tekst som ligner på menneskelig skrevet tekst, og kan brukes til en rekke oppgaver som tekstgenerering, oversettelse og spørsmål-svar. Du må selv legge inn kontektst og temperatur slik at modellen får de egenskapene du ønsker. Denne modellen har også mulighet for bilde og dokumentanalyse. Trykk på opplastingsknappene. Modellen vil analysere bildet eller dokumentet og kan generere tekst basert på dette.',
-                synligKontekst: true,
+                synligKontekst: false,
                 illustrasjon: '',
                 tile: 'chat',
                 endpoint: 'responseOpenAI',
