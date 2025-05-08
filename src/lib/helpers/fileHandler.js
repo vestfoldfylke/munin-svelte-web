@@ -9,7 +9,7 @@
  * @param {Array} imageB64 - Array to store base64 encoded images
  * @param {Array} dokFiles - Array to store base64 encoded documents
  * @param {Array} filArray - Array to store file metadata
- * @returns {Object} Updated state values
+ * @returns {Promise<Object>} Updated state values
  */
 export const handleFileSelect = async (event, {
   messageHistory,
@@ -28,36 +28,66 @@ export const handleFileSelect = async (event, {
     fileSelect: false
   };
   
-  const fileType = files[0].type;
+  console.log("files", files);
+
+  let fileType = files[0].type;
   let newMessageHistory = [...messageHistory];
   let newImageB64 = [...imageB64];
   let newDokFiles = [...dokFiles];
   let newFilArray = [...filArray];
   
-  if (fileType.split("/")[0] === "image") {
-    newImageB64 = [];
-    for (let i = 0; i < imageFiles.length; i++) {
-      const file = imageFiles[i];
+  console.log("fileType", fileType);
+
+  // Function to read a file as DataURL and return a promise
+  const readFileAsDataURL = (file) => {
+    return new Promise((resolve, reject) => {
       const reader = new FileReader();
-      reader.onloadend = async () => {
-        try {
-          newMessageHistory = [...newMessageHistory, {
-            role: "user",
-            content: reader.result
-          }];
-          newImageB64 = [...newImageB64, reader.result];
-        } catch (error) {
-          console.log("Noe gikk galt");
-        }
-      };
-      reader.readAsDataURL(file); // This method reads the file as a base64 string
-    }
+      reader.onloadend = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
+
+  if (fileType.split("/")[0] === "image") {
+    // Reset the image array
+    newImageB64 = [];
+    
+    // Process all image files asynchronously
+    const imagePromises = Array.from(files).map(async (file) => {
+      try {
+        const dataUrl = await readFileAsDataURL(file);
+        return dataUrl;
+      } catch (error) {
+        console.error("Error reading image file:", error);
+        return null;
+      }
+    });
+    
+    // Wait for all files to be processed
+    const results = await Promise.all(imagePromises);
+    
+    // Filter out any failed reads and update state
+    const validResults = results.filter(result => result !== null);
+    newImageB64 = validResults;
+    
+    // Add each image to message history
+    validResults.forEach(result => {
+      newMessageHistory.push({
+        role: "user",
+        content: result
+      });
+    });
+    
   } else if (fileType.split("/")[0] === "application") {
+    // Reset document arrays
     newDokFiles = [];
     newFilArray = [];
     
-    for (let i = 0; i < dokFileInput.length; i++) {
-      const file = dokFileInput[i];
+    // If there are document files, validate them first
+    const filesToProcess = files;
+    
+    for (let i = 0; i < filesToProcess.length; i++) {
+      const file = filesToProcess[i];
       if (file.size > 32 * 1024 * 1024 || file.type !== "application/pdf") {
         alert("En eller flere filer er ikke pdf eller er for store. Maks 32MB");
         return {
@@ -70,33 +100,49 @@ export const handleFileSelect = async (event, {
       }
     }
     
-    for (let i = 0; i < dokFileInput.length; i++) {
-      const file = dokFileInput[i];
-      const reader = new FileReader();
-      reader.onloadend = async () => {
-        try {
-          newMessageHistory = [...newMessageHistory, {
-            role: "user",
-            content: file.name
-          }];
-          newDokFiles = [...newDokFiles, reader.result];
-        } catch (error) {
-          console.log("Noe gikk galt");
-        }
-      };
-      reader.readAsDataURL(file);
-    }
+    // Process all document files asynchronously
+    const docPromises = Array.from(filesToProcess).map(async (file) => {
+      try {
+        const dataUrl = await readFileAsDataURL(file);
+        return { 
+          name: file.name,
+          dataUrl: dataUrl
+        };
+      } catch (error) {
+        console.error("Error reading document file:", error);
+        return null;
+      }
+    });
+    
+    // Wait for all files to be processed
+    const results = await Promise.all(docPromises);
+    
+    // Filter out any failed reads and update state
+    const validResults = results.filter(result => result !== null);
+    
+    validResults.forEach(result => {
+      newMessageHistory.push({
+        role: "user",
+        content: result.name
+      });
+      newDokFiles.push(result.dataUrl);
+      newFilArray.push({
+        name: result.name,
+        type: "application/pdf"
+      });
+    });
   }
 
   console.log("newMessageHistory", newMessageHistory);
   console.log("newImageB64", newImageB64);
   console.log("newDokFiles", newDokFiles);
   console.log("newFilArray", newFilArray);
+  
   return {
     messageHistory: newMessageHistory,
     imageB64: newImageB64,
     dokFiles: newDokFiles,
     filArray: newFilArray,
-    fileSelect: true
+    fileSelect: newImageB64.length > 0 || newDokFiles.length > 0
   };
-};
+}

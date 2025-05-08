@@ -182,6 +182,8 @@
     dokFiles = result.dokFiles;
     filArray = result.filArray;
     fileSelect = result.fileSelect;
+
+    console.log("Filopplasting vellykket:", result);
   }
 
   // Håndterer tastetrykk i textarea
