@@ -13,13 +13,12 @@
  */
 export const handleFileSelect = async (event, {
   messageHistory,
-  imageFiles,
-  dokFileInput,
   imageB64,
   dokFiles,
   filArray
 }) => {
   const files = event.target.files;
+  // Sjekker at det er valgt filer
   if (!files || files.length === 0) return {
     messageHistory,
     imageB64,
@@ -28,8 +27,6 @@ export const handleFileSelect = async (event, {
     fileSelect: false
   };
   
-  console.log("files", files);
-
   let fileType = files[0].type;
   let newMessageHistory = [...messageHistory];
   let newImageB64 = [...imageB64];
