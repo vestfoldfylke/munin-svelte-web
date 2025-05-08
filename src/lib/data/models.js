@@ -179,10 +179,10 @@ export const models =
             endpoint: 'assistantOpenAi',
             assistant: true
         },
-        params: { // Pythonhjelpen
+        params: {
             message: '',
             kontekst: '',
-            model: 'gpt-4o',
+            model: 'gpt-4.1',
             assistant_id: import.meta.env.VITE_ASSISTANT_LABS_LIV_PRIVATISTEKSAMEN,
             new_thread: true,
             thread_id: ''
