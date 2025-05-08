@@ -27,6 +27,7 @@ export const handleFileSelect = async (event, {
     fileSelect: false
   };
   
+  // Lager kopi for å unngå endring av state
   let fileType = files[0].type;
   let newMessageHistory = [...messageHistory];
   let newImageB64 = [...imageB64];
@@ -47,7 +48,7 @@ export const handleFileSelect = async (event, {
     // Reset the image array
     newImageB64 = [];
     
-    // Process all image files asynchronously
+    // Bruker map for å lage en liste med promises for hver fil
     const imagePromises = Array.from(files).map(async (file) => {
       try {
         const dataUrl = await readFileAsDataURL(file);
@@ -58,27 +59,27 @@ export const handleFileSelect = async (event, {
       }
     });
     
-    // Wait for all files to be processed
+    // Venter på at alle promises er fullført
     const results = await Promise.all(imagePromises);
     
     // Filter out any failed reads and update state
     const validResults = results.filter(result => result !== null);
     newImageB64 = validResults;
     
-    // Add each image to message history
+    // Legger til alle gyldige bilder i messageHistory
     validResults.forEach(result => {
       newMessageHistory.push({
         role: "user",
         content: result
       });
     });
-    
+    // Sjekker så om filer er dokumenter
   } else if (fileType.split("/")[0] === "application") {
     // Reset document arrays
     newDokFiles = [];
     newFilArray = [];
     
-    // If there are document files, validate them first
+    // Sjekker at filene er pdf og ikke større enn 32MB
     const filesToProcess = files;
     
     for (let i = 0; i < filesToProcess.length; i++) {
@@ -95,7 +96,7 @@ export const handleFileSelect = async (event, {
       }
     }
     
-    // Process all document files asynchronously
+    // Bruker map for å lage en liste med promises for hver fil på samme måte som for bilder
     const docPromises = Array.from(filesToProcess).map(async (file) => {
       try {
         const dataUrl = await readFileAsDataURL(file);
