@@ -101,7 +101,6 @@
 })
 
 function handleDokFilesChange() {
-  console.log("dokFiles has changed:", dokFiles);
   let dokNames = "<br>"
   for (let dokFile of dokFiles) {
     dokNames += dokFile.name + "<br>"
