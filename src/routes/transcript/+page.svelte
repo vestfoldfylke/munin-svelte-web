@@ -75,7 +75,6 @@ let mediaRecorder;
   };
 
   const sendTilTranscript = async () => {
-    console.log('Sending to transcript');
     const transButton = document.getElementById('transButton');
     transButton.textContent = "epost på vei";
     transButton.disabled = true;

@@ -4,7 +4,6 @@ import { models } from "$lib/data/models"; // Modellkonfigurasjon
 import { getHuginToken } from '../useApi'
 
 export const noraChat = async (userParams) => {
-    console.log('noraChat userParams', userParams)
     // Sjekker om det er hverdag mellom 08:00 og 16:00
     const isWeekday = (date = new Date()) => date.getDay() % 6 !== 0
     const isDaytime = (date = new Date()) => date.getHours() >= 8 && date.getHours() < 16
