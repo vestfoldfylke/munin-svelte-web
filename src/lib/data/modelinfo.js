@@ -95,5 +95,5 @@ export const modelinfo = {
     description: 'Eksperimentell bot til bruk som hjelp til programmering i Python',
     synligKontekst: false,
     illustrasjon: ''
-  },
+  }
 }

@@ -1,34 +1,34 @@
 <script>
-  import { openAiAssistant } from "$lib/services/openAiTools";
+  import { docQueryOpenAi } from "$lib/services/openAiTools"
   import { models } from "$lib/data/models"; // Modellkonfigurasjon
   import ChatBlobs from "$lib/components/ChatBlobs.svelte"; // Komponent for å vise chatmeldinger
   import { onMount, tick } from "svelte";
   import { getHuginToken } from "$lib/useApi";
   import IconSpinner from "$lib/components/IconSpinner.svelte";
   import autosize from "svelte-autosize";
-  import Modal from "$lib/components/Modal.svelte";
   import { checkRoles } from '$lib/helpers/checkRoles';
 
   // Init state - Modell-parametere og payload
   const userParams = $state({
     message: "",
+    response_id: null,
+    vectorStore_id: null,
+    imageB64: [],
+    dokFiles: [],
     messageHistory: [],
-    assistant_id: models.filter(model => model.metadata.tile === "labs")[0].params.assistant_id,
-    new_thread: true,
-    thread_id: '',
-    tile: "labs",
+    kontekst: "",
+    valgtModell: "0",
+    temperatur: 0.7, // Default temperatur
+    synligKontekst: true,   
+    new_thread: true,  
   })
 
   // Variabler for håndtering av data og innhold i frontend
-  let modelinfoModell = $state(null) // $state(modelinfo[userParams.valgtModell].navn)
-  let modelinfoBeskrivelse = $state("") // $state(modelinfo[userParams.valgtModell].beskrivelse)
-  let modelTampering = $state(false) // Viser modellinformasjon
+  let dokFiles = $state(null);
   let token = $state(null)
   let chatWindow = $state()
   let isWaiting = $state(false) // Venter på svar fra modell
   let isError = $state(false)
-  let showModal = $state(false)
-  let errorMessage = $state("")
   let inputMessage = $state("")
   let viewportWidth = $state(window.innerWidth)
   const appName = import.meta.env.VITE_APP_NAME
@@ -84,55 +84,58 @@
 
   // Logikk og funksjoner for håndtering av brukerinput og valg av modell
 
-  // Håndterer valg av modell og oppdaterere modellinformasjon på siden
-  function valgtModell(event) {
-    userParams.new_thread = true
-    userParams.assistant_id = event.target.value
-    modelinfoModell = models.find(model => model.params.assistant_id === userParams.assistant_id).metadata.navn
-    modelinfoBeskrivelse = models.find(model => model.params.assistant_id === userParams.assistant_id).metadata.description
-    userParams.synligKontekst = models.find(model => model.params.assistant_id === userParams.assistant_id).metadata.synligKontekst
-  }
-
-  // Kaller på valgt modell med tilhørende parametre basert på brukerens valg 
-  const brukervalg = async () => {
-    isWaiting = true
-    // Get the textarea and set the height -- Hvorfor er dette her?
-    const textarea = document.querySelector("textarea")
-    textarea.style.height = "60px"
-    modelinfoModell = models.find(model => model.params.assistant_id === userParams.assistant_id).metadata.navn
-    userParams.message = inputMessage
-    inputMessage = ""
-    userParams.messageHistory.push({
-      role: "user",
-      content: userParams.message,
-      model: modelinfoModell
-    })
-
-    try {
-      let response;
-      response = await openAiAssistant(userParams);
-      userParams.messageHistory.push({ role: "assistant", content: response.messages[0].content[0].text.value, model: modelinfoModell }); 
-      userParams.new_thread = false
-      userParams.thread_id = response.thread_id
-    } catch (error) {
-      isError = true;
-      errorMessage = error;
-      userParams.messageHistory.push({
-      role: "assistant",
-      content: "Noe gikk galt. Prøv igjen.",
-      model: modelinfoModell
-      });
-    } finally {
-      isWaiting = false;
-    }
-  }
-
-
   // Håndterer tastetrykk i textarea
   const onKeyPress = async (e, callback) => {
     if (e.charCode === 13 && !e.shiftKey) {
       e.preventDefault()
       callback()
+    }
+  }
+
+  let hasRun = false;
+  $effect(() => {
+    if (dokFiles && dokFiles.length > 0 && !hasRun) {
+      handleDokFilesChange();
+      hasRun = true;
+    }
+})
+
+function handleDokFilesChange() {
+  let dokNames = "<br>"
+  for (let dokFile of dokFiles) {
+    dokNames += dokFile.name + "<br>"
+  }
+  userParams.messageHistory.push({
+    role: "user",
+    content: "<b>Du har lastet opp:</b> " + dokNames
+  })
+}
+
+  async function sporDokument() {
+    // ToDo: sjekk at det er valgt fil
+    // Disable fileInput-button
+    document.getElementById("fileButton").disabled = true
+    userParams.dokFiles = dokFiles
+    isWaiting = true
+    userParams.message = inputMessage
+    inputMessage = ""
+    userParams.messageHistory.push({
+          role: "user",
+          content: userParams.message
+        })
+    try {
+      let respons = await docQueryOpenAi(userParams);
+      userParams.response_id = respons.id
+      userParams.vectorStore_id = respons.tools[0].vector_store_ids[0]
+      userParams.new_thread = false
+      userParams.messageHistory.push({
+        role: "assistant",
+        content: respons.output_text,
+        model: `${appName}`
+      })
+      isWaiting = false
+    } catch (e) {
+      console.log("Oj, noe gikk galt!");
     }
   }
 
@@ -147,26 +150,9 @@
     <div class="loading">
       <IconSpinner width={"32px"} />
     </div>
-    {:else if !checkRoles(token, [`${appName.toLowerCase()}.admin`, `${appName.toLowerCase()}.labs`])}
+  {:else if !checkRoles(token, [`${appName.toLowerCase()}.admin`, `${appName.toLowerCase()}.dokumentchat`])}
     <p>Oi, du har ikke tilgang. Prøver du deg på noe lurt? 🤓</p>
   {:else}
-
-    <!-- For-each som itererer over modell-confogfila og populerer selectmenmyen -->
-    <div class="modelTampering">
-      <h2>Modellvelger</h2>
-      <div class="boxyHeader">
-        <select class="modellSelect" onchange={valgtModell}>
-          {#each models as model}
-            {#if model.metadata.tile === "labs"}
-              <option value={model.params.assistant_id}>{model.metadata.navn}</option>
-            {/if}
-          {/each}
-        </select>
-        <button id="modelinfoButton" class="link" onclick={() => { modelTampering = !modelTampering; showModal = true }}>
-          <span class="button-text">Innstillinger</span>
-        </button>
-      </div>
-    </div>
 
     <div class="output" bind:this={chatWindow}>
       {#if userParams.messageHistory.length === 1}
@@ -200,29 +186,16 @@
         autocomplete="off" 
         placeholder={`Skriv inn ledetekst (Shift + Enter for flere linjer)`} 
         bind:value={inputMessage}
-        onkeypress={(e) => onKeyPress(e, brukervalg)}></textarea>
-
-      {#if token.roles.some( (r) => [`${appName.toLowerCase()}.admin`].includes(r))}
+        onkeypress={(e) => onKeyPress(e, sporDokument)}></textarea>
+        <label for="fileButton"><span class="material-symbols-outlined inputButton">cloud_upload</span>
+          <input style="display:none;" bind:files={dokFiles} id="fileButton" multiple type="file" accept=".xls, .xlsx, .docx, .pdf, .txt, .json, .md, .pptx" />
+        </label>
         {#if isError}
-          <Modal bind:showModal>
-            {#snippet header()}
-              <h2>Error</h2>
-            {/snippet}
-            <h3>Noe gikk galt ⛔</h3>
-            <div class="centerstuff">
-              <p>
-                {JSON.stringify(
-                  errorMessage.response?.data ||
-                    errorMessage.stack ||
-                    errorMessage.message
-                )}
-              </p>
-            </div>
-          </Modal>
+          {console.log("Error:")}
         {/if}
-      {/if}
+
       <label for="sendButton"><span class="material-symbols-outlined inputButton">send</span>
-        <input id="sendButton" type="button" onclick={brukervalg} value={`Spør ${appName}`} style="display: none;"/>
+        <input id="sendButton" type="button" onclick={sporDokument} value={`Spør ${appName}`} style="display: none;"/>
       </label>
     </div>
   {/if}
@@ -246,27 +219,7 @@
     </p>
   {/if}
 {/if}
-  <Modal bind:showModal buttonText="Lagre">
-    {#snippet header()}
-        <h2 >{modelinfoModell}</h2>
-      {/snippet}
-    {#snippet mainContent()}
-        <p >{@html modelinfoBeskrivelse}</p>
-      {/snippet}
-    {#if userParams.synligKontekst}
-    <textarea 
-      use:autosize
-      id="inputKontekst" 
-      placeholder="Her kan du legge inn kontekst til språkmodellen." 
-      bind:value={userParams.kontekst} 
-      rows="4" 
-      cols="auto">
-    </textarea>
-    <label for="temperatur">Temperatur: </label>
-      <input type="range" id="temperatur" name="temperatur" min="0" max="2" step="0.1" bind:value={userParams.temperatur}/>
-    {userParams.temperatur}
-    {/if}
-  </Modal>
+  
 </main>
 
 <style>
@@ -281,13 +234,6 @@ main {
   margin: 10px;
 }
 
-#modelinfoButton {
-  border: 1px solid #ccc;
-  padding: 3px 10px 3px 10px;
-  background-color: #f5f5f5;
-  border-radius: 1rem;
-  text-decoration: none;
-}
 
 textarea {
     display: block;
@@ -326,12 +272,7 @@ textarea {
   color: transparent;
   }
 
-  .boxyHeader {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    padding: 5px 10px 10px 8px;
-  }
+
 
   .material-symbols-outlined {
     font-size: 1.5rem;
@@ -361,14 +302,6 @@ textarea {
     overflow-y: scroll;
   }
 
-  .modelTampering {
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    padding: 5px;
-    margin-bottom: 10px;
-    width: 100%;
-  }
-
   @keyframes flash {
     0% {
       background-color: transparent;
@@ -379,21 +312,6 @@ textarea {
     100% {
       background-color: transparent;
     }
-  }
-
-  .modellSelect {
-    padding: 10px;
-    border-radius: 1rem;
-    border: 1px solid #ccc;
-    background-color: #f5f5f5;
-    width: 26rem;
-  }
-
-  textarea#inputKontekst {
-    padding: 10px;
-    margin-top: 30px;
-    margin-bottom: 10px;
-    font-size: 16px;
   }
 
   .loading {
@@ -421,28 +339,6 @@ textarea {
     
     #disclaimer {
       font-size: 12px;
-    }
-
-    .modellSelect {
-      width: 320px;
-      margin-right: 5px;
-    }
-
-    .modelTampering > h2 {
-      font-size: 1rem;
-    }
-
-    .button-text {
-      display: none;
-    }
-
-    #modelinfoButton {
-      padding: 5px 9px 0px 9px;
-    }
-    #modelinfoButton::before {
-      content: "\e8b8"; /* Unicode for cog wheel icon */
-      font-family: 'Material Icons';
-      font-size: 1.5rem;
     }
   }
 </style>

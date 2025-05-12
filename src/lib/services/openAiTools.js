@@ -1,58 +1,34 @@
 // Bibliotek for å håndtere API-kall til AZF-funksjoner
 import axios from 'axios'
 import { params } from '$lib/data/modelparams'
+import { models } from "$lib/data/models"; // Modellkonfigurasjon
 import { getHuginToken } from '../useApi'
 
-export const multimodalOpenAi = async (userParams) => {
-  // Template API-call
-  const payload = params[userParams.valgtModell]
-  payload.message = userParams.message
-  payload.messageHistory = userParams.messageHistory
-  payload.kontekst = userParams.kontekst
-  payload.temperatur = userParams.temperatur
-  payload.bilde_base64String = userParams.base64String
+export const responseOpenAi = async (userParams) => {
   const accessToken = await getHuginToken()
-  // Call AZF-funksjon with payload
-  const response = await axios.post(`${import.meta.env.VITE_AI_API_URI}/multimodalOpenAi`, payload, {
+  const payload = {
+    userMessage: userParams.message,
+    response_id: userParams.response_id,
+    imageBase64: userParams.imageB64,
+    dokFiles: userParams.dokFiles,
+    model: userParams.model,
+  }
+  
+  const response = await axios.post(`${import.meta.env.VITE_AI_API_URI}/responseOpenAi`, payload, {
     headers: {
       authorization: `Bearer ${accessToken}`
     }
   })
-
-  return response.data
-}
-
-export const noraChat = async (modellInfo) => {
-  // Sjekker om det er hverdag mellom 08:00 og 16:00
-  const isWeekday = (date = new Date()) => date.getDay() % 6 !== 0
-  const isDaytime = (date = new Date()) => date.getHours() >= 8 && date.getHours() < 16
-  console.log(isWeekday(), isDaytime())
-  // Messagehandling
-  const payload = params[modellInfo.valgtModell]
-  const indexLastMessage = modellInfo.messageHistory.length - 1
-  payload.question = modellInfo.messageHistory[indexLastMessage].content
-
-  const accessToken = await getHuginToken()
-  if (isWeekday() && isDaytime()) {
-    const response = await axios.post(`${import.meta.env.VITE_AI_API_URI}/noraChat`, payload, {
-      headers: {
-        authorization: `Bearer ${accessToken}`
-      }
-    })
-    console.log(response.data)
-    return response.data
-  } else {
-    return 'Nora er tilgjengelig på hverdager mellom 08:00 og 16:00. Prøv igjen senere.'
-  }
+  return response
 }
 
 export const openAiAssistant = async (userParams) => {
   const payload = {
-    assistant_id: params[userParams.valgtModell].assistant_id,
-    new_thread: userParams.newThread,
-    thread_id: userParams.threadId,
+    assistant_id: userParams.assistant_id,
+    new_thread: userParams.new_thread,
+    thread_id: userParams.thread_id,
     messageHistory: userParams.messageHistory,
-    vectorStore_id: ''
+    tile: userParams.tile,
   }
   const accessToken = await getHuginToken()
   const response = await axios.post(`${import.meta.env.VITE_AI_API_URI}/assistantOpenAi`, payload, {
@@ -63,37 +39,31 @@ export const openAiAssistant = async (userParams) => {
   return response.data
 }
 
-export const docQueryOpenAi = async (filliste, up) => {
-  // Template API-call
-  const payload = {
-    assistant_id: import.meta.env.VITE_ASSISTANT_DOCQUERY,
-    new_thread: up.newThread,
-    vectorStore_id: up.vectorStoreId,
-    thread_id: up.threadId,
-    filer: filliste
-  }
-
-  const datapakken = new FormData()
-  datapakken.append('assistant_id', payload.assistant_id)
-  datapakken.append('thread_id', payload.thread_id)
-  datapakken.append('new_thread', payload.new_thread)
-  datapakken.append('vectorStore_id', payload.vectorStore_id)
-  datapakken.append('message', up.message)
-  datapakken.append('filer', filliste[0])
+export const docQueryOpenAi = async (userParams) => {
 
   const accessToken = await getHuginToken()
 
-  const r = await axios.post(`${import.meta.env.VITE_AI_API_URI}/docQueryOpenAiV2`, datapakken, {
-    method: 'post',
-    data: datapakken,
+  const formData = new FormData();
+  formData.append('assistant_id', userParams.assistant_id);
+  formData.append('response_id', userParams.response_id);
+  formData.append('thread_id', userParams.thread_id);
+  formData.append('new_thread', userParams.new_thread);
+  formData.append('vectorStore_id', userParams.vectorStore_id);
+  formData.append('userMessage', userParams.message);
+  formData.append('messageHistory', JSON.stringify(userParams.messageHistory));
+
+  if (userParams.dokFiles && userParams.dokFiles.length > 0) {
+    for (let i = 0; i < userParams.dokFiles.length; i++) {
+      formData.append('filer', userParams.dokFiles[i]);
+    }
+  }
+
+  const payload = formData;
+ 
+  const response = await axios.post(`${import.meta.env.VITE_AI_API_URI}/docQueryOpenAiV2`, payload, {
     headers: {
-      'Content-Type': 'multipart/form-data',
       authorization: `Bearer ${accessToken}`
     }
   })
-  payload.assistant_id = r.data.assistant_id
-  payload.thread_id = r.data.thread_id
-  payload.vectorStore_id = r.data.vectorStore_id
-  payload.new_thread = 'false'
-  return JSON.stringify(r)
+  return response.data
 }

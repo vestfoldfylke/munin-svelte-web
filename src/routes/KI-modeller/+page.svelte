@@ -1,250 +1,202 @@
 <script>
-  import { docQueryOpenAi } from "$lib/services/openAiTools"
-  import { multimodalOpenAi, noraChat, openAiAssistant } from "../../lib/services/openAiTools"
-  import { multimodalMistral } from "$lib/services/mistralTools"
-  import { modelinfo } from "../../lib/data/modelinfo" // Tekstbeskrivelser om valgt modell
-  import ChatBlobs from "$lib/components/ChatBlobs.svelte" // Komponent for å vise chatmeldinger
-  import "@material/web/button/elevated-button"
-  import { onMount, tick } from "svelte"
-  import { getHuginToken } from "../../lib/useApi"
-  import IconSpinner from "../../lib/components/IconSpinner.svelte"
-  import autosize from 'svelte-autosize';
-  import Modal from "../../lib/components/Modal.svelte"
-
-  // Init state - Modell-parametere og payload
-  const userParams = $state({
-    message: "",
-    assistant_id: "",
-    newThread: true,
-    threadId: "",
-    messageHistory: [],
-    kontekst: "",
-    valgtModell: "option1", // Default modell Mistral
-    base64String: "",
-    temperatur: 0.7, // Default temperatur
-    synligKontekst: true,  
-    assistant: "Mistral",
-    newThread: true,
-    threadId: "",
-    vectorStoreId: "",      
-    fil: "Fil ikke valgt",
-    filArray: "",
-  })
+  import { responseOpenAi } from "$lib/services/openAiTools";
+  import { multimodalMistral } from "$lib/services/mistralTools";
+  import { noraChat } from "$lib/services/huggingFaceTools";
+  import { models } from "$lib/data/models"; // Modellkonfigurasjon
+  import ChatBlobs from "$lib/components/ChatBlobs.svelte"; // Komponent for å vise chatmeldinger
+  import { onMount, tick } from "svelte";
+  import { getHuginToken } from "$lib/useApi";
+  import IconSpinner from "$lib/components/IconSpinner.svelte";
+  import autosize from "svelte-autosize";
+  import Modal from "$lib/components/Modal.svelte";
+  import { handleFileSelect } from "$lib/helpers/fileHandler.js"; // Import the file handler
 
   // Variabler for håndtering av data og innhold i frontend
-  let files = $state();
-  let svar;
-  let showModal = $state(false)
-  let selectedFiles = $state(null)
-  let respons = $state()
-  let modelinfoModell = $state(modelinfo[userParams.valgtModell].navn)
-  let modelinfoBeskrivelse = $state(modelinfo[userParams.valgtModell].description)
-  let modelTampering = $state(false) // Viser modellinformasjon
-  let token = $state(null)
-  let chatWindow = $state()
-  let isWaiting = $state(false) // Venter på svar fra modell
-  let isError = $state(false)
-  let errorMessage = $state("")
-  let inputMessage = $state("")
-  let viewportWidth = $state(window.innerWidth)
-  const appName = import.meta.env.VITE_APP_NAME
+  let imageFiles = $state(null);
+  let dokFileInput = $state(null);
+  let fileSelect = $state(false);
+  let modelinfoModell = $state("");
+  let modelinfoBeskrivelse = $state("");
+  let modelTampering = $state(false); // Viser modellinformasjon
+  let token = $state(null);
+  let chatWindow = $state();
+  let isWaiting = $state(false); // Venter på svar fra modell
+  let isError = $state(false);
+  let showModal = $state(false);
+  let errorMessage = $state("");
+  let inputMessage = $state("");
+  let viewportWidth = $state(window.innerWidth);
+  let filArray = $state([]);
+  const appName = import.meta.env.VITE_APP_NAME;
+
+  // Initiell state - Modell-parametere og payload som sendes til proxy-api
+  let message = $state("");
+  let response_id = $state(null);
+  let imageB64 = $state([]);
+  let dokFiles = $state([]);
+  let model = $state("gpt-4.1");
+  let messageHistory = $state([]);
+  let kontekst = $state("");
+  let valgtModell = $state("0");
+  let temperatur = $state(0.7); // Default temperatur
+  let synligKontekst = $state(true);
+
 
   // Starter med en velkomstmelding
-  userParams.messageHistory.push({
+  messageHistory = [{
     role: "assistant",
     content: `Velkommen til ${appName}! Hva kan jeg hjelpe deg med i dag?`,
     model: `${appName}`
-  })
+  }];
 
+  // Oppdaterer modellinformasjon basert på valgt modell med $effect
+  $effect(() => {
+    const selectedModel = models.find(m => m.id === valgtModell);
+    if (selectedModel) {
+      model = selectedModel.params.model;
+      modelinfoModell = selectedModel.metadata.navn;
+      modelinfoBeskrivelse = selectedModel.metadata.description;
+      synligKontekst = selectedModel.metadata.synligKontekst;
+    }
+  });
+
+  // Henter token og setter opp event listeners
   onMount(async () => {
-    if ( import.meta.env.VITE_MOCK_API && import.meta.env.VITE_MOCK_API === "true" ) {
+    if (import.meta.env.VITE_MOCK_API && import.meta.env.VITE_MOCK_API === "true") {
       // Pretend to wait for api call
-      await new Promise((resolve) => setTimeout(resolve, 2000))
+      await new Promise((resolve) => setTimeout(resolve, 2000));
     }
-    token = await getHuginToken(true)
-  })
-
-  // Fester scroll til bunnen av chatvinduet
-  const scrollToBottom = async (node) => {
-    if (!node) return;
-    tick().then(() => {
-      node.scroll({ top: node.scrollHeight, behavior: "smooth" })
-    })
-  }
-
-  // Dette fikser scroll for brukerinput og AI output og "AI tenker"-chatboble
-  //TODO: Uten if...else scroller chatbobler bare delvis og jeg skjønner ikke hvorfor....
-  //TODO: Bilder scroller bare delvis, så ligger egen scrollToBottom i HandleFileSelect
-
-  $effect(() => scrollToBottom(chatWindow));
-
-  $effect(() => {
-    if (isWaiting) {
-      scrollToBottom(chatWindow);
-    } else {
-      scrollToBottom(chatWindow);
-    }
-  })
-
-  $effect(() => {
-  const updateWidth = () => {
+    token = await getHuginToken(true);
+    
+    const updateWidth = () => {
       viewportWidth = window.innerWidth;
     };
-
+    
     window.addEventListener('resize', updateWidth);
     return () => {
       window.removeEventListener('resize', updateWidth);
     };
   });
 
-  // Håndterer valg av modell og oppdaterere modellinformasjon på siden
-  function valgtModell(event) {
-    userParams.valgtModell = event.target.value
-    modelinfoModell = modelinfo[userParams.valgtModell].navn
-    modelinfoBeskrivelse = modelinfo[userParams.valgtModell].description
-    userParams.synligKontekst = modelinfo[userParams.valgtModell].synligKontekst
+  // Fester scroll til bunnen av chatvinduet
+  const scrollToBottom = async (node) => {
+    if (!node) return;
+    await tick();
+    node.scroll({ top: node.scrollHeight, behavior: "smooth" });
+  };
+
+  // Dette fikser scroll for brukerinput og AI output og "AI tenker"-chatboble
+  $effect(() => {
+    if (chatWindow) {
+      scrollToBottom(chatWindow);
+    }
+  });
+
+  $effect(() => {
+    if (messageHistory.length > 0 || isWaiting) {
+      scrollToBottom(chatWindow);
+    }
+  });
+
+  // Logikk og funksjoner for håndtering av brukerinput og valg av modell
+
+  // Håndterer valg av modell
+  function handleModelChange(event) {
+    valgtModell = event.target.value;
   }
 
-  // Kaller på valgt modell med tilhørende parametre basert på brukerens valg
-  const brukervalg = async () => {
-    isWaiting = true
+  // Hjelpefunksjon som samler alle parametere og bundler til et objekt
+  function getRequestParams() {
+    return {
+      message,
+      response_id,
+      imageB64,
+      dokFiles,
+      model,
+      messageHistory,
+      kontekst,
+      valgtModell,
+      temperatur,
+      synligKontekst,
+      filArray
+    };
+  }
 
+  // Kaller på valgt modell med tilhørende parametre basert på brukerens valg 
+  const brukervalg = async () => {
+    if (!inputMessage.trim()) return; // Fix for å unngå tom input
+    
+    isWaiting = true;
     // Get the textarea and set the height
-    const textarea = document.querySelector("textarea")
-    textarea.style.height = "60px"
-    userParams.message = inputMessage
-    inputMessage = ""
-    userParams.messageHistory.push({
-      role: "user",
-      content: userParams.message,
-      model: modelinfoModell
-    })
+    const textarea = document.querySelector("textarea");
+    textarea.style.height = "60px";
+    
+    message = inputMessage;
+    inputMessage = "";
+    
+    messageHistory = [...messageHistory, { role: "user", content: message, model: modelinfoModell }];
 
     try {
       let response;
-      if (userParams.valgtModell === "option1") {
-        response = await multimodalOpenAi(userParams);
-        userParams.messageHistory.push({ role: "assistant", content: response.choices[0].message.content, model: modelinfoModell });
-      } else if (userParams.valgtModell === "option2") {
-        response = await noraChat(userParams);
-        userParams.messageHistory.push({ role: "assistant", content: response, model: modelinfoModell });
-      } else if (userParams.valgtModell === "option13") {
-        response = await multimodalMistral(userParams);
-        userParams.messageHistory.push({ role: "assistant", content: response.choices[0].message.content, model: modelinfoModell });
-      } else if (["option2", "option3", "option4", "option5", "option6", "option7", "option16"].includes(userParams.valgtModell)) {
-        userParams.synligKontekst = false;
-        response = await openAiAssistant(userParams);
-        userParams.messageHistory.push({ role: "assistant", content: response.messages[0].content[0].text.value, model: modelinfoModell }); 
+      const params = getRequestParams();
+      if (valgtModell === "0") {
+        response = await responseOpenAi(params);
+        response_id = response.data.id; // Til bruk i api-kallet for å oppdatere historikken i samtalen
+        messageHistory = [...messageHistory, { role: "assistant", content: response.data.output_text, model: modelinfoModell }];
+      } else if (valgtModell === "1") {
+        response = await noraChat(params);
+        messageHistory = [...messageHistory, { role: "assistant", content: response, model: modelinfoModell }];
+      } else if (valgtModell === "13") {
+        response = await multimodalMistral(params);
+        messageHistory = [...messageHistory, { role: "assistant", content: response.choices[0].message.content, model: modelinfoModell }];
       } else {
         throw new Error("Ugyldig modellvalg");
       }
     } catch (error) {
       isError = true;
       errorMessage = error;
-      userParams.messageHistory.push({
-      role: "assistant",
-      content: "Noe gikk galt. Prøv igjen.",
-      model: modelinfoModell
-      });
+      messageHistory = [...messageHistory, {
+        role: "assistant",
+        content: "Noe gikk galt. Prøv igjen.",
+        model: modelinfoModell
+      }];
     } finally {
       isWaiting = false;
     }
   }
 
-  // Justerer størrelsen på opplastede bilder
-const resizeBase64Image = (base64, width, height) => {
-    // Opprett et canvas-element
-    const canvas = document.createElement('canvas');
-    // Opprett et bilde-element fra base64-strengen
-    const image = new Image();
-    image.src = base64;
-    // Returner en Promise som løses når bildet er lastet
-    return new Promise((resolve, reject) => {
-        image.onload = () => {
-            // Beregn bildets aspektforhold
-            const aspectRatio = image.width / image.height;
-            // Beregn beste passform-dimensjoner for canvas
-            if (width / height > aspectRatio) {
-                canvas.width = height * aspectRatio;
-                canvas.height = height;
-            } else {
-                canvas.width = width;
-                canvas.height = width / aspectRatio;
-            }
-            // Tegn bildet på canvas
-            const context = canvas.getContext('2d');
-            if (context) {
-                context.drawImage(image, 0, 0, canvas.width, canvas.height);
-            }
-            // Løs Promisen med det skalerte bildet som en base64-streng
-            resolve(canvas.toDataURL('image/jpeg'));
-        };
-        image.onerror = reject;
+  // Bruker handleFileSelect fra filHandler.js for å håndtere filopplasting
+  const onFileSelect = async (event) => {
+    const result = await handleFileSelect(event, {
+      messageHistory,
+      imageFiles,
+      dokFileInput,
+      imageB64,
+      dokFiles,
+      filArray
     });
-};
+    
+    // Update state variables with the returned values
+    messageHistory = result.messageHistory;
+    imageB64 = result.imageB64;
+    dokFiles = result.dokFiles;
+    filArray = result.filArray;
+    fileSelect = result.fileSelect;
+  }
 
-  // Konverterer opplastet fil til base64
-  const handleFileSelect = async (event) => {
-    selectedFiles = event.target.files
-    const file = selectedFiles[0]
-
-    if (file) {
-      const reader = new FileReader()
-      reader.onloadend = async () => {
-        try {
-          userParams.messageHistory.push({
-            role: "user",
-            content: await resizeBase64Image(reader.result, 400, 400),
-          })
-          userParams.base64String = reader.result
-          scrollToBottom(chatWindow)
-        } catch (error) {
-          console.log("Noe gikk galt", error)
-        }
-      }
-      reader.readAsDataURL(file) // This method reads the file as a base64 string
+  // Håndterer tastetrykk i textarea
+  const onKeyPress = (e, callback) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      callback();
     }
   }
 
-  const onKeyPress = async (e, callback) => {
-    if (e.charCode === 13 && !e.shiftKey) {
-      e.preventDefault()
-      callback()
-    }
-  }
-
-  let isBeta = false;
-  if (window.location.search.includes('?beta')) {
-  isBeta = true;
-  }
-
-  async function sporDokument() {
-    userParams.fil = files ? files[0].name : "Ingen fil valgt"
-    isWaiting = true
-    userParams.message = inputMessage
-    inputMessage = ""
-    userParams.messageHistory.push({
-          role: "user",
-          content: userParams.message
-        })
-    try {
-      respons = await docQueryOpenAi(files, userParams).then((response) => {
-        const l = JSON.parse(response).data.messages.length;
-        svar = JSON.parse(response).data.messages[l - 1].content[0].text.value;
-        // Get last message from data.messages
-        userParams.newThread = false;
-        userParams.vectorStoreId = JSON.parse(response).data.vectorStore_id;
-        userParams.threadId = JSON.parse(response).data.thread_id;
-        userParams.fil = files[0].name;
-      });
-      userParams.messageHistory.push({ role: "assistant", content: svar, model: modelinfoModell });
-      isWaiting = false
-    } catch (e) {
-      console.log("Oj, noe gikk galt!", e);
-    }
-  }
-
-  $inspect(userParams.messageHistory)
+  // Toggles for UI elements
+  const toggleModelInfo = () => {
+    modelTampering = !modelTampering;
+    showModal = true;
+  };
 </script>
 
 <svelte:head>
@@ -259,37 +211,37 @@ const resizeBase64Image = (base64, width, height) => {
   {:else if !token.roles.some( (r) => [`${appName.toLowerCase()}.basic`, `${appName.toLowerCase()}.admin`].includes(r) )}
     <p>Oi, du har ikke tilgang. Prøver du deg på noe lurt? 🤓</p>
   {:else}
+
+    <!-- Modellvelger som itererer over modell-confogfila -->
     <div class="modelTampering">
       <h2>Modellvelger</h2>
       <div class="boxyHeader">
-        <select class="modellSelect" onchange={valgtModell}>
-          <option value="option1" default >GPT-4o - OpenAI</option>
-          <option value="option13">Mistral - Europeisk språkmodell</option>
-          <option value="option2">Nora - Eksperimentell norsk språkmodell</option>
-          <option value="option3">Matematikkens byggesteiner</option>
-          <option value="option4">Teoretisk matematikk Nivå 1</option>
-          <option value="option5">Teoretisk matematikk Nivå 2</option>
-          <option value="option16">Pythonhjelperen</option>
+        <select class="modellSelect" onchange={handleModelChange}>
+          {#each models as model}
+            {#if model.metadata.tile === "chat"}
+              <option value={model.id}>{model.metadata.navn}</option>
+            {/if}
+          {/each}
         </select>
-        <button id="modelinfoButton" class="link" onclick={() => { modelTampering = !modelTampering; showModal = true }}>
+        <button id="modelinfoButton" class="link" onclick={toggleModelInfo}>
           <span class="button-text">Innstillinger</span>
         </button>
       </div>
     </div>
 
     <div class="output" bind:this={chatWindow}>
-      {#if userParams.messageHistory.length === 1}
+      {#if messageHistory.length === 1}
         <ChatBlobs
           role="assistant"
-          content={userParams.messageHistory[0].content}
+          content={messageHistory[0].content}
           assistant={`${appName}`}  />
       {:else if isWaiting}
-        {#each userParams.messageHistory as chatMessage}
+        {#each messageHistory as chatMessage}
           <ChatBlobs role={chatMessage.role} content={chatMessage.content} {...(chatMessage.role === "assistant" ? { assistant: chatMessage.model } : {})} />
         {/each}
         <ChatBlobs role={"assistant"} content={"..."} />
       {:else}
-        {#each userParams.messageHistory as chatMessage}
+        {#each messageHistory as chatMessage}
           {#if typeof chatMessage.content === "string"}
             <ChatBlobs 
               role={chatMessage.role} 
@@ -309,26 +261,19 @@ const resizeBase64Image = (base64, width, height) => {
         autocomplete="off" 
         placeholder={`Skriv inn ledetekst (Shift + Enter for flere linjer)`} 
         bind:value={inputMessage}
-        onkeypress={(e) => onKeyPress(e, files && files.length > 0 ? sporDokument : brukervalg)}></textarea>
+        onkeypress={(e) => onKeyPress(e, brukervalg)}></textarea>
 
-      {#if token.roles.some( (r) => [`${appName.toLowerCase()}.admin`].includes(r) )}
-        {#if userParams.valgtModell === "option1" || userParams.valgtModell === "option13"}
-          <label for="fileButton"><span class="material-symbols-outlined inputButton">cloud_upload</span>
-            <input style="display:none;" bind:files={files} id="fileButton" multiple type="file" accept=".xls, .xlsx, .docx, .pdf, .txt, .json, .md, .pptx" />
-          </label>
-          {#if files && files.length > 0}
-            <div class="fileName flash">
-              {files[0].name}
-              <button 
-                class="removeFile" 
-                onclick={() => { files = null; selectedFiles = []; document.getElementById('fileButton').value = '';}} 
-                aria-label="Remove file">X</button>
-            </div>
-          {/if}
+      {#if token.roles.some( (r) => [`${appName.toLowerCase()}.admin`].includes(r))}
+        {#if valgtModell === "0" }
+        <label for="fileButton"><span class="material-symbols-outlined inputButton">picture_as_pdf</span>
+          <input id="fileButton" type="file" bind:files={dokFileInput} onchange={onFileSelect} accept=".pdf" multiple style="display:none;" />
+        </label>
+        <label for="imageButton"><span class="material-symbols-outlined inputButton">add_photo_alternate</span>
+          <input id="imageButton" type="file" bind:files={imageFiles} onchange={onFileSelect} accept="image/*" multiple style="display: none;"/></label>
         {/if}
-        {#if userParams.valgtModell === "option1" || userParams.valgtModell === "option13"}
+        {#if valgtModell === "13" }
           <label for="imageButton"><span class="material-symbols-outlined inputButton">add_photo_alternate</span>
-          <input id="imageButton" type="file" bind:files={selectedFiles} onchange={handleFileSelect} accept="image/*" style="display: none;"/></label>
+            <input id="imageButton" type="file" bind:files={imageFiles} onchange={onFileSelect} accept="image/jpeg" multiple style="display: none;"/></label>
         {/if}
         {#if isError}
           <Modal bind:showModal>
@@ -349,18 +294,13 @@ const resizeBase64Image = (base64, width, height) => {
         {/if}
       {/if}
       <label for="sendButton"><span class="material-symbols-outlined inputButton">send</span>
-        <input 
-          id="sendButton" 
-          type="button" 
-          onclick={files && files.length > 0 ? sporDokument : brukervalg}
-          value={`Spør ${appName}`} 
-          style="display: none;"/>
+        <input id="sendButton" type="button" onclick={brukervalg} value={`Spør ${appName}`} style="display: none;"/>
       </label>
     </div>
   {/if}
   {#if appName === 'Hugin'}
     {#if (viewportWidth < 768)}
-    <p id="disclaimer">Husk at språkmodeller lager tekst som kan inneholde feil. <a href="https://telemarkfylke.no/no/veileder-for-kunstig-intelligens/">Les mer om bruk av {appName} her.</p>
+    <p id="disclaimer">Husk at språkmodeller lager tekst som kan inneholde feil. <a href="https://telemarkfylke.no/no/veileder-for-kunstig-intelligens/">Les mer om bruk av {appName} her.</a></p>
     {:else}
       <p id="disclaimer">
         Husk at språkmodeller lager tekst som kan inneholde feil. Vurder alltid om bruken av språkteknologi passer med formålet ditt.<br> 
@@ -369,59 +309,58 @@ const resizeBase64Image = (base64, width, height) => {
     {/if}
   {/if}
   {#if appName === 'Munin'}
-  {#if (viewportWidth < 768)}
-  <p id="disclaimer">Husk at språkmodeller lager tekst som kan inneholde feil. <a href="https://www.vestfoldfylke.no/no/meny/tjenester/opplaring/digitale-laringsressurser-til-videregaende-opplaring/veileder-for-kunstig-intelligens/">Les mer om bruk av {appName} her.</p>
-  {:else}
-    <p id="disclaimer">
-      Husk at språkmodeller lager tekst som kan inneholde feil. Vurder alltid om bruken av språkteknologi passer med formålet ditt.<br> 
-      Ikke send inn data som kan være sensitive eller inneholder informasjon som ikke kan deles offentlig. <a href="https://www.vestfoldfylke.no/no/meny/tjenester/opplaring/digitale-laringsressurser-til-videregaende-opplaring/veileder-for-kunstig-intelligens/">Les mer om bruk av {appName} her.</a>
-    </p>
+    {#if (viewportWidth < 768)}
+      <p id="disclaimer">Husk at språkmodeller lager tekst som kan inneholde feil. <a href="https://www.vestfoldfylke.no/no/meny/tjenester/opplaring/digitale-laringsressurser-til-videregaende-opplaring/veileder-for-kunstig-intelligens/">Les mer om bruk av {appName} her.</a></p>
+    {:else}
+      <p id="disclaimer">
+        Husk at språkmodeller lager tekst som kan inneholde feil. Vurder alltid om bruken av språkteknologi passer med formålet ditt.<br> 
+        Ikke send inn data som kan være sensitive eller inneholder informasjon som ikke kan deles offentlig. <a href="https://www.vestfoldfylke.no/no/meny/tjenester/opplaring/digitale-laringsressurser-til-videregaende-opplaring/veileder-for-kunstig-intelligens/">Les mer om bruk av {appName} her.</a>
+      </p>
+    {/if}
   {/if}
-{/if}
   <Modal bind:showModal buttonText="Lagre">
     {#snippet header()}
-        <h2 >{modelinfoModell}</h2>
-      {/snippet}
+      <h2>{modelinfoModell}</h2>
+    {/snippet}
     {#snippet mainContent()}
-        <p >{@html modelinfoBeskrivelse}</p>
-      {/snippet}
-    {#if userParams.synligKontekst}
-    <textarea 
-      use:autosize
-      id="inputKontekst" 
-      placeholder="Her kan du legge inn kontekst til språkmodellen." 
-      bind:value={userParams.kontekst} 
-      rows="4" 
-      cols="auto">
-    </textarea>
-    <label for="temperatur">Temperatur: </label>
-      <input type="range" id="temperatur" name="temperatur" min="0" max="2" step="0.1" bind:value={userParams.temperatur}/>
-    {userParams.temperatur}
+      <p>{@html modelinfoBeskrivelse}</p>
+    {/snippet}
+    {#if synligKontekst}
+      <textarea 
+        use:autosize
+        id="inputKontekst" 
+        placeholder="Her kan du legge inn kontekst til språkmodellen." 
+        bind:value={kontekst} 
+        rows="4" 
+        cols="auto">
+      </textarea>
+      <label for="temperatur">Temperatur: </label>
+      <input type="range" id="temperatur" name="temperatur" min="0" max="2" step="0.1" bind:value={temperatur}/>
+      {temperatur}
     {/if}
   </Modal>
 </main>
 
 <style>
+  main {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-items: center;
+    height: calc(85vh);
+    margin: 10px;
+  }
 
-main {
-  display: flex;
-  flex-direction: column;
-  flex-wrap: nowrap;
-  justify-content: center;
-  align-items: center;
-  height: calc(85vh);
-  margin: 10px;
-}
+  #modelinfoButton {
+    border: 1px solid #ccc;
+    padding: 3px 10px 3px 10px;
+    background-color: #f5f5f5;
+    border-radius: 1rem;
+    text-decoration: none;
+  }
 
-#modelinfoButton {
-  border: 1px solid #ccc;
-  padding: 3px 10px 3px 10px;
-  background-color: #f5f5f5;
-  border-radius: 1rem;
-  text-decoration: none;
-}
-
-textarea {
+  textarea {
     display: block;
     width: 100%;
     overflow-y: scroll;
@@ -455,7 +394,7 @@ textarea {
   }
 
   #brukerInput:focus::placeholder {
-  color: transparent;
+    color: transparent;
   }
 
   .boxyHeader {
@@ -501,13 +440,6 @@ textarea {
     width: 100%;
   }
 
-  .fileName {
-    display: inline-block;
-    position: relative;
-    padding-right: 20px;
-    margin-bottom: 15px;
-  }
-
   @keyframes flash {
     0% {
       background-color: transparent;
@@ -518,26 +450,6 @@ textarea {
     100% {
       background-color: transparent;
     }
-  }
-
-  .flash {
-  animation: flash 2s ease-in-out;
-  }
-
-  .removeFile {
-    position: absolute;
-    top: -5px;
-    right: 0px;
-    background: darkgreen;
-    color: white;
-    border-radius: 50%;
-    width: 12px !important;
-    height: 12px !important;
-    display: flex;
-    justify-content: center;
-    cursor: pointer;
-    border: 1px solid lightgreen;
-    font-size: 0.6rem;
   }
 
   .modellSelect {

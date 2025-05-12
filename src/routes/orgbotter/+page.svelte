@@ -13,10 +13,10 @@
   const userParams = $state({
     message: "",
     messageHistory: [],
-    assistant_id: models.filter(model => model.metadata.tile === "labs")[0].params.assistant_id,
+    assistant_id: models.filter(model => model.metadata.tile === "orgbotter")[0].params.assistant_id,
     new_thread: true,
     thread_id: '',
-    tile: "labs",
+    tile: "orgbotter",
   })
 
   // Variabler for håndtering av data og innhold i frontend
@@ -32,6 +32,13 @@
   let inputMessage = $state("")
   let viewportWidth = $state(window.innerWidth)
   const appName = import.meta.env.VITE_APP_NAME
+
+    // Kjører ved oppstart for å sette opp initial state
+    valgtModell({
+      target: {
+        value: models.filter(model => model.metadata.tile === "orgbotter")[0].params.assistant_id
+      }
+    })
 
   // Starter med en velkomstmelding
   userParams.messageHistory.push({
@@ -147,7 +154,7 @@
     <div class="loading">
       <IconSpinner width={"32px"} />
     </div>
-    {:else if !checkRoles(token, [`${appName.toLowerCase()}.admin`, `${appName.toLowerCase()}.labs`])}
+    {:else if !checkRoles(token, [`${appName.toLowerCase()}.admin`, `${appName.toLowerCase()}.orgbotter`])}
     <p>Oi, du har ikke tilgang. Prøver du deg på noe lurt? 🤓</p>
   {:else}
 
@@ -157,7 +164,7 @@
       <div class="boxyHeader">
         <select class="modellSelect" onchange={valgtModell}>
           {#each models as model}
-            {#if model.metadata.tile === "labs"}
+            {#if model.metadata.tile === "orgbotter"}
               <option value={model.params.assistant_id}>{model.metadata.navn}</option>
             {/if}
           {/each}
