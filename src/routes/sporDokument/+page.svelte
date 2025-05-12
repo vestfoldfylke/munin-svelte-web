@@ -150,7 +150,7 @@ function handleDokFilesChange() {
     <div class="loading">
       <IconSpinner width={"32px"} />
     </div>
-  {:else if !checkRoles(token, [`${appName.toLowerCase()}.admin`, `${appName.toLowerCase()}.transkripsjon`])}
+  {:else if !checkRoles(token, [`${appName.toLowerCase()}.admin`, `${appName.toLowerCase()}.dokumentchat`])}
     <p>Oi, du har ikke tilgang. Prøver du deg på noe lurt? 🤓</p>
   {:else}
 
