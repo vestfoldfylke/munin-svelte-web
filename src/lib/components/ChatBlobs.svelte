@@ -102,6 +102,25 @@
         max-width: 90%;
     }
 
+    :global(.chat-blob-content h1),
+    :global(.chat-blob-content h2),
+    :global(.chat-blob-content h3) {
+        margin-bottom: 10px;
+    }
+
+    :global(.chat-blob-content ul) {
+        margin-bottom: 10px;
+    }
+
+    :global(.chat-blob-content ol) {
+        margin-bottom: 10px;
+    }
+
+    :global(.chat-blob-content li) {
+        list-style-position: inside;
+        padding-left: 10px;
+    }
+    
     .user .chat-blob-content {
         background-color: var(--himmel-30);
     }
