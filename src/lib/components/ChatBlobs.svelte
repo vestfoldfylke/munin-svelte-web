@@ -120,6 +120,12 @@
         list-style-position: inside;
         padding-left: 10px;
     }
+
+    :global(.chat-blob-content ol li::before) {
+        content: "";
+        width: 10px;
+        display: inline-block;
+    }
     
     .user .chat-blob-content {
         background-color: var(--himmel-30);
