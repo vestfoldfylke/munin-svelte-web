@@ -1,8 +1,8 @@
 // Bibliotek for å håndtere API-kall til AZF-funksjoner
 import axios from 'axios'
-import { params } from '$lib/data/modelparams'
-import { models } from "$lib/data/models"; // Modellkonfigurasjon
+// import { models } from "$lib/data/models"; // Modellkonfigurasjon
 import { getHuginToken } from '../useApi'
+import { getArticlesFromNDLA, structureResponse  } from './kildekallTools';
 
 export const responseOpenAi = async (userParams) => {
   const accessToken = await getHuginToken()
@@ -36,7 +36,15 @@ export const openAiAssistant = async (userParams) => {
       authorization: `Bearer ${accessToken}`
     }
   })
-  return response.data
+  console.log('Assistant;', userParams.tools)
+  if ( userParams.tools ) {
+    let articles = await getArticlesFromNDLA(userParams.message)
+    let articleurl = `<a href=\"https://ndla.no/article-iframe/nb/article/${articles[0].id}" target="_blank">Les mer på NDLA-ressurse om temaet</a>`
+    return [response.data, articleurl]
+  } else {
+    console.log('Assistant - No tool')
+    return [response.data, false]
+  }
 }
 
 export const docQueryOpenAi = async (userParams) => {

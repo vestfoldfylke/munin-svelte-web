@@ -96,9 +96,10 @@ export const models =
                 description: 'Eksperimentell bot til bruk i HO/Helsefremmende arbeid for elever',
                 synligKontekst: false,
                 illustrasjon: '',
-                tile: 'skolebott',
+                tile: 'skolebotter',
                 endpoint: 'assistantOpenAi',
-                assistant: true
+                assistant: true,
+                tools: "NDLA"
             },
             params: { // Skogmo - Elev
                 message: '',

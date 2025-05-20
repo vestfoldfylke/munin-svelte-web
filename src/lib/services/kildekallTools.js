@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { params } from '$lib/data/modelparams'
+import { models } from "$lib/data/models";
 import { getHuginToken } from '../useApi'
 import { z } from "zod";
 import { zodResponseFormat } from "openai/helpers/zod";
