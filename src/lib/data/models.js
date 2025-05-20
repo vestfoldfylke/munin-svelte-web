@@ -190,7 +190,7 @@ export const models =
     },        {
         id: '19',
         metadata: {
-            navn: 'Fartebott',
+            navn: 'Fartebot',
             description: 'Eksperimentell bot til bruk for kollektiv.',
             synligKontekst: false,
             illustrasjon: '',
