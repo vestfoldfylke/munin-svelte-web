@@ -186,6 +186,25 @@ export const models =
             assistant_id: import.meta.env.VITE_ASSISTANT_LABS_LIV_PRIVATISTEKSAMEN,
             new_thread: true,
             thread_id: ''
+        }
+    },        {
+        id: '19',
+        metadata: {
+            navn: 'Fartebott',
+            description: 'Eksperimentell bot til bruk for kollektiv.',
+            synligKontekst: false,
+            illustrasjon: '',
+            tile: 'fartebot',
+            endpoint: 'assistantOpenAi',
+            assistant: true
         },
+        params: {
+            message: '',
+            kontekst: '',
+            model: 'gpt-4.1',
+            assistant_id: import.meta.env.VITE_ASSISTANT_FARTEBOT,
+            new_thread: true,
+            thread_id: ''
+        }
     }
     ]
