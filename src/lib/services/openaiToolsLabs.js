@@ -1,6 +1,6 @@
 // Bibliotek for å håndtere API-kall til AZF-funksjoner
 import axios from 'axios'
-import { params } from '$lib/data/modelparams'
+import { models } from '$lib/data/models'
 import { getHuginToken } from '../useApi'
 import { z } from "zod";
 import { zodResponseFormat } from "openai/helpers/zod";
@@ -24,8 +24,7 @@ const MatteInfo = z.object({
 export const testStructured = async (userParams) => {
   console.log(zodResponseFormat(Superheltinfo), "event")
    // Template API-call
-   const payload = params.option12
-   // payload.message = "Fyll ut informasjon om navn, superkraft, kjønn og om superhelten er god eller ikke. (True/False) i vedlagte skjema.  Her er superhelten: Gandalf"
+   const payload = { ...models[12].params }  // Using model with id='12' for structured responses
    payload.message = userParams.message
    payload.messageHistory = userParams.messageHistory
    payload.kontekst = userParams.kontekst
