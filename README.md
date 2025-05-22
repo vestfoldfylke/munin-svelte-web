@@ -1,37 +1,303 @@
-# Hugin - Frontend
+# Hugin - KI-tjeneste for Telemark fylkeskommune
 
-Hugin er en KI-tjeneste utfiklet for og av Telemark fylkeskommune.
-## Installasjon
-1. Klon repoet
-2. Lag en `.env` med utgangspunkt i filen `env.example`
-3. Kjør `npm install`
-4. Kjør `npm run dev`
+<div align="center">
+  <img src="src/lib/images/TFK_logo.png" alt="Telemark fylkeskommune logo" width="200">
+</div>
 
-## Om prosjektet
-Frontenden er laget med Svelte og hostes på Vercel og må kommunisere med backenden for å fungere.
+Hugin er en KI-tjeneste utviklet av og for Telemark fylkeskommune. Tjenesten tilbyr tilgang til ulike språkmodeller og KI-verktøy gjennom en moderne og brukervennlig webapplikasjon. Deler av tjenesten er under aktiv utvikling så feil kan forekomme.
 
-## Bidra
-1. Lag en branch
-2. Gjør endringene dine
-3. Lag en pull request
+## 📋 Innholdsfortegnelse
 
-## Lisens
-Dette prosjektet er lisensiert under MIT-lisensen.
+- [Om prosjektet](#om-prosjektet)
+- [Funksjoner](#funksjoner)
+- [Teknisk arkitektur](#teknisk-arkitektur)
+- [Installasjon og oppsett](#installasjon-og-oppsett)
+- [Utvikling](#utvikling)
+- [Prosjektstruktur](#prosjektstruktur)
+- [API og tjenester](#api-og-tjenester)
+- [Sikkerhet og autentisering](#sikkerhet-og-autentisering)
+- [Bidra til prosjektet](#bidra-til-prosjektet)
+- [Lisens](#lisens)
 
-# Funksjonalitet/Routes
-Førstesiden viser en oversikt over alle tilgjengelige funksjoner i Hugin. Disse er tilgangsstyrte og hva som vises vil avhenge av hvilken bruker som er logget inn.
+## 🚀 Om prosjektet
 
-## Om tjenesen
-Dette er en ren informasjonsside som viser en kort beskrivelse av hva Hugin er og hva den kan brukes til.
+Hugin er en webbasert frontend-applikasjon bygget med SvelteKit som fungerer som et grensesnitt til ulike KI-tjenester. Prosjektet er designet for å gi ansatte i Telemark fylkeskommune enkel tilgang til kraftige KI-verktøy for tekst-, bilde- og lydanalyse.
 
-## Chat
-Dette er hovedfunksjonen i Hugin. Her kan brukere chatte med en ulike språkmodeller og assistenter. Brukeren kan legge inn kontekst og justere temperatur. Chatten støtter også bildeopplasting og kan respondere på spørsmål om det opplastede bildet.
+### Hovedmål
+- Demokratisere tilgang til KI-teknologi innad i organisasjonen
+- Tilby en sikker og kontrollert miljø for KI-eksperimentering
+- Støtte både norske og internasjonale språkmodeller
+- Muliggjøre multimodal interaksjon (tekst, bilder, lyd)
 
-## Dokumentsøk
-Funksjon som lar brukeren laste opp og chatte med dokumentet. Responsen er basert på innholdet i dokumentet.
+## ✨ Funksjoner
 
-## Labs
-Her ligger eksperimentelle funksjoner som ikke er klare for produksjon. Disse kan være funksjoner som er under utvikling eller som ikke er klare for produksjon.
+### 🗣️ Chat
+Hovedfunksjonen i Hugin som tilbyr:
+- **Flerspråklige modeller**: Tilgang til GPT-4o, Mistral Large, NoraLLM og flere
+- **Multimodal støtte**: Bildeopplasting og -analyse
+- **Kontekstuelle samtaler**: Justerbar temperatur og kontekst
+- **Dokumentanalyse**: Mulighet for å laste opp og analysere dokumenter
+- **Assistenter**: Spesialiserte AI-assistenter for ulike bruksområder
 
-## Transkripsjon
-Funksjon som lar brukeren laste opp eller spille inn lyd og få transkribert tekst tilbake. Funksjonen baserer seg på nasjonalbibliotekets KI-mpodell for talegjenkjenning.
+### 📄 Dokumentsøk
+- Last opp dokumenter i ulike formater
+- Chat direkte med dokumentinnhold
+- Få svar basert på dokumentets innhold
+- Støtte for PDF, Word og tekstfiler
+
+### 🎤 Transkripsjon
+- **Lydopplasting**: Last opp lydfiler for transkripsjon
+- **Direkte opptak**: Ta opp lyd direkte i nettleseren
+- **Norsk talegjenkjenning**: Basert på Nasjonalbibliotekets KI-modell
+- **Høy nøyaktighet**: Optimalisert for norsk språk
+
+### 🧪 Labs
+Eksperimentell seksjon for:
+- Testing av nye funksjoner
+- Strukturerte responser med Zod-skjemaer
+- Utviklingsfunksjoner under testing
+- Beta-versjoner av kommende funksjoner
+
+### 🤖 Spesialiserte botter
+- **Orgbotter**: Organisasjonsspesifikke assistenter
+- **Skolebotter**: Utdanningsrettede KI-verktøy
+- **Fartebotter**: Spesialiserte kjøretøyassistenter
+
+## 🏗️ Teknisk arkitektur
+
+### Frontend
+- **Framework**: SvelteKit
+- **Språk**: JavaScript/TypeScript
+- **Styling**: CSS med modulær struktur
+- **Hosting**: Vercel
+
+### Integrasjoner
+- **OpenAI API**: GPT-modeller
+- **Mistral AI**: Multimodale modeller
+- **Azure Functions**: Backend-tjenester
+- **Hugging Face**: Åpne språkmodeller
+- **Microsoft Authentication Library**: Sikker pålogging
+
+## 🛠️ Installasjon og oppsett
+
+### Forutsetninger
+- Node.js (versjon 18 eller nyere)
+- npm eller yarn
+- Git
+
+### Steg-for-steg installasjon
+
+1. **Klon repositoriet**
+   ```bash
+   git clone https://github.com/TFK/hugin-svelte-web.git
+   cd hugin-svelte-web
+   ```
+
+2. **Installer avhengigheter**
+   ```bash
+   npm install
+   ```
+
+3. **Konfigurer miljøvariabler**
+   ```bash
+   cp env_example .env
+   ```
+   
+   Rediger `.env`-filen og legg til nødvendige API-nøkler og konfigurasjoner:
+   ```env
+   VITE_AI_API_URI=din_backend_url
+   VITE_CLIENT_ID=din_azure_client_id
+   VITE_TENANT_ID=din_azure_tenant_id
+   ```
+
+4. **Start utviklingsserveren**
+   ```bash
+   npm run dev
+   ```
+
+5. **Åpne applikasjonen**
+   Gå til `http://localhost:5173` i nettleseren din
+
+### Produksjonsbygg
+```bash
+npm run build
+npm run preview
+```
+
+## 💻 Utvikling
+
+### Tilgjengelige kommandoer
+```bash
+npm run dev          # Start utviklingsserver
+npm run build        # Bygg for produksjon
+npm run preview      # Forhåndsvis produksjonsbygg
+npm run lint         # Kjør linting
+npm run format       # Formater kode
+```
+
+### Utviklingsmiljø
+Prosjektet bruker:
+- **Vite** som byggesystem
+- **ESLint** for kodekvalitet
+- **Prettier** for kodeformatering
+- **Svelte** som komponentbibliotek
+
+## 📁 Prosjektstruktur
+
+```
+hugin-svelte-web/
+├── src/
+│   ├── lib/
+│   │   ├── components/          # Gjenbrukbare Svelte-komponenter
+│   │   ├── services/            # API-tjenester og integrasjoner
+│   │   ├── data/                # Datamodeller og konfigurasjoner
+│   │   ├── helpers/             # Hjelpefunksjoner
+│   │   ├── auth/                # Autentiseringslogikk
+│   │   └── images/              # Statiske bilder
+│   ├── routes/                  # SvelteKit-ruter og sider
+│   ├── app.html                 # HTML-mal
+│   └── app.css                  # Globale stiler
+├── static/                      # Statiske filer
+├── package.json                 # Prosjektavhengigheter
+├── svelte.config.js            # Svelte-konfigurasjon
+├── vite.config.js              # Vite-konfigurasjon
+└── README.md                   # Denne filen
+```
+
+### Nøkkelkomponenter
+
+#### `/src/lib/components/`
+- `ChatBlobs.svelte` - Chatmeldingsvisning
+- `CardButton.svelte` - Hovednavigasjonskort
+- `Modal.svelte` - Modalvindu-komponent
+- `ModelInfo.svelte` - Modellinformasjon
+- `IconSpinner.svelte` - Lasteindikatorer
+
+#### `/src/lib/services/`
+- `openAiTools.js` - OpenAI API-integrasjon
+- `mistralTools.js` - Mistral AI-integrasjon
+- `huggingFaceTools.js` - Hugging Face-tjenester
+- `openaiToolsLabs.js` - Eksperimentelle OpenAI-funksjoner
+
+#### `/src/lib/data/`
+- `models.js` - Konfigurasjon av tilgjengelige KI-modeller
+
+## 🔧 API og tjenester
+
+### Hovedtjenester
+
+#### OpenAI-integrasjon
+```javascript
+import { responseOpenAI } from '$lib/services/openAiTools.js';
+
+const response = await responseOpenAI({
+  message: 'Din melding',
+  kontekst: 'Kontekst for samtalen',
+  temperatur: 0.7,
+  model: 'gpt-4o'
+});
+```
+
+#### Mistral AI-integrasjon
+```javascript
+import { multimodalMistral } from '$lib/services/mistralTools.js';
+
+const response = await multimodalMistral({
+  message: 'Beskriv dette bildet',
+  base64String: imageBase64,
+  model: 'pixtral-large-latest'
+});
+```
+
+#### Strukturerte responser
+```javascript
+import { testStructured } from '$lib/services/openaiToolsLabs.js';
+
+const response = await testStructured({
+  message: 'Generer superheltinfo',
+  messageHistory: [],
+  kontekst: 'Superhelt-kontekst'
+});
+```
+
+### Backend-kommunikasjon
+Alle API-kall går gjennom Azure Functions som fungerer som mellomlag:
+- Autentisering og autorisasjon
+- Rate limiting
+- Logging og overvåking
+- API-nøkkelhåndtering
+
+## 🔐 Sikkerhet og autentisering
+
+### Microsoft Authentication Library (MSAL)
+Prosjektet bruker MSAL for sikker pålogging:
+
+```javascript
+import { msalAuth } from '$lib/auth/msal-auth.js';
+
+// Logg inn
+await msalAuth.loginPopup();
+
+// Hent tilgangstoken
+const token = await msalAuth.acquireTokenSilent();
+```
+
+### Rollebasert tilgang
+```javascript
+import { checkRoles } from '$lib/helpers/checkRoles.js';
+
+const hasAccess = checkRoles(userRoles, requiredRoles);
+```
+
+### Sikkerhetstiltak
+- OAuth 2.0 / OpenID Connect autentisering
+- JWT-token validering
+- Rollebasert tilgangskontroll
+- CORS-konfigurasjon
+- Sikker håndtering av API-nøkler
+
+## 🤝 Bidra til prosjektet
+
+Vi ønsker bidrag fra utviklere! Følg disse retningslinjene:
+
+### Arbeidsflyt
+1. **Fork repositoriet** og klon din fork
+2. **Opprett en ny branch** for din funksjon:
+   ```bash
+   git checkout -b feature/din-nye-funksjon
+   ```
+3. **Gjør endringene dine** og test grundig
+4. **Commit endringene** med beskrivende meldinger:
+   ```bash
+   git commit -m "Legg til: ny chat-funksjonalitet"
+   ```
+5. **Push til din branch**:
+   ```bash
+   git push origin feature/din-nye-funksjon
+   ```
+6. **Opprett en Pull Request** med detaljert beskrivelse
+
+### Kodestandard
+- Følg eksisterende kodestil
+- Skriv kommentarer på norsk
+- Test alle nye funksjoner
+- Oppdater dokumentasjon ved behov
+
+### Typer bidrag vi ønsker
+- 🐛 Feilrettinger
+- ✨ Nye funksjoner
+- 📝 Dokumentasjonsforbedringer
+- 🎨 UI/UX-forbedringer
+- ⚡ Ytelsesoptimaliseringer
+
+## 📄 Lisens
+
+Dette prosjektet er lisensiert under MIT-lisensen. Se [LICENSE](LICENSE) filen for detaljer.
+
+---
+
+## 📞 Kontakt og støtte
+
+For spørsmål eller støtte, kontakt utviklingsteamet i Telemark fylkeskommune.
+
+**Utviklet med ❤️ av Telemark fylkeskommune**
