@@ -4,7 +4,7 @@
   <img src="src/lib/images/TFK_logo.png" alt="Telemark fylkeskommune logo" width="200">
 </div>
 
-Hugin er en KI-tjeneste utviklet av og for Telemark fylkeskommune. Tjenesten tilbyr tilgang til ulike språkmodeller og KI-verktøy gjennom en moderne og brukervennlig webapplikasjon. Deler av tjenesten er under aktiv utvikling så feil kan forekomme.
+Hugin er en KI-tjeneste utviklet av og for Telemark og Vestfold fylkeskommune. Tjenesten tilbyr tilgang til ulike språkmodeller og KI-verktøy gjennom webapplikasjon. Deler av tjenesten er under aktiv utvikling så feil kan forekomme.
 
 ## 📋 Innholdsfortegnelse
 
@@ -21,23 +21,23 @@ Hugin er en KI-tjeneste utviklet av og for Telemark fylkeskommune. Tjenesten til
 
 ## 🚀 Om prosjektet
 
-Hugin er en webbasert frontend-applikasjon bygget med SvelteKit som fungerer som et grensesnitt til ulike KI-tjenester. Prosjektet er designet for å gi ansatte i Telemark fylkeskommune enkel tilgang til kraftige KI-verktøy for tekst-, bilde- og lydanalyse.
+Hugin er en webbasert frontend-applikasjon bygget med SvelteKit som fungerer som et grensesnitt til ulike KI-tjenester. Prosjektet er designet for å gi ansatte i Telemark og Vestfold fylkeskommune enkel tilgang til kraftige KI-verktøy.
 
 ### Hovedmål
-- Demokratisere tilgang til KI-teknologi innad i organisasjonen
+- Demokratisere tilgang til KI-teknologi innad i organisasjonen og for elever i videregående skole
+- Gi ansatte mulighet til å bruke KI i sitt daglige arbeid
 - Tilby en sikker og kontrollert miljø for KI-eksperimentering
-- Støtte både norske og internasjonale språkmodeller
-- Muliggjøre multimodal interaksjon (tekst, bilder, lyd)
+- Uforske bruksområder for både norske og internasjonale språkmodeller
 
 ## ✨ Funksjoner
 
 ### 🗣️ Chat
 Hovedfunksjonen i Hugin som tilbyr:
-- **Flerspråklige modeller**: Tilgang til GPT-4o, Mistral Large, NoraLLM og flere
+- **Flerspråklige modeller**: Tilgang til GPT-4.1, Mistral Large, NoraLLM og flere
 - **Multimodal støtte**: Bildeopplasting og -analyse
-- **Kontekstuelle samtaler**: Justerbar temperatur og kontekst
+- **Kontekstuelle samtaler**: Justerbar temperatur og kontekst for noen av modellene
 - **Dokumentanalyse**: Mulighet for å laste opp og analysere dokumenter
-- **Assistenter**: Spesialiserte AI-assistenter for ulike bruksområder
+- **Assistenter**: Spesialiserte AI-assistenter for ulike bruksområder innen utdanning og organisasjon
 
 ### 📄 Dokumentsøk
 - Last opp dokumenter i ulike formater
@@ -48,11 +48,10 @@ Hovedfunksjonen i Hugin som tilbyr:
 ### 🎤 Transkripsjon
 - **Lydopplasting**: Last opp lydfiler for transkripsjon
 - **Direkte opptak**: Ta opp lyd direkte i nettleseren
-- **Norsk talegjenkjenning**: Basert på Nasjonalbibliotekets KI-modell
-- **Høy nøyaktighet**: Optimalisert for norsk språk
+- **Norsk talegjenkjenning**: Basert på Nasjonalbibliotekets KI-modell optimalisert for norsk språk
 
 ### 🧪 Labs
-Eksperimentell seksjon for:
+Eksperimentelt område for:
 - Testing av nye funksjoner
 - Strukturerte responser med Zod-skjemaer
 - Utviklingsfunksjoner under testing
@@ -61,14 +60,12 @@ Eksperimentell seksjon for:
 ### 🤖 Spesialiserte botter
 - **Orgbotter**: Organisasjonsspesifikke assistenter
 - **Skolebotter**: Utdanningsrettede KI-verktøy
-- **Fartebotter**: Spesialiserte kjøretøyassistenter
 
 ## 🏗️ Teknisk arkitektur
 
 ### Frontend
-- **Framework**: SvelteKit
-- **Språk**: JavaScript/TypeScript
-- **Styling**: CSS med modulær struktur
+- **Framework**: SvelteKit 5
+- **Språk**: JavaScript/
 - **Hosting**: Vercel
 
 ### Integrasjoner
@@ -81,8 +78,8 @@ Eksperimentell seksjon for:
 ## 🛠️ Installasjon og oppsett
 
 ### Forutsetninger
-- Node.js (versjon 18 eller nyere)
-- npm eller yarn
+- Node.js (versjon 22 eller nyere)
+- npm
 - Git
 
 ### Steg-for-steg installasjon
@@ -108,6 +105,7 @@ Eksperimentell seksjon for:
    VITE_AI_API_URI=din_backend_url
    VITE_CLIENT_ID=din_azure_client_id
    VITE_TENANT_ID=din_azure_tenant_id
+   .... osv
    ```
 
 4. **Start utviklingsserveren**
@@ -116,7 +114,7 @@ Eksperimentell seksjon for:
    ```
 
 5. **Åpne applikasjonen**
-   Gå til `http://localhost:5173` i nettleseren din
+   Gå til `http://localhost:5173` i nettleseren din og ha det gøy! 
 
 ### Produksjonsbygg
 ```bash
@@ -129,18 +127,11 @@ npm run preview
 ### Tilgjengelige kommandoer
 ```bash
 npm run dev          # Start utviklingsserver
-npm run build        # Bygg for produksjon
-npm run preview      # Forhåndsvis produksjonsbygg
-npm run lint         # Kjør linting
-npm run format       # Formater kode
 ```
 
 ### Utviklingsmiljø
 Prosjektet bruker:
 - **Vite** som byggesystem
-- **ESLint** for kodekvalitet
-- **Prettier** for kodeformatering
-- **Svelte** som komponentbibliotek
 
 ## 📁 Prosjektstruktur
 
@@ -253,8 +244,6 @@ const hasAccess = checkRoles(userRoles, requiredRoles);
 - OAuth 2.0 / OpenID Connect autentisering
 - JWT-token validering
 - Rollebasert tilgangskontroll
-- CORS-konfigurasjon
-- Sikker håndtering av API-nøkler
 
 ## 🤝 Bidra til prosjektet
 
@@ -288,7 +277,7 @@ Vi ønsker bidrag fra utviklere! Følg disse retningslinjene:
 - ✨ Nye funksjoner
 - 📝 Dokumentasjonsforbedringer
 - 🎨 UI/UX-forbedringer
-- ⚡ Ytelsesoptimaliseringer
+- ⚡ Tips og andre gode innspill
 
 ## 📄 Lisens
 
@@ -298,6 +287,6 @@ Dette prosjektet er lisensiert under MIT-lisensen. Se [LICENSE](LICENSE) filen f
 
 ## 📞 Kontakt og støtte
 
-For spørsmål eller støtte, kontakt utviklingsteamet i Telemark fylkeskommune.
+For spørsmål eller støtte, kontakt utviklingsteamet i Telemark og/eller Vestfold fylkeskommune.
 
-**Utviklet med ❤️ av Telemark fylkeskommune**
+**Utviklet med ❤️ av Telemark og Vestfold fylkeskommune**
