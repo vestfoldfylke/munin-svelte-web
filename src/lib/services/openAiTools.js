@@ -39,7 +39,7 @@ export const openAiAssistant = async (userParams) => {
   if (userParams.tools === "NDLA") {
     const keyWords = await generateKeywords(response.data.messages[0].content[0].text.value)
     const articles = await getArticlesFromNDLA(keyWords)
-    const articleurl = `Les mer på NDLA om: <a href="https://ndla.no/article-iframe/nb/article/${articles[0].id}" target="_blank">${articles[0].title.title}</a>, <a href="https://ndla.no/article-iframe/nb/article/${articles[1].id}" target="_blank">${articles[1].title.title}</a>, og <a href="https://ndla.no/article-iframe/nb/article/${articles[2].id}" target="_blank">${articles[2].title.title}</a><br><br>Lisens: ${articles[0].license}` 
+    const articleurl = `Les mer på NDLA om: <a href="https://ndla.no/article-iframe/nb/article/${articles[0].id}" target="_blank">${articles[0].title.title}</a>, <a href="https://ndla.no/article-iframe/nb/article/${articles[1].id}" target="_blank">${articles[1].title.title}</a>, og <a href="https://ndla.no/article-iframe/nb/article/${articles[2].id}" target="_blank">${articles[2].title.title}</a><br>Lisens: ${articles[0].license}` 
   return [response.data, articleurl]
   
   } else {
