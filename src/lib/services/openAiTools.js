@@ -2,7 +2,7 @@
 import axios from 'axios'
 // import { models } from "$lib/data/models"; // Modellkonfigurasjon
 import { getHuginToken } from '../useApi'
-import { getArticlesFromNDLA } from './kildekallTools';
+import { getArticlesFromNDLA, structureResponse } from './kildekallTools';
 
 export const responseOpenAi = async (userParams) => {
   const accessToken = await getHuginToken()
