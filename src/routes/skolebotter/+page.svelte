@@ -122,7 +122,7 @@
       response = await openAiAssistant(userParams)
       userParams.messageHistory.push({ role: "assistant", content: response[0].messages[0].content[0].text.value, model: modelinfoModell }); 
       if (response[1]) {
-        userParams.messageHistory.push({ role: "assistant", content: response[1], model: modelinfoModell });
+        userParams.messageHistory.push({ role: "assistant", content: response[1], model: "Kildehenvisninger" });
       }
       userParams.new_thread = false
       userParams.thread_id = response[0].thread_id

@@ -36,17 +36,18 @@ export const openAiAssistant = async (userParams) => {
       authorization: `Bearer ${accessToken}`
     }
   })
-
-  if ( userParams.tools ) {
-    let keyWords = await generateKeywords(response.data.messages[0].content[0].text.value)
-    let articles = await getArticlesFromNDLA(keyWords)
-    let articleurl = `<a href=\"https://ndla.no/article-iframe/nb/article/${articles[0].id}" target="_blank">Lenke 1 til NDLA om temaet ${keyWords}</a><br><a href=\"https://ndla.no/article-iframe/nb/article/${articles[1].id}" target="_blank">Lenke 2 til NDLA om temaet ${keyWords}</a><br><a href=\"https://ndla.no/article-iframe/nb/article/${articles[2].id}" target="_blank">Lenke 3 til NDLA om temaet ${keyWords}</a>`
-    return [response.data, articleurl]
+  if (userParams.tools === "NDLA") {
+    const keyWords = await generateKeywords(response.data.messages[0].content[0].text.value)
+    const articles = await getArticlesFromNDLA(keyWords)
+    const articleurl = `Les mer på NDLA om: <a href="https://ndla.no/article-iframe/nb/article/${articles[0].id}" target="_blank">${articles[0].title.title}</a>, <a href="https://ndla.no/article-iframe/nb/article/${articles[1].id}" target="_blank">${articles[1].title.title}</a>, og <a href="https://ndla.no/article-iframe/nb/article/${articles[2].id}" target="_blank">${articles[2].title.title}</a>` 
+  return [response.data, articleurl]
+  
   } else {
     console.log('Assistant - No tool')
     return [response.data, false]
   }
 }
+
 
 export const docQueryOpenAi = async (userParams) => {
 
