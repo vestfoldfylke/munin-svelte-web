@@ -2,7 +2,7 @@
 import axios from 'axios'
 // import { models } from "$lib/data/models"; // Modellkonfigurasjon
 import { getHuginToken } from '../useApi'
-import { getArticlesFromNDLA, structureResponse } from './kildekallTools';
+import { getArticlesFromNDLA, generateKeywords } from './kildekallTools';
 
 export const responseOpenAi = async (userParams) => {
   const accessToken = await getHuginToken()
@@ -36,10 +36,11 @@ export const openAiAssistant = async (userParams) => {
       authorization: `Bearer ${accessToken}`
     }
   })
-  console.log('Assistant;', userParams.tools)
+
   if ( userParams.tools ) {
-    let articles = await getArticlesFromNDLA(userParams.message)
-    let articleurl = `<a href=\"https://ndla.no/article-iframe/nb/article/${articles[0].id}" target="_blank">Les mer på NDLA-ressurse om temaet</a>`
+    let keyWords = await generateKeywords(response.data.messages[0].content[0].text.value)
+    let articles = await getArticlesFromNDLA(keyWords)
+    let articleurl = `<a href=\"https://ndla.no/article-iframe/nb/article/${articles[0].id}" target="_blank">Lenke 1 til NDLA om temaet ${keyWords}</a><br><a href=\"https://ndla.no/article-iframe/nb/article/${articles[1].id}" target="_blank">Lenke 2 til NDLA om temaet ${keyWords}</a><br><a href=\"https://ndla.no/article-iframe/nb/article/${articles[2].id}" target="_blank">Lenke 3 til NDLA om temaet ${keyWords}</a>`
     return [response.data, articleurl]
   } else {
     console.log('Assistant - No tool')

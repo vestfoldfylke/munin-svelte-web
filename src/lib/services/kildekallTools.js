@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { models } from "$lib/data/models";
+import { responseOpenAi } from './openAiTools';
 import { getHuginToken } from '../useApi'
 import { z } from "zod";
 import { zodResponseFormat } from "openai/helpers/zod";
@@ -26,6 +27,25 @@ export const getArticlesFromNDLA = async (searchString) => {
     return [response.data.results[0], response.data.results[1], response.data.results[2]]
     }
 
+
+export const generateKeywords = async (message) => {
+    const systemprompt = "Hent ut tre nøkkelord fra teksten under. Nøkkelordene skal være relevante for teksten og kan være substantiv, verb eller adjektiv. Nøkkelordene skal være på norsk og ikke inneholde spesialtegn eller tall. Skriv nøkkelordene med komma mellom hvert ord på formen: Nøkkelord1, Nøkkelord2, Nøkkelord3. Her kommer teksten:"
+    const accessToken = await getHuginToken()
+    const payload = {
+        userMessage: systemprompt + message,
+        response_id: null,
+        imageBase64: "",
+        dokFiles: "",
+        model: "gpt-4.1",
+    }
+      const keyWords = await axios.post(`${import.meta.env.VITE_AI_API_URI}/responseOpenAi`, payload, {
+        headers: {
+            authorization: `Bearer ${accessToken}`
+    }
+  })
+  return keyWords.data.output_text
+}
+
 export const structureResponse = async (userParams) => {
         const payload = params.option12
         payload.message = userParams.message
@@ -34,7 +54,7 @@ export const structureResponse = async (userParams) => {
         payload.temperatur = userParams.temperatur
         payload.bilde_base64String = userParams.base64String
         payload.response_format = zodResponseFormat(penRespons, "penRespons")
-        payload.model = "gpt-4o"
+        payload.model = "gpt-4.1"
     
         const accessToken = await getHuginToken()
         // Call AZF-funksjon with payload
