@@ -4,7 +4,7 @@
   <img src="src/lib/images/TFK_logo.png" alt="Telemark fylkeskommune logo" width="200">
 </div>
 
-Hugin er en KI-tjeneste utviklet av og for Telemark og Vestfold fylkeskommune. Tjenesten tilbyr tilgang til ulike språkmodeller og KI-verktøy gjennom webapplikasjon. Deler av tjenesten er under aktiv utvikling så feil kan forekomme.
+Hugin er en KI-tjeneste utviklet av og for Telemark og Vestfold fylkeskommune. Tjenesten tilbyr tilgang til ulike språkmodeller og KI-verktøy gjennom webapplikasjon. Deler av tjenesten er under aktiv utvikling så feil kan forekomme. Søstertjenesten Munin lever på [GitHub-sidene til Vestfold fylkeskommune](https://github.com/vestfoldfylke/munin-svelte-web).
 
 ## 📋 Innholdsfortegnelse
 
