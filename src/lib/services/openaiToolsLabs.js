@@ -1,7 +1,7 @@
 // Bibliotek for å håndtere API-kall til AZF-funksjoner
 import axios from 'axios'
 import { getHuginToken } from '../useApi'
-import { jwtDecode } from "jwt-decode";
+import { jwtDecode } from 'jwt-decode'
 
 export const nbTranscript = async (filliste, metadata) => {
   const accessToken = await getHuginToken()
@@ -12,7 +12,7 @@ export const nbTranscript = async (filliste, metadata) => {
   datapakken.append('filnavn', metadata.filnavn)
   datapakken.append('spraak', metadata.spraak)
   datapakken.append('format', metadata.format)
-  datapakken.append('upn', user_upn);
+  datapakken.append('upn', user_upn)
   const r = await axios.post(`${import.meta.env.VITE_AI_API_URI}/nbTranscript`, datapakken, {
     method: 'post',
     data: datapakken,
@@ -21,6 +21,6 @@ export const nbTranscript = async (filliste, metadata) => {
       authorization: `Bearer ${accessToken}`
     }
   })
-  console.log("Venter på transcript: ")
+  console.log('Venter på transcript: ')
   return JSON.stringify(r.data.data.text)
 }
