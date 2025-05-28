@@ -165,7 +165,7 @@ export const vfkModels =
           message: '',
           kontekst: '',
           model: 'gpt-4o',
-          assistant_id: import.meta.env.VITE_ASSISTANT_LABS_ADP,
+          assistant_id: import.meta.env.VITE_ASSISTANT_ADP,
           new_thread: true,
           thread_id: ''
         }
