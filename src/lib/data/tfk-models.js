@@ -117,7 +117,7 @@ export const tfkModels =
           description: 'Eksperimentell bot til bruk i HO/Helsefremmende arbeid for lærere',
           synligKontekst: false,
           illustrasjon: '',
-          tile: 'skolebott',
+          tile: 'ikke synlig',
           endpoint: 'assistantOpenAi',
           assistant: true
         },

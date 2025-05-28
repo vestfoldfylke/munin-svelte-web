@@ -89,6 +89,7 @@ export const vfkModels =
           thread_id: ''
         }
       },
+      /*
       {
         id: '3',
         metadata: {
@@ -130,6 +131,7 @@ export const vfkModels =
           thread_id: ''
         }
       },
+      */
       {
         id: '16',
         metadata: {

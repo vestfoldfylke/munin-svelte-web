@@ -4,12 +4,31 @@
     import eksperiment from '$lib/images/eksperiment.png'
     import CardButton from '$lib/components/CardButton.svelte'
     import IconSpinner from '../lib/components/IconSpinner.svelte';
+    import { models } from "$lib/data/models"; // Modellkonfigurasjon
     import { getHuginToken } from '../lib/useApi';
     import { onMount } from 'svelte';
     import { checkRoles } from '$lib/helpers/checkRoles';
     
     let token = $state(null)
     const appName = import.meta.env.VITE_APP_NAME
+
+    /**
+     * 
+     * @param {'chat'|'skolebotter'|'orgbotter'|'labs'|'transkripsjon'|'dokumentchat'} tileName
+     */
+    const tileIsUsedByModel = (tileName) => {
+        // Sjekker om tileName er brukt i noen av modellene + unntaksdrit fordi jeg er lat
+        if (tileName === 'chat') return true // Skal alltid være true for chat
+        if (import.meta.env.VITE_COUNTY === 'Telemark') {
+          if (tileName === 'transkripsjon' || tileName === 'dokumentchat') return true
+        }
+        if (import.meta.env.VITE_COUNTY === 'Vestfold') {
+          if (tileName === 'transkripsjon') return false
+          if (tileName === 'dokumentchat') return true
+        }
+        return models.some(model => model.metadata.tile === tileName)
+    }
+
 
     onMount(async () => {
         if(import.meta.env.VITE_MOCK_API && import.meta.env.VITE_MOCK_API === 'true'){
@@ -31,19 +50,19 @@
       <div class="centerstuff">
         <CardButton header={'Om tjenesten'} imgPath={chat} imgAlt={'Ikon bilde av en snakkebobble'} gotoPath={'/about'} paragraph={''} boolValue={true}><span class="material-symbols-outlined">Help</span></CardButton>
         <CardButton header={'Chat'} imgPath={chat} imgAlt={'Ikon bilde av en snakkebobble'} gotoPath={'/KI-modeller'} paragraph={''} boolValue={true}><span class="material-symbols-outlined">chat</span></CardButton>
-        {#if checkRoles(token, [`${appName.toLowerCase()}.admin`, `${appName.toLowerCase()}.transkripsjon`])}
+        {#if checkRoles(token, [`${appName.toLowerCase()}.admin`, `${appName.toLowerCase()}.transkripsjon`]) && tileIsUsedByModel('transkripsjon')}
           <CardButton header={'Transkripsjon'} imgPath={doc} imgAlt={'Ikon bilde av et dokument'} gotoPath={'/transcript'} paragraph={''} boolValue={true}><span class="material-symbols-outlined">interpreter_mode</span></CardButton>
         {/if}
-        {#if checkRoles(token, [`${appName.toLowerCase()}.admin`, `${appName.toLowerCase()}.dokumentchat`])}
+        {#if checkRoles(token, [`${appName.toLowerCase()}.admin`, `${appName.toLowerCase()}.dokumentchat`]) && tileIsUsedByModel('dokumentchat')}
           <CardButton header={'Dokumentchat'} imgPath={doc} imgAlt={'Ikon bilde av et dokument'} gotoPath={'/sporDokument'} paragraph={''} boolValue={true}><span class="material-symbols-outlined">quick_reference_all</span></CardButton>
         {/if}
-        {#if checkRoles(token, [`${appName.toLowerCase()}.admin`, `${appName.toLowerCase()}.skolebotter`])}
+        {#if checkRoles(token, [`${appName.toLowerCase()}.admin`, `${appName.toLowerCase()}.skolebotter`]) && tileIsUsedByModel('skolebotter')}
           <CardButton header={'Skolebotter'} imgPath={eksperiment} imgAlt={'Ikon bilde av et reagensrør'} gotoPath={'/skolebotter'} paragraph={''} boolValue={true}><span class="material-symbols-outlined">school</span></CardButton>
         {/if}
-        {#if checkRoles(token, [`${appName.toLowerCase()}.admin`, `${appName.toLowerCase()}.skolebotter`])}
+        {#if checkRoles(token, [`${appName.toLowerCase()}.admin`, `${appName.toLowerCase()}.orgbotter`]) && tileIsUsedByModel('orgbotter')}
           <CardButton header={'Organisasjonsbotter'} imgPath={eksperiment} imgAlt={'Ikon bilde av et dokumentbilde'} gotoPath={'/orgbotter'} paragraph={''} boolValue={true}><span class="material-symbols-outlined">work</span></CardButton>
         {/if}
-        {#if checkRoles(token, [`${appName.toLowerCase()}.admin`, `${appName.toLowerCase()}.labs`])}
+        {#if checkRoles(token, [`${appName.toLowerCase()}.admin`, `${appName.toLowerCase()}.labs`]) && tileIsUsedByModel('labs')}
           <CardButton header={'Pilot'} imgPath={eksperiment} imgAlt={'Ikon bilde av et reagensrør'} gotoPath={'/labs'} paragraph={''} boolValue={true}><span class="material-symbols-outlined">experiment</span></CardButton>
         {/if}
       </div>
