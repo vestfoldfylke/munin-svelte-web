@@ -121,12 +121,4 @@
         flex-direction: row;
         justify-content: center;
     }
-
-	header {
-		padding: 16px;
-		/* ... */
-	}
-	header:empty {
-		display: none;
-	}
 </style>

@@ -118,9 +118,9 @@
     try {
       let response;
       response = await openAiAssistant(userParams);
-      userParams.messageHistory.push({ role: "assistant", content: response.messages[0].content[0].text.value, model: modelinfoModell }); 
+      userParams.messageHistory.push({ role: "assistant", content: response[0].messages[0].content[0].text.value, model: modelinfoModell }); 
       userParams.new_thread = false
-      userParams.thread_id = response.thread_id
+      userParams.thread_id = response[0].thread_id
     } catch (error) {
       isError = true;
       errorMessage = error;

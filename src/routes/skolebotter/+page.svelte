@@ -99,6 +99,7 @@
     modelinfoModell = models.find(model => model.params.assistant_id === userParams.assistant_id).metadata.navn
     modelinfoBeskrivelse = models.find(model => model.params.assistant_id === userParams.assistant_id).metadata.description
     userParams.synligKontekst = models.find(model => model.params.assistant_id === userParams.assistant_id).metadata.synligKontekst
+    userParams.tools = models.find(model => model.params.assistant_id === userParams.assistant_id).metadata.tools
   }
 
   // Kaller på valgt modell med tilhørende parametre basert på brukerens valg 
@@ -113,15 +114,18 @@
     userParams.messageHistory.push({
       role: "user",
       content: userParams.message,
-      model: modelinfoModell
+      model: modelinfoModell,
     })
 
     try {
-      let response;
-      response = await openAiAssistant(userParams);
-      userParams.messageHistory.push({ role: "assistant", content: response.messages[0].content[0].text.value, model: modelinfoModell }); 
+      let response;    
+      response = await openAiAssistant(userParams)
+      userParams.messageHistory.push({ role: "assistant", content: response[0].messages[0].content[0].text.value, model: modelinfoModell }); 
+      if (response[1]) {
+        userParams.messageHistory.push({ role: "assistant", content: response[1], model: "Kildehenvisninger" });
+      }
       userParams.new_thread = false
-      userParams.thread_id = response.thread_id
+      userParams.thread_id = response[0].thread_id
     } catch (error) {
       isError = true;
       errorMessage = error;
@@ -236,7 +240,7 @@
   {/if}
   {#if appName === 'Hugin'}
     {#if (viewportWidth < 768)}
-    <p id="disclaimer">Husk at språkmodeller lager tekst som kan inneholde feil. <a href="https://telemarkfylke.no/no/veileder-for-kunstig-intelligens/">Les mer om bruk av {appName} her.</p>
+    <p id="disclaimer">Husk at språkmodeller lager tekst som kan inneholde feil. <a href="https://telemarkfylke.no/no/veileder-for-kunstig-intelligens/">Les mer om bruk av {appName} her.</a> </p>
     {:else}
       <p id="disclaimer">
         Husk at språkmodeller lager tekst som kan inneholde feil. Vurder alltid om bruken av språkteknologi passer med formålet ditt.<br> 
@@ -246,7 +250,7 @@
   {/if}
   {#if appName === 'Munin'}
   {#if (viewportWidth < 768)}
-  <p id="disclaimer">Husk at språkmodeller lager tekst som kan inneholde feil. <a href="https://www.vestfoldfylke.no/no/meny/tjenester/opplaring/digitale-laringsressurser-til-videregaende-opplaring/veileder-for-kunstig-intelligens/">Les mer om bruk av {appName} her.</p>
+  <p id="disclaimer" >Husk at språkmodeller lager tekst som kan inneholde feil. <a href="https://www.vestfoldfylke.no/no/meny/tjenester/opplaring/digitale-laringsressurser-til-videregaende-opplaring/veileder-for-kunstig-intelligens/">Les mer om bruk av {appName} her.</a></p>
   {:else}
     <p id="disclaimer">
       Husk at språkmodeller lager tekst som kan inneholde feil. Vurder alltid om bruken av språkteknologi passer med formålet ditt.<br> 

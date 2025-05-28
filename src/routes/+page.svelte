@@ -81,23 +81,10 @@
             'GRAD' 0,
             'opsz' 100
     }
-    h1 {
-      padding-top: 40px;
-    }
     .loading {
       display: flex;
       justify-content: center;
       align-items: center;
     }   
-    @media only screen and (max-width: 768px) {
-      h1 {
-        font-size: 1.5rem;
-      }
-    }
 
-    @media only screen and (max-width: 588px) {
-      h1 {
-        font-size: 1.2rem;
-      }
-    }
   </style>
