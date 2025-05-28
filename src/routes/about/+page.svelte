@@ -13,9 +13,6 @@
   Hugin og Munin er i den norrøne mytologien Odins to ravner. De følger ham overalt, og vagler seg på Odins skuldre når han sitter i høysetet, Lidskjalv i Valhall. Derfor er et av Odins mange navn «Ravneguden». Hugin og Munin kommer av norrønt for ‘tanke’ og ‘minne, erindring’ Snorre skriver i Gylvaginning at Odin ved daggry sender Hugin og Munin ut i verden. De flyr over alle verdens kroker før de, tidlig om formiddagen, vender tilbake og setter seg på Odins skuldre. Der forteller de ham hva de har sett og hørt, slik at Odin får vite alt som skjer. (Kilde: <a href="https://snl.no/Hugin_og_Munin"> SNL - Hugin og Munin</a>) Med denne symbolikken ønsker vi å ta med oss ChatVTFK over i de to nye fylkene. Hugin i Telemark, og Munin i Vestfold. Ikke bare som to kopier av den gamle versjonen, men en ny og videreutviklet versjon med nytt design og ny funksjonalitet.
 </p>
 
-<p>
-  <b>Målgruppen for Hugin og Munin er elever og ansatte i Vestfold og Telemark fylkeskommuner. Det er i hovedsak OpenAI sin språkmodell GPT-4o som benyttes i tjenesten, men det vil på sikt bli utviklet flere funksjoner og være mulig å bytte mellom flere modeller og ulike varianter av modellene. Dette kan du lese mer om i informasjonsteksten når du velger modell.</b>
-</p>
 
   <InfoBox title="Om NoraLLM">
     <h2>NoraLLM</h2>

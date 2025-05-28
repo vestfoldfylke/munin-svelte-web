@@ -13,10 +13,10 @@
   const userParams = $state({
     message: "",
     messageHistory: [],
-    assistant_id: models.filter(model => model.metadata.tile === "labs")[0].params.assistant_id,
+    assistant_id: models.filter(model => model.metadata.tile === "skolebotter")[0].params.assistant_id,
     new_thread: true,
     thread_id: '',
-    tile: "labs",
+    tile: "skolebotter",
   })
 
   // Variabler for håndtering av data og innhold i frontend
@@ -32,6 +32,14 @@
   let inputMessage = $state("")
   let viewportWidth = $state(window.innerWidth)
   const appName = import.meta.env.VITE_APP_NAME
+
+    // Kjører ved oppstart for å sette opp initial state
+    valgtModell({
+    target: {
+      value: models.filter(model => model.metadata.tile === "skolebotter")[0].params.assistant_id
+    }
+  })
+
 
   // Starter med en velkomstmelding
   userParams.messageHistory.push({
@@ -91,6 +99,7 @@
     modelinfoModell = models.find(model => model.params.assistant_id === userParams.assistant_id).metadata.navn
     modelinfoBeskrivelse = models.find(model => model.params.assistant_id === userParams.assistant_id).metadata.description
     userParams.synligKontekst = models.find(model => model.params.assistant_id === userParams.assistant_id).metadata.synligKontekst
+    userParams.tools = models.find(model => model.params.assistant_id === userParams.assistant_id).metadata.tools
   }
 
   // Kaller på valgt modell med tilhørende parametre basert på brukerens valg 
@@ -105,15 +114,18 @@
     userParams.messageHistory.push({
       role: "user",
       content: userParams.message,
-      model: modelinfoModell
+      model: modelinfoModell,
     })
 
     try {
-      let response;
-      response = await openAiAssistant(userParams);
-      userParams.messageHistory.push({ role: "assistant", content: response.messages[0].content[0].text.value, model: modelinfoModell }); 
+      let response;    
+      response = await openAiAssistant(userParams)
+      userParams.messageHistory.push({ role: "assistant", content: response[0].messages[0].content[0].text.value, model: modelinfoModell }); 
+      if (response[1]) {
+        userParams.messageHistory.push({ role: "assistant", content: response[1], model: "Kildehenvisninger" });
+      }
       userParams.new_thread = false
-      userParams.thread_id = response.thread_id
+      userParams.thread_id = response[0].thread_id
     } catch (error) {
       isError = true;
       errorMessage = error;
@@ -147,7 +159,7 @@
     <div class="loading">
       <IconSpinner width={"32px"} />
     </div>
-    {:else if !checkRoles(token, [`${appName.toLowerCase()}.admin`, `${appName.toLowerCase()}.labs`])}
+    {:else if !checkRoles(token, [`${appName.toLowerCase()}.admin`, `${appName.toLowerCase()}.skolebotter`])}
     <p>Oi, du har ikke tilgang. Prøver du deg på noe lurt? 🤓</p>
   {:else}
 
@@ -157,7 +169,7 @@
       <div class="boxyHeader">
         <select class="modellSelect" onchange={valgtModell}>
           {#each models as model}
-            {#if model.metadata.tile === "labs"}
+            {#if model.metadata.tile === "skolebotter"}
               <option value={model.params.assistant_id}>{model.metadata.navn}</option>
             {/if}
           {/each}
@@ -228,7 +240,7 @@
   {/if}
   {#if appName === 'Hugin'}
     {#if (viewportWidth < 768)}
-    <p id="disclaimer">Husk at språkmodeller lager tekst som kan inneholde feil. <a href="https://telemarkfylke.no/no/veileder-for-kunstig-intelligens/">Les mer om bruk av {appName} her.</a></p>
+    <p id="disclaimer">Husk at språkmodeller lager tekst som kan inneholde feil. <a href="https://telemarkfylke.no/no/veileder-for-kunstig-intelligens/">Les mer om bruk av {appName} her.</a> </p>
     {:else}
       <p id="disclaimer">
         Husk at språkmodeller lager tekst som kan inneholde feil. Vurder alltid om bruken av språkteknologi passer med formålet ditt.<br> 
@@ -238,7 +250,7 @@
   {/if}
   {#if appName === 'Munin'}
   {#if (viewportWidth < 768)}
-  <p id="disclaimer">Husk at språkmodeller lager tekst som kan inneholde feil. <a href="https://www.vestfoldfylke.no/no/meny/tjenester/opplaring/digitale-laringsressurser-til-videregaende-opplaring/veileder-for-kunstig-intelligens/">Les mer om bruk av {appName} her.</a></p>
+  <p id="disclaimer" >Husk at språkmodeller lager tekst som kan inneholde feil. <a href="https://www.vestfoldfylke.no/no/meny/tjenester/opplaring/digitale-laringsressurser-til-videregaende-opplaring/veileder-for-kunstig-intelligens/">Les mer om bruk av {appName} her.</a></p>
   {:else}
     <p id="disclaimer">
       Husk at språkmodeller lager tekst som kan inneholde feil. Vurder alltid om bruken av språkteknologi passer med formålet ditt.<br> 

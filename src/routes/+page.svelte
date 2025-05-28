@@ -6,6 +6,7 @@
     import IconSpinner from '../lib/components/IconSpinner.svelte';
     import { getHuginToken } from '../lib/useApi';
     import { onMount } from 'svelte';
+    import { checkRoles } from '$lib/helpers/checkRoles';
     
     let token = $state(null)
     const appName = import.meta.env.VITE_APP_NAME
@@ -18,6 +19,7 @@
         }
         token = await getHuginToken(true)
     })
+
   </script>
   
   <main>
@@ -27,11 +29,21 @@
       </div> 
     {:else}
       <div class="centerstuff">
+        <CardButton header={'Om tjenesten'} imgPath={chat} imgAlt={'Ikon bilde av en snakkebobble'} gotoPath={'/about'} paragraph={''} boolValue={true}><span class="material-symbols-outlined">Help</span></CardButton>
         <CardButton header={'Chat'} imgPath={chat} imgAlt={'Ikon bilde av en snakkebobble'} gotoPath={'/KI-modeller'} paragraph={''} boolValue={true}><span class="material-symbols-outlined">chat</span></CardButton>
-        {#if token.roles.includes(`${appName.toLowerCase()}.admin`)}
+        {#if checkRoles(token, [`${appName.toLowerCase()}.admin`, `${appName.toLowerCase()}.transkripsjon`])}
           <CardButton header={'Transkripsjon'} imgPath={doc} imgAlt={'Ikon bilde av et dokument'} gotoPath={'/transcript'} paragraph={''} boolValue={true}><span class="material-symbols-outlined">interpreter_mode</span></CardButton>
         {/if}
-        {#if token.roles.includes(`${appName.toLowerCase()}.labs`) || token.roles.includes(`${appName.toLowerCase()}.admin`)}
+        {#if checkRoles(token, [`${appName.toLowerCase()}.admin`, `${appName.toLowerCase()}.dokumentchat`])}
+          <CardButton header={'Dokumentchat'} imgPath={doc} imgAlt={'Ikon bilde av et dokument'} gotoPath={'/sporDokument'} paragraph={''} boolValue={true}><span class="material-symbols-outlined">quick_reference_all</span></CardButton>
+        {/if}
+        {#if checkRoles(token, [`${appName.toLowerCase()}.admin`, `${appName.toLowerCase()}.skolebotter`])}
+          <CardButton header={'Skolebotter'} imgPath={eksperiment} imgAlt={'Ikon bilde av et reagensrør'} gotoPath={'/skolebotter'} paragraph={''} boolValue={true}><span class="material-symbols-outlined">school</span></CardButton>
+        {/if}
+        {#if checkRoles(token, [`${appName.toLowerCase()}.admin`, `${appName.toLowerCase()}.skolebotter`])}
+          <CardButton header={'Organisasjonsbotter'} imgPath={eksperiment} imgAlt={'Ikon bilde av et dokumentbilde'} gotoPath={'/orgbotter'} paragraph={''} boolValue={true}><span class="material-symbols-outlined">work</span></CardButton>
+        {/if}
+        {#if checkRoles(token, [`${appName.toLowerCase()}.admin`, `${appName.toLowerCase()}.labs`])}
           <CardButton header={'Pilot'} imgPath={eksperiment} imgAlt={'Ikon bilde av et reagensrør'} gotoPath={'/labs'} paragraph={''} boolValue={true}><span class="material-symbols-outlined">experiment</span></CardButton>
         {/if}
       </div>
@@ -69,23 +81,10 @@
             'GRAD' 0,
             'opsz' 100
     }
-    h1 {
-      padding-top: 40px;
-    }
     .loading {
       display: flex;
       justify-content: center;
       align-items: center;
     }   
-    @media only screen and (max-width: 768px) {
-      h1 {
-        font-size: 1.5rem;
-      }
-    }
 
-    @media only screen and (max-width: 588px) {
-      h1 {
-        font-size: 1.2rem;
-      }
-    }
   </style>
