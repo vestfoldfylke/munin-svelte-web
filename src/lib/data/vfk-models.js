@@ -171,5 +171,65 @@ export const vfkModels =
           new_thread: true,
           thread_id: ''
         }
+      },
+      {
+        id: '18',
+        metadata: {
+          navn: 'Helsefagarbeider - Lærer',
+          description: 'Assistent som skal hjelpe lærere i regi av Nettskolen Vestfold i utviklingen av pedagogiske ressurser innen helsearbeiderfaget.',
+          synligKontekst: false,
+          illustrasjon: '',
+          tile: 'labs',
+          endpoint: 'assistantOpenAi',
+          assistant: true
+        },
+        params: {
+          message: '',
+          kontekst: '',
+          model: 'gpt-4o',
+          assistant_id: import.meta.env.VITE_ASSISTANT_HELSEFAG_LAERER,
+          new_thread: true,
+          thread_id: ''
+        }
+      },
+      {
+        id: '18',
+        metadata: {
+          navn: 'Helsefagarbeider - Elev',
+          description: 'Assistent som skal hjelpe elever med å forstå fagstoff innen helsearbeiderfaget.',
+          synligKontekst: false,
+          illustrasjon: '',
+          tile: 'labs',
+          endpoint: 'assistantOpenAi',
+          assistant: true
+        },
+        params: {
+          message: '',
+          kontekst: '',
+          model: 'gpt-4o',
+          assistant_id: import.meta.env.VITE_ASSISTANT_HELSEFAG_ELEV,
+          new_thread: true,
+          thread_id: ''
+        }
+      },
+      {
+        id: '18',
+        metadata: {
+          navn: 'Azure frekksperten - Bruk på eget ansvar',
+          description: 'Assistent som får jekka deg ned på jorda.',
+          synligKontekst: false,
+          illustrasjon: '',
+          tile: 'labs',
+          endpoint: 'assistantOpenAi',
+          assistant: true
+        },
+        params: {
+          message: '',
+          kontekst: '',
+          model: 'gpt-4o',
+          assistant_id: import.meta.env.VITE_ASSISTANT_AZURE_FREKKSPERTEN,
+          new_thread: true,
+          thread_id: ''
+        }
       }
     ]
