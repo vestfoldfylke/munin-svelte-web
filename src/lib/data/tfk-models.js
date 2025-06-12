@@ -209,5 +209,21 @@ export const tfkModels =
           new_thread: true,
           thread_id: ''
         }
-      }
-    ]
+      },
+      {
+        id: '20',
+        metadata: {
+          navn: 'Magistral - Ressonering',
+          description: 'En språkmodell som er godt egnet til mer kompliserte oppgaver som koding og problemløsing. Den løser oppgaver i flere trinn.',
+          synligKontekst: false,
+          illustrasjon: '',
+          tile: 'chat',
+          endpoint: 'multimodalMistral',
+          assistant: false
+        },
+        params: {
+          message: '',
+          kontekst: '',
+          model: 'magistral-medium-2506',
+        }
+      }    ]
