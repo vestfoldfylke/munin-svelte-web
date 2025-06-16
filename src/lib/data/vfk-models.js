@@ -181,7 +181,8 @@ export const vfkModels =
           illustrasjon: '',
           tile: 'labs',
           endpoint: 'assistantOpenAi',
-          assistant: true
+          assistant: true,
+          tools: 'NDLA'
         },
         params: {
           message: '',
@@ -193,7 +194,7 @@ export const vfkModels =
         }
       },
       {
-        id: '18',
+        id: '19',
         metadata: {
           navn: 'Helsefagarbeider - Elev',
           description: 'Assistent som skal hjelpe elever med å forstå fagstoff innen helsearbeiderfaget.',
@@ -201,7 +202,8 @@ export const vfkModels =
           illustrasjon: '',
           tile: 'labs',
           endpoint: 'assistantOpenAi',
-          assistant: true
+          assistant: true,
+          tools: 'NDLA'
         },
         params: {
           message: '',
@@ -213,7 +215,7 @@ export const vfkModels =
         }
       },
       {
-        id: '18',
+        id: '20',
         metadata: {
           navn: 'Azure frekksperten - Bruk på eget ansvar',
           description: 'Assistent som får jekka deg ned på jorda.',
