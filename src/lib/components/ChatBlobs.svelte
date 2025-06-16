@@ -97,34 +97,9 @@
         background-color: var(--himmel-10);
         border-radius: 1rem;
         border: 1px solid var(--himmel-80);
-        padding: 0.5rem 1rem;
+        padding: 0.2rem 1rem;
         margin: 0.2rem;
         max-width: 90%;
-    }
-
-    :global(.chat-blob-content h1),
-    :global(.chat-blob-content h2),
-    :global(.chat-blob-content h3) {
-        margin-bottom: 10px;
-    }
-
-    :global(.chat-blob-content ul) {
-        margin-bottom: 10px;
-    }
-
-    :global(.chat-blob-content ol) {
-        margin-bottom: 10px;
-    }
-
-    :global(.chat-blob-content li) {
-        list-style-position: inside;
-        padding-left: 10px;
-    }
-
-    :global(.chat-blob-content ol li::before) {
-        content: "";
-        width: 10px;
-        display: inline-block;
     }
     
     .user .chat-blob-content {

@@ -8,16 +8,28 @@
   import autosize from "svelte-autosize";
   import Modal from "$lib/components/Modal.svelte";
   import { checkRoles } from '$lib/helpers/checkRoles';
+  
+  const getStartModelConfig = () => {
+    const model = models.filter(model => model.metadata.tile === "labs")[0]
+
+    const config = {
+      message: "",
+      messageHistory: [],
+      assistant_id: model.params.assistant_id,
+      new_thread: true,
+      thread_id: '',
+      tile: "labs"
+    }
+
+    if (model.metadata.tools) {
+      config.tools = model.metadata.tools
+    }
+    
+    return config
+  }
 
   // Init state - Modell-parametere og payload
-  const userParams = $state({
-    message: "",
-    messageHistory: [],
-    assistant_id: models.filter(model => model.metadata.tile === "labs")[0].params.assistant_id,
-    new_thread: true,
-    thread_id: '',
-    tile: "labs",
-  })
+  const userParams = $state(getStartModelConfig())
 
   // Variabler for håndtering av data og innhold i frontend
   let modelinfoModell = $state(null) // $state(modelinfo[userParams.valgtModell].navn)
@@ -81,16 +93,25 @@
     };
   });
 
-
   // Logikk og funksjoner for håndtering av brukerinput og valg av modell
 
   // Håndterer valg av modell og oppdaterere modellinformasjon på siden
   function valgtModell(event) {
+    const model = models.find(model => model.params.assistant_id === event.target.value)
+    if (!model) {
+      throw new Error("Modellen finnes ikke i konfigurasjonen.");
+    }
+
     userParams.new_thread = true
     userParams.assistant_id = event.target.value
-    modelinfoModell = models.find(model => model.params.assistant_id === userParams.assistant_id).metadata.navn
-    modelinfoBeskrivelse = models.find(model => model.params.assistant_id === userParams.assistant_id).metadata.description
-    userParams.synligKontekst = models.find(model => model.params.assistant_id === userParams.assistant_id).metadata.synligKontekst
+    modelinfoModell = model.metadata.navn
+    modelinfoBeskrivelse = model.metadata.description
+    userParams.synligKontekst = model.metadata.synligKontekst
+    if (model.metadata.tools) {
+      userParams.tools = model.metadata.tools
+    } else {
+      delete userParams.tools
+    }
   }
 
   // Kaller på valgt modell med tilhørende parametre basert på brukerens valg 
@@ -109,12 +130,17 @@
     })
 
     try {
-      let response;
-      response = await openAiAssistant(userParams);
-      userParams.messageHistory.push({ role: "assistant", content: response[0].messages[0].content[0].text.value, model: modelinfoModell }); 
+      const [response, article] = await openAiAssistant(userParams);
+      let responseText = response.messages[0].content[0].text.value;
+      if (article) {
+        responseText += `\n\n${article}`;
+      }
+
+      userParams.messageHistory.push({ role: "assistant", content: responseText, model: modelinfoModell });
       userParams.new_thread = false
-      userParams.thread_id = response[0].thread_id
+      userParams.thread_id = response.thread_id
     } catch (error) {
+      console.error("Error calling OpenAI Assistant:", error);
       isError = true;
       errorMessage = error;
       userParams.messageHistory.push({
