@@ -90,6 +90,7 @@
         background-color: var(--himmel-10);
         padding: 2px 5px;
         border-radius: 5px;
+        width: max-content;
     }
 
     .chat-blob-content {
