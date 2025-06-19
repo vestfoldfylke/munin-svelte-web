@@ -226,4 +226,25 @@ export const tfkModels =
           kontekst: '',
           model: 'magistral-medium-2506',
         }
-      }    ]
+      },
+            {
+        id: '21',
+        metadata: {
+          navn: 'Acosbotten',
+          description: 'Eksperimentell bot til bruk for oppslag i Acosdokumentasjonen.',
+          synligKontekst: false,
+          illustrasjon: '',
+          tile: 'labs',
+          endpoint: 'assistantOpenAi',
+          assistant: true
+        },
+        params: {
+          message: '',
+          kontekst: '',
+          model: 'gpt-4.1',
+          assistant_id: import.meta.env.VITE_ASSISTANT_ACOSDOC,
+          new_thread: true,
+          thread_id: ''
+        }
+      }
+    ]
