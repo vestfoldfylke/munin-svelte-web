@@ -31,10 +31,11 @@
   let errorMessage = $state("")
   let inputMessage = $state("")
   let viewportWidth = $state(window.innerWidth)
-  const appName = import.meta.env.VITE_APP_NAME
 
-    // Kjører ved oppstart for å sette opp initial state
-    valgtModell({
+  const { VITE_APP_NAME: appName, VITE_MOCK_API: mockApi } = import.meta.env
+
+  // Kjører ved oppstart for å sette opp initial state
+  valgtModell({
       target: {
         value: models.filter(model => model.metadata.tile === "orgbotter")[0].params.assistant_id
       }
@@ -48,7 +49,7 @@
   })
 
   onMount(async () => {
-    if ( import.meta.env.VITE_MOCK_API && import.meta.env.VITE_MOCK_API === "true" ) {
+    if (mockApi && mockApi === "true") {
       // Pretend to wait for api call
       await new Promise((resolve) => setTimeout(resolve, 2000))
     }

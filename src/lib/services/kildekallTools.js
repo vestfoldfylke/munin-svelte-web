@@ -3,6 +3,8 @@ import { getHuginToken } from '../useApi'
 import { z } from 'zod'
 import { zodResponseFormat } from 'openai/helpers/zod'
 
+const { VITE_AI_API_URI: aiApiUri } = import.meta.env
+
 // Importere skjemaer fra eget bibliotek etterhvert
 const penRespons = z.object({
   tema: z.string(),
@@ -35,7 +37,7 @@ export const generateKeywords = async (message) => {
     dokFiles: '',
     model: 'gpt-4.1'
   }
-  const keyWords = await axios.post(`${import.meta.env.VITE_AI_API_URI}/responseOpenAi`, payload, {
+  const keyWords = await axios.post(`${aiApiUri}/responseOpenAi`, payload, {
     headers: {
       authorization: `Bearer ${accessToken}`
     }
@@ -55,7 +57,7 @@ export const structureResponse = async (userParams) => {
 
   const accessToken = await getHuginToken()
   // Call AZF-funksjon with payload
-  const response = await axios.post(`${import.meta.env.VITE_AI_API_URI}/structuredOpenAi`, payload, {
+  const response = await axios.post(`${aiApiUri}/structuredOpenAi`, payload, {
     headers: {
       authorization: `Bearer ${accessToken}`
     }

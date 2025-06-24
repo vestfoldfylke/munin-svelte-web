@@ -3,6 +3,8 @@ import axios from 'axios'
 import { getHuginToken } from '../useApi'
 import { jwtDecode } from 'jwt-decode'
 
+const { VITE_AI_API_URI: aiApiUri } = import.meta.env
+
 export const nbTranscript = async (filliste, metadata) => {
   const accessToken = await getHuginToken()
   const user_upn = jwtDecode(accessToken).upn
@@ -13,7 +15,7 @@ export const nbTranscript = async (filliste, metadata) => {
   datapakken.append('spraak', metadata.spraak)
   datapakken.append('format', metadata.format)
   datapakken.append('upn', user_upn)
-  const r = await axios.post(`${import.meta.env.VITE_AI_API_URI}/nbTranscript`, datapakken, {
+  const r = await axios.post(`${aiApiUri}/nbTranscript`, datapakken, {
     method: 'post',
     data: datapakken,
     headers: {

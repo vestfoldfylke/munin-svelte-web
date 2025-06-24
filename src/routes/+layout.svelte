@@ -9,6 +9,9 @@
   import { getMsalClient, login, logout } from "../lib/auth/msal-auth";
   import { getHuginToken } from "../lib/useApi";
   import IconSpinner from "../lib/components/IconSpinner.svelte";
+
+  const { VITE_APP_NAME: appName, VITE_COUNTY: county } = import.meta.env
+  
   /**
    * @typedef {Object} Props
    * @property {import('svelte').Snippet} [children]
@@ -19,17 +22,13 @@
 
   let logo = $state("");
   let logo_mobile = $state("");
-  if (import.meta.env.VITE_COUNTY === 'Telemark') {
+  if (county === 'Telemark') {
     logo = logoTFK;
     logo_mobile = logoTFK_mobile;
   } else {
     logo = logoVFK;
     logo_mobile = logoVFK;
   }
-
-
-
-  const appName = import.meta.env.VITE_APP_NAME
 
   // Variabel som får "kontoobjektet" fra innlogget bruker fra MSAL
   let account = $state(null);
@@ -76,11 +75,11 @@
     <div class="loading">
       <IconSpinner width={"32px"} />
     </div> 
-  {:then}
+  {:then _}
     <div class="topbar">
       <div class="toptop">
         <div>
-            <a href="/"><img class="logo" src={logo} alt="Hugin og Munin" style="margin-right: 50px;" srcset="{logo_mobile} 768w, {logo} 769w"/></a>
+            <a href="/"><img class="logo" src={logo} alt="{appName}" style="margin-right: 50px;" srcset="{logo_mobile} 768w, {logo} 769w"/></a>
         </div>
         <a href="/" title="Gå til forsiden" class="appTitle"><h1>{ appName }</h1></a>
         <div class="topbarOptions">

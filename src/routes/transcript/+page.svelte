@@ -17,7 +17,9 @@ let mediaRecorder;
   let recording = $state(false);
   let timer = $state(0);
   let timerInterval;
-  const appName=import.meta.env.VITE_APP_NAME
+
+  const { VITE_APP_NAME: appName, VITE_MOCK_API: mockApi } = import.meta.env
+
   let metadata = $state({
     "filnavn": "",
     "spraak": "",
@@ -25,7 +27,7 @@ let mediaRecorder;
   });
 
   onMount(async () => {
-    if ( import.meta.env.VITE_MOCK_API && import.meta.env.VITE_MOCK_API === "true" ) {
+    if (mockApi && mockApi === "true") {
       // Pretend to wait for api call
       await new Promise((resolve) => setTimeout(resolve, 2000))
     }

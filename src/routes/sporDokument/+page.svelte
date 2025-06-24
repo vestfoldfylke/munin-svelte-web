@@ -1,6 +1,5 @@
 <script>
   import { docQueryOpenAi } from "$lib/services/openAiTools"
-  import { models } from "$lib/data/models"; // Modellkonfigurasjon
   import ChatBlobs from "$lib/components/ChatBlobs.svelte"; // Komponent for å vise chatmeldinger
   import { onMount, tick } from "svelte";
   import { getHuginToken } from "$lib/useApi";
@@ -31,7 +30,8 @@
   let isError = $state(false)
   let inputMessage = $state("")
   let viewportWidth = $state(window.innerWidth)
-  const appName = import.meta.env.VITE_APP_NAME
+
+  const { VITE_APP_NAME: appName, VITE_MOCK_API: mockApi } = import.meta.env
 
   // Starter med en velkomstmelding
   userParams.messageHistory.push({
@@ -41,7 +41,7 @@
   })
 
   onMount(async () => {
-    if ( import.meta.env.VITE_MOCK_API && import.meta.env.VITE_MOCK_API === "true" ) {
+    if (mockApi && mockApi === "true") {
       // Pretend to wait for api call
       await new Promise((resolve) => setTimeout(resolve, 2000))
     }

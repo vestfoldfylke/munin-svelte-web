@@ -4,6 +4,8 @@ import axios from 'axios'
 import { getHuginToken } from '../useApi'
 import { getArticlesFromNDLA, generateKeywords } from './kildekallTools'
 
+const { VITE_AI_API_URI: aiApiUri } = import.meta.env
+
 export const responseOpenAi = async (userParams) => {
   const accessToken = await getHuginToken()
   const payload = {
@@ -14,7 +16,7 @@ export const responseOpenAi = async (userParams) => {
     model: userParams.model
   }
 
-  const response = await axios.post(`${import.meta.env.VITE_AI_API_URI}/responseOpenAi`, payload, {
+  const response = await axios.post(`${aiApiUri}/responseOpenAi`, payload, {
     headers: {
       authorization: `Bearer ${accessToken}`
     }
@@ -31,7 +33,7 @@ export const openAiAssistant = async (userParams) => {
     tile: userParams.tile
   }
   const accessToken = await getHuginToken()
-  const response = await axios.post(`${import.meta.env.VITE_AI_API_URI}/assistantOpenAi`, payload, {
+  const response = await axios.post(`${aiApiUri}/assistantOpenAi`, payload, {
     headers: {
       authorization: `Bearer ${accessToken}`
     }
@@ -69,7 +71,7 @@ export const docQueryOpenAi = async (userParams) => {
 
   const payload = formData
 
-  const response = await axios.post(`${import.meta.env.VITE_AI_API_URI}/docQueryOpenAiV2`, payload, {
+  const response = await axios.post(`${aiApiUri}/docQueryOpenAiV2`, payload, {
     headers: {
       authorization: `Bearer ${accessToken}`
     }

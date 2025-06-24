@@ -27,7 +27,8 @@
   let inputMessage = $state("");
   let viewportWidth = $state(window.innerWidth);
   let filArray = $state([]);
-  const appName = import.meta.env.VITE_APP_NAME;
+
+  const { VITE_APP_NAME: appName, VITE_MOCK_API: mockApi } = import.meta.env
 
   // Initiell state - Modell-parametere og payload som sendes til proxy-api
   let message = $state("");
@@ -62,7 +63,7 @@
 
   // Henter token og setter opp event listeners
   onMount(async () => {
-    if (import.meta.env.VITE_MOCK_API && import.meta.env.VITE_MOCK_API === "true") {
+    if (mockApi && mockApi === "true") {
       // Pretend to wait for api call
       await new Promise((resolve) => setTimeout(resolve, 2000));
     }

@@ -3,7 +3,7 @@
   import InfoBox from "$lib/components/InfoBox.svelte";
 </script>
 
-<!-- Abpout Hugin/Munin -->
+<!-- About Hugin/Munin -->
 <h1>Om Hugin/Munin</h1>
 
 
