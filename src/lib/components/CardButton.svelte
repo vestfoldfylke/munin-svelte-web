@@ -106,7 +106,6 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        margin-top: bottom;
         padding: 20px;
     }
 
