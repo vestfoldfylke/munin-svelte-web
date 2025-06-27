@@ -50,7 +50,7 @@
   })
 
   onMount(async () => {
-    if ( import.meta.env.VITE_MOCK_API && import.meta.env.VITE_MOCK_API === "true" ) {
+    if (mockApi && mockApi === "true") {
       // Pretend to wait for api call
       await new Promise((resolve) => setTimeout(resolve, 2000))
     }
