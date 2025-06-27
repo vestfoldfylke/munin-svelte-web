@@ -209,5 +209,42 @@ export const tfkModels =
           new_thread: true,
           thread_id: ''
         }
+      },
+      {
+        id: '20',
+        metadata: {
+          navn: 'Magistral - Resonnering',
+          description: 'En språkmodell som er godt egnet til mer kompliserte oppgaver som koding og problemløsing. Den løser oppgaver i flere trinn.',
+          synligKontekst: false,
+          illustrasjon: '',
+          tile: 'chat',
+          endpoint: 'multimodalMistral',
+          assistant: false
+        },
+        params: {
+          message: '',
+          kontekst: '',
+          model: 'magistral-medium-2506',
+        }
+      },
+            {
+        id: '21',
+        metadata: {
+          navn: 'Acosbotten',
+          description: 'Eksperimentell bot til bruk for oppslag i Acosdokumentasjonen.',
+          synligKontekst: false,
+          illustrasjon: '',
+          tile: 'labs',
+          endpoint: 'assistantOpenAi',
+          assistant: true
+        },
+        params: {
+          message: '',
+          kontekst: '',
+          model: 'gpt-4.1',
+          assistant_id: import.meta.env.VITE_ASSISTANT_ACOSDOC,
+          new_thread: true,
+          thread_id: ''
+        }
       }
     ]

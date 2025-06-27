@@ -45,12 +45,12 @@
   // Starter med en velkomstmelding
   userParams.messageHistory.push({
     role: "assistant",
-    content: `Velkommen til ${appName}! Hva kan jeg hjelpe deg med i dag?`,
+    content: `Velkommen til FarteInfo! Hva kan jeg hjelpe deg med i dag?`,
     model: `${appName}`
   })
 
   onMount(async () => {
-    if (mockApi && mockApi === "true") {
+    if ( import.meta.env.VITE_MOCK_API && import.meta.env.VITE_MOCK_API === "true" ) {
       // Pretend to wait for api call
       await new Promise((resolve) => setTimeout(resolve, 2000))
     }
@@ -160,23 +160,6 @@
     <p>Oi, du har ikke tilgang. Prøver du deg på noe lurt? 🤓</p>
   {:else}
 
-    <!-- For-each som itererer over modell-confogfila og populerer selectmenmyen -->
-    <div class="modelTampering">
-      <h2>Modellvelger</h2>
-      <div class="boxyHeader">
-        <select class="modellSelect" onchange={valgtModell}>
-          {#each models as model (model.id)}
-            {#if model.metadata.tile === "fartebot"}
-              <option value={model.params.assistant_id}>{model.metadata.navn}</option>
-            {/if}
-          {/each}
-        </select>
-        <button id="modelinfoButton" class="link" onclick={() => { modelTampering = !modelTampering; showModal = true }}>
-          <span class="button-text">Innstillinger</span>
-        </button>
-      </div>
-    </div>
-
     <div class="output" bind:this={chatWindow}>
       {#if userParams.messageHistory.length === 1}
         <ChatBlobs
@@ -237,7 +220,7 @@
   {/if}
   {#if appName === 'Hugin'}
     {#if (viewportWidth < 768)}
-    <p id="disclaimer">Husk at språkmodeller lager tekst som kan inneholde feil. <a href="https://telemarkfylke.no/no/veileder-for-kunstig-intelligens/">Les mer om bruk av {appName} her.</p>
+    <p id="disclaimer">Husk at språkmodeller lager tekst som kan inneholde feil. <a href="https://telemarkfylke.no/no/veileder-for-kunstig-intelligens/">Les mer om bruk av {appName} her.</a></p>
     {:else}
       <p id="disclaimer">
         Husk at språkmodeller lager tekst som kan inneholde feil. Vurder alltid om bruken av språkteknologi passer med formålet ditt.<br> 
@@ -247,7 +230,7 @@
   {/if}
   {#if appName === 'Munin'}
   {#if (viewportWidth < 768)}
-  <p id="disclaimer">Husk at språkmodeller lager tekst som kan inneholde feil. <a href="https://www.vestfoldfylke.no/no/meny/tjenester/opplaring/digitale-laringsressurser-til-videregaende-opplaring/veileder-for-kunstig-intelligens/">Les mer om bruk av {appName} her.</p>
+  <p id="disclaimer">Husk at språkmodeller lager tekst som kan inneholde feil. <a href="https://www.vestfoldfylke.no/no/meny/tjenester/opplaring/digitale-laringsressurser-til-videregaende-opplaring/veileder-for-kunstig-intelligens/">Les mer om bruk av {appName} her.</a></p>
   {:else}
     <p id="disclaimer">
       Husk at språkmodeller lager tekst som kan inneholde feil. Vurder alltid om bruken av språkteknologi passer med formålet ditt.<br> 
@@ -291,14 +274,6 @@ main {
   margin: 10px;
 }
 
-#modelinfoButton {
-  border: 1px solid #ccc;
-  padding: 3px 10px 3px 10px;
-  background-color: #f5f5f5;
-  border-radius: 1rem;
-  text-decoration: none;
-}
-
 textarea {
     display: block;
     width: 100%;
@@ -336,13 +311,6 @@ textarea {
   color: transparent;
   }
 
-  .boxyHeader {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    padding: 5px 10px 10px 8px;
-  }
-
   .material-symbols-outlined {
     font-size: 1.5rem;
   }
@@ -371,14 +339,6 @@ textarea {
     overflow-y: scroll;
   }
 
-  .modelTampering {
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    padding: 5px;
-    margin-bottom: 10px;
-    width: 100%;
-  }
-
   @keyframes flash {
     0% {
       background-color: transparent;
@@ -389,14 +349,6 @@ textarea {
     100% {
       background-color: transparent;
     }
-  }
-
-  .modellSelect {
-    padding: 10px;
-    border-radius: 1rem;
-    border: 1px solid #ccc;
-    background-color: #f5f5f5;
-    width: 26rem;
   }
 
   textarea#inputKontekst {
@@ -431,28 +383,6 @@ textarea {
     
     #disclaimer {
       font-size: 12px;
-    }
-
-    .modellSelect {
-      width: 320px;
-      margin-right: 5px;
-    }
-
-    .modelTampering > h2 {
-      font-size: 1rem;
-    }
-
-    .button-text {
-      display: none;
-    }
-
-    #modelinfoButton {
-      padding: 5px 9px 0px 9px;
-    }
-    #modelinfoButton::before {
-      content: "\e8b8"; /* Unicode for cog wheel icon */
-      font-family: 'Material Icons';
-      font-size: 1.5rem;
     }
   }
 </style>

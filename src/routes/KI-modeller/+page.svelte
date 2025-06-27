@@ -148,7 +148,7 @@
       } else if (valgtModell === "1") {
         response = await noraChat(params);
         messageHistory = [...messageHistory, { role: "assistant", content: response, model: modelinfoModell }];
-      } else if (valgtModell === "13") {
+      } else if (valgtModell === "13" || valgtModell === "20") {
         response = await multimodalMistral(params);
         messageHistory = [...messageHistory, { role: "assistant", content: response.choices[0].message.content, model: modelinfoModell }];
       } else {
