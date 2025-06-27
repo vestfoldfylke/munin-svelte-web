@@ -6,7 +6,7 @@
   import { goto } from "$app/navigation";
   import { page } from "$app/stores";
   import { onMount } from "svelte";
-  import { getMsalClient, login, logout } from "../lib/auth/msal-auth";
+  import { getMsalClient, login/*, logout*/ } from "../lib/auth/msal-auth";
   import { getHuginToken } from "../lib/useApi";
   import IconSpinner from "../lib/components/IconSpinner.svelte";
 
@@ -68,12 +68,12 @@
 <!-- If the account is not loaded, show a loading message. -->
 {#if !account}
   <div class="loading">
-    <IconSpinner width={"32px"} />
+    <IconSpinner width="32px" />
   </div>
 {:else}
   {#await getHuginToken(true)}
     <div class="loading">
-      <IconSpinner width={"32px"} />
+      <IconSpinner width="32px" />
     </div> 
   {:then _}
     <div class="topbar">

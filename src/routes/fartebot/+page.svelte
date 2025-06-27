@@ -8,6 +8,7 @@
   import autosize from "svelte-autosize";
   import Modal from "$lib/components/Modal.svelte";
   import { checkRoles } from '$lib/helpers/checkRoles';
+  import { markdownToHtml } from '$lib/helpers/markdown-to-html.js'
 
   // Init state - Modell-parametere og payload
   const userParams = $state({
@@ -153,7 +154,7 @@
 <main>
   {#if !token}
     <div class="loading">
-      <IconSpinner width={"32px"} />
+      <IconSpinner width="32px" />
     </div>
     {:else if !checkRoles(token, [`${appName.toLowerCase()}.admin`])}
     <p>Oi, du har ikke tilgang. Prøver du deg på noe lurt? 🤓</p>
@@ -164,7 +165,7 @@
       <h2>Modellvelger</h2>
       <div class="boxyHeader">
         <select class="modellSelect" onchange={valgtModell}>
-          {#each models as model}
+          {#each models as model (model.id)}
             {#if model.metadata.tile === "fartebot"}
               <option value={model.params.assistant_id}>{model.metadata.navn}</option>
             {/if}
@@ -183,12 +184,12 @@
           content={userParams.messageHistory[0].content}
           assistant={`${appName}`}  />
       {:else if isWaiting}
-        {#each userParams.messageHistory as chatMessage}
+        {#each userParams.messageHistory as chatMessage (chatMessage.content)}
           <ChatBlobs role={chatMessage.role} content={chatMessage.content} {...(chatMessage.role === "assistant" ? { assistant: chatMessage.model } : {})} />
         {/each}
-        <ChatBlobs role={"assistant"} content={"..."} />
+        <ChatBlobs role="assistant" content="..." />
       {:else}
-        {#each userParams.messageHistory as chatMessage}
+        {#each userParams.messageHistory as chatMessage (chatMessage.content)}
           {#if typeof chatMessage.content === "string"}
             <ChatBlobs 
               role={chatMessage.role} 
@@ -206,7 +207,7 @@
         use:autosize 
         name="askHugin" 
         autocomplete="off" 
-        placeholder={`Skriv inn ledetekst (Shift + Enter for flere linjer)`} 
+        placeholder="Skriv inn ledetekst (Shift + Enter for flere linjer)" 
         bind:value={inputMessage}
         onkeypress={(e) => onKeyPress(e, brukervalg)}></textarea>
 
@@ -259,7 +260,8 @@
         <h2 >{modelinfoModell}</h2>
       {/snippet}
     {#snippet mainContent()}
-        <p >{@html modelinfoBeskrivelse}</p>
+        <!-- eslint-disable svelte/no-at-html-tags -->
+        <p>{@html markdownToHtml(modelinfoBeskrivelse)}</p>
       {/snippet}
     {#if userParams.synligKontekst}
     <textarea 
