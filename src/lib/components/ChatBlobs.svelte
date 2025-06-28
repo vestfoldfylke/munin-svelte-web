@@ -47,7 +47,7 @@
     .user {
         display: flex;
         flex-direction: row-reverse;
-        margin: 0.5rem;
+        margin: 0.5rem 0.5rem 1.5rem 0.5rem;
         border-radius: 10px 10px 0 10px;
     }
 

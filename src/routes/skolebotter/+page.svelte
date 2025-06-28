@@ -7,6 +7,7 @@
   import IconSpinner from "$lib/components/IconSpinner.svelte";
   import autosize from "svelte-autosize";
   import Modal from "$lib/components/Modal.svelte";
+  import ModelChooser from "$lib/components/ModelChooser.svelte"; // Komponent for modellvelger
   import { checkRoles } from '$lib/helpers/checkRoles';
   import { markdownToHtml } from '$lib/helpers/markdown-to-html.js'
 
@@ -168,13 +169,7 @@
     <div class="modelTampering">
       <h2>Modellvelger</h2>
       <div class="boxyHeader">
-        <select class="modellSelect" onchange={valgtModell}>
-          {#each models as model (model.id)}
-            {#if model.metadata.tile === "skolebotter"}
-              <option value={model.params.assistant_id}>{model.metadata.navn}</option>
-            {/if}
-          {/each}
-        </select>
+        <ModelChooser handleModelChange={valgtModell} models={models} tile="skolebotter" useAssistantId={true} />
         <button id="modelinfoButton" class="link" onclick={() => { modelTampering = !modelTampering; showModal = true }}>
           <span class="button-text">Innstillinger</span>
         </button>
@@ -395,14 +390,6 @@ textarea {
     }
   }
 
-  .modellSelect {
-    padding: 10px;
-    border-radius: 1rem;
-    border: 1px solid #ccc;
-    background-color: #f5f5f5;
-    width: 26rem;
-  }
-
   textarea#inputKontekst {
     padding: 10px;
     margin-top: 30px;
@@ -435,11 +422,6 @@ textarea {
     
     #disclaimer {
       font-size: 12px;
-    }
-
-    .modellSelect {
-      width: 320px;
-      margin-right: 5px;
     }
 
     .modelTampering > h2 {

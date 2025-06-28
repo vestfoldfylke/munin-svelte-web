@@ -9,6 +9,7 @@
   import IconSpinner from "$lib/components/IconSpinner.svelte";
   import autosize from "svelte-autosize";
   import Modal from "$lib/components/Modal.svelte";
+  import ModelChooser from "$lib/components/ModelChooser.svelte"; // Komponent for modellvelger
   import { handleFileSelect } from "$lib/helpers/fileHandler.js"; // Import the file handler
   import { markdownToHtml } from '$lib/helpers/markdown-to-html.js'
 
@@ -214,17 +215,11 @@
     <p>Oi, du har ikke tilgang. Prøver du deg på noe lurt? 🤓</p>
   {:else}
 
-    <!-- Modellvelger som itererer over modell-confogfila -->
+    <!-- Modellvelger som itererer over modell-configfila -->
     <div class="modelTampering">
       <h2>Modellvelger</h2>
       <div class="boxyHeader">
-        <select class="modellSelect" onchange={handleModelChange}>
-          {#each models as model (model.id)}
-            {#if model.metadata.tile === "chat"}
-              <option value={model.id}>{model.metadata.navn}</option>
-            {/if}
-          {/each}
-        </select>
+        <ModelChooser handleModelChange={handleModelChange} models={models} tile="chat" useModelId={true} />
         <button id="modelinfoButton" class="link" onclick={toggleModelInfo}>
           <span class="button-text">Innstillinger</span>
         </button>
@@ -455,14 +450,6 @@
     }
   }
 
-  .modellSelect {
-    padding: 10px;
-    border-radius: 1rem;
-    border: 1px solid #ccc;
-    background-color: #f5f5f5;
-    width: 26rem;
-  }
-
   textarea#inputKontekst {
     padding: 10px;
     margin-top: 30px;
@@ -495,11 +482,6 @@
     
     #disclaimer {
       font-size: 12px;
-    }
-
-    .modellSelect {
-      width: 320px;
-      margin-right: 5px;
     }
 
     .modelTampering > h2 {
