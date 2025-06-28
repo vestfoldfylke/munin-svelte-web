@@ -17,7 +17,7 @@
 
 <div class="modelSelectWrapper svg-arrow">
     <select name="modelSelect" onchange={handleModelChange}>
-        {#each models as model}
+        {#each models as model (model.id)}
             {#if model.metadata.tile === tile}
                 <option value={_useModelId ? model.id : model.params.assistant_id}>{model.metadata.navn}</option>
             {/if}
