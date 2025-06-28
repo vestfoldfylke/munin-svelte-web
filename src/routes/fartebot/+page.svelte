@@ -23,7 +23,6 @@
   // Variabler for håndtering av data og innhold i frontend
   let modelinfoModell = $state(null) // $state(modelinfo[userParams.valgtModell].navn)
   let modelinfoBeskrivelse = $state("") // $state(modelinfo[userParams.valgtModell].beskrivelse)
-  let modelTampering = $state(false) // Viser modellinformasjon
   let token = $state(null)
   let chatWindow = $state()
   let isWaiting = $state(false) // Venter på svar fra modell
