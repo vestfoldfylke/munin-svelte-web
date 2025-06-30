@@ -27,7 +27,7 @@
   let token = $state(null)
   let chatWindow = $state()
   let isWaiting = $state(false) // Venter på svar fra modell
-  let isError = $state(false)
+  const isError = $state(false)
   let inputMessage = $state("")
   let viewportWidth = $state(window.innerWidth)
 
@@ -102,7 +102,7 @@
 
 function handleDokFilesChange() {
   let dokNames = "<br>"
-  for (let dokFile of dokFiles) {
+  for (const dokFile of dokFiles) {
     dokNames += dokFile.name + "<br>"
   }
   userParams.messageHistory.push({

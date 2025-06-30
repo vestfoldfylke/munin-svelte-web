@@ -18,7 +18,7 @@
    */
 
   /** @type {Props} */
-  let { children } = $props();
+  const { children } = $props();
 
   let logo = $state("");
   let logo_mobile = $state("");

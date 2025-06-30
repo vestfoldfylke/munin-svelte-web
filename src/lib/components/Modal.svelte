@@ -13,14 +13,9 @@
 	 */
 
 	/** @type {Props} */
-	let {
-		showModal = $bindable(),
-		buttonText = "Lukk",
-		header,
-		children,
-		mainContent,
-		saveButton
-	} = $props();
+
+	/* eslint-disable-next-line prefer-const */
+	let { showModal = $bindable(), buttonText = "Lukk", header, children, mainContent, saveButton } = $props();
 	let dialog = $state(); // HTMLDialogElement
 
 	run(() => {

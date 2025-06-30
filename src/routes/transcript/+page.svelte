@@ -22,11 +22,9 @@ let mediaRecorder;
 
   const { VITE_APP_NAME: appName, VITE_MOCK_API: mockApi } = import.meta.env
 
-  let metadata = $state({
-    "filnavn": "",
-    "spraak": "",
-    "format": ""
-  });
+
+  /* eslint-disable-next-line prefer-const */
+  let metadata = $state({ "filnavn": "", "spraak": "", "format": "" });
 
   onMount(async () => {
     if (mockApi && mockApi === "true") {

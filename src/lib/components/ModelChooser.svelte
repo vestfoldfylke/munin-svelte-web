@@ -10,8 +10,7 @@
      */
 
     /** @type {Props} */
-    let { handleModelChange, models, tile, useModelId = false, useAssistantId = false } = $props();
-    
+    const { handleModelChange, models, tile, useModelId = false, useAssistantId = false } = $props();
     const _useModelId = useModelId || (!useModelId && !useAssistantId)
 </script>
 

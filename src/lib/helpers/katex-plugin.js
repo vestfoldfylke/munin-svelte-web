@@ -110,7 +110,7 @@ function inlineMath (state, silent) {
   return true
 }
 function blockMath (state, start, end, silent) {
-  let lastLine; let next; let lastPos; let found = false; let token; let pos = state.bMarks[start] + state.tShift[start]; let max = state.eMarks[start]
+  let lastLine; let next; let lastPos; let found = false; let pos = state.bMarks[start] + state.tShift[start]; let max = state.eMarks[start]
   if (pos + 2 > max) {
     return false
   }
@@ -149,7 +149,7 @@ function blockMath (state, start, end, silent) {
     }
   }
   state.line = next + 1
-  token = state.push('math_block', 'math', 0)
+  const token = state.push('math_block', 'math', 0)
   token.block = true
   token.content = (firstLine && firstLine.trim() ? firstLine + '\n' : '') +
     state.getLines(start + 1, next, state.tShift[start], true) +
@@ -215,7 +215,7 @@ function blockBareMath (state, start, end, silent) {
   return true
 }
 function inlineMathBlock (state, silent) {
-  let start, match, token, res, pos
+  let match, res, pos
   if (state.src.slice(state.pos, state.pos + 2) !== '$$') {
     return false
   }
@@ -231,7 +231,7 @@ function inlineMathBlock (state, silent) {
   // This loop will assume that the first leading backtick can not
   // be the first character in state.src, which is known since
   // we have found an opening delimieter already.
-  start = state.pos + 2
+  const start = state.pos + 2
   match = start
   while ((match = state.src.indexOf('$$', match)) !== -1) {
     // Found potential $$, look for escapes, pos will point to
@@ -272,7 +272,7 @@ function inlineMathBlock (state, silent) {
     return true
   }
   if (!silent) {
-    token = state.push('math_block', 'math', 0)
+    const token = state.push('math_block', 'math', 0)
     token.block = true
     token.markup = '$$'
     token.content = state.src.slice(start, match)

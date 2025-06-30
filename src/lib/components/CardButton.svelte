@@ -18,7 +18,7 @@
      */
 
     /** @type {Props} */
-    let {
+    const {
         header = 'header',
         imgPath = 'path',
         imgAlt = 'alt',

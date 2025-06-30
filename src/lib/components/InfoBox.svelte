@@ -8,6 +8,7 @@
      */
 
     /** @type {Props} */
+    /* eslint-disable-next-line prefer-const */
     let { title, open = $bindable(false), children } = $props();
 
 </script>
