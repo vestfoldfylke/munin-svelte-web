@@ -10,8 +10,21 @@
   import ModelChooser from "$lib/components/ModelChooser.svelte"; // Komponent for modellvelger
   import { checkRoles } from '$lib/helpers/checkRoles';
   import { markdownToHtml } from '$lib/helpers/markdown-to-html.js'
-  import { generateUniqueId } from '$lib/helpers/unique-id.js'
-  
+  import { generateUniqueId } from '$lib/helpers/unique-id.js'  
+
+  // Variabler for håndtering av data og innhold i frontend
+  let modelinfoModell = $state(null) // $state(modelinfo[userParams.valgtModell].navn)
+  let modelinfoBeskrivelse = $state("") // $state(modelinfo[userParams.valgtModell].beskrivelse)
+  let modelTampering = $state(false) // Viser modellinformasjon
+  let token = $state(null)
+  let chatWindow = $state()
+  let isWaiting = $state(false) // Venter på svar fra modell
+  let isError = $state(false)
+  let showModal = $state(false)
+  let errorMessage = $state("")
+  let inputMessage = $state("")
+  let viewportWidth = $state(window.innerWidth)
+
   const getStartModelConfig = () => {
     const model = models.filter(model => model.metadata.tile === "labs")[0]
 
@@ -27,25 +40,15 @@
     if (model.metadata.tools) {
       config.tools = model.metadata.tools
     }
-    
+
+    modelinfoModell = model.metadata.navn
+    modelinfoBeskrivelse = model.metadata.description
+
     return config
   }
 
   // Init state - Modell-parametere og payload
   const userParams = $state(getStartModelConfig())
-
-  // Variabler for håndtering av data og innhold i frontend
-  let modelinfoModell = $state(null) // $state(modelinfo[userParams.valgtModell].navn)
-  let modelinfoBeskrivelse = $state("") // $state(modelinfo[userParams.valgtModell].beskrivelse)
-  let modelTampering = $state(false) // Viser modellinformasjon
-  let token = $state(null)
-  let chatWindow = $state()
-  let isWaiting = $state(false) // Venter på svar fra modell
-  let isError = $state(false)
-  let showModal = $state(false)
-  let errorMessage = $state("")
-  let inputMessage = $state("")
-  let viewportWidth = $state(window.innerWidth)
 
   const { VITE_APP_NAME: appName, VITE_MOCK_API: mockApi } = import.meta.env
 
