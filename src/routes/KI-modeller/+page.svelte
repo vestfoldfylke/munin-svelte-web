@@ -12,6 +12,7 @@
   import ModelChooser from "$lib/components/ModelChooser.svelte"; // Komponent for modellvelger
   import { handleFileSelect } from "$lib/helpers/fileHandler.js"; // Import the file handler
   import { markdownToHtml } from '$lib/helpers/markdown-to-html.js'
+  import { generateUniqueId } from "$lib/helpers/unique-id.js"
 
   // Variabler for håndtering av data og innhold i frontend
   let imageFiles = $state(null);
@@ -140,21 +141,24 @@
     messageHistory = [...messageHistory, { role: "user", content: message, model: modelinfoModell }];
 
     try {
-      let response;
       const params = getRequestParams();
       if (valgtModell === "0") {
-        response = await responseOpenAi(params);
+        const response = await responseOpenAi(params);
         response_id = response.data.id; // Til bruk i api-kallet for å oppdatere historikken i samtalen
         messageHistory = [...messageHistory, { role: "assistant", content: response.data.output_text, model: modelinfoModell }];
+        return;
       } else if (valgtModell === "1") {
-        response = await noraChat(params);
+        const response = await noraChat(params);
         messageHistory = [...messageHistory, { role: "assistant", content: response, model: modelinfoModell }];
+        return;
       } else if (valgtModell === "13" || valgtModell === "20") {
-        response = await multimodalMistral(params);
+        const response = await multimodalMistral(params);
         messageHistory = [...messageHistory, { role: "assistant", content: response.choices[0].message.content, model: modelinfoModell }];
-      } else {
-        throw new Error("Ugyldig modellvalg");
+        return;
       }
+
+      // noinspection ExceptionCaughtLocallyJS
+      throw new Error("Ugyldig modellvalg");
     } catch (error) {
       isError = true;
       errorMessage = error;
@@ -188,8 +192,8 @@
   }
 
   // Håndterer tastetrykk i textarea
-  const onKeyPress = (e, callback) => {
-    if (e.key === "Enter" && !e.shiftKey) {
+  const onKeyDown = (e, callback) => {
+    if (e.keyCode === 13 && !e.shiftKey) { // 13 is Enter key
       e.preventDefault();
       callback();
     }
@@ -233,12 +237,12 @@
           content={messageHistory[0].content}
           assistant={`${appName}`}  />
       {:else if isWaiting}
-        {#each messageHistory as chatMessage (chatMessage.content)}
+        {#each messageHistory as chatMessage (generateUniqueId())}
           <ChatBlobs role={chatMessage.role} content={chatMessage.content} {...(chatMessage.role === "assistant" ? { assistant: chatMessage.model } : {})} />
         {/each}
         <ChatBlobs role="assistant" content="..." />
       {:else}
-        {#each messageHistory as chatMessage (chatMessage.content)}
+        {#each messageHistory as chatMessage (generateUniqueId())}
           {#if typeof chatMessage.content === "string"}
             <ChatBlobs 
               role={chatMessage.role} 
@@ -258,7 +262,7 @@
         autocomplete="off" 
         placeholder="Skriv inn ledetekst (Shift + Enter for flere linjer)" 
         bind:value={inputMessage}
-        onkeypress={(e) => onKeyPress(e, brukervalg)}></textarea>
+        onkeydown={(e) => onKeyDown(e, brukervalg)}></textarea>
 
       {#if token.roles.some( (r) => [`${appName.toLowerCase()}.admin`].includes(r))}
         {#if valgtModell === "0" }
@@ -493,11 +497,11 @@
     }
 
     #modelinfoButton {
-      padding: 5px 9px 0px 9px;
+      padding: 5px 9px 0 9px;
     }
     #modelinfoButton::before {
       content: "\e8b8"; /* Unicode for cog wheel icon */
-      font-family: 'Material Icons';
+      font-family: 'Material Icons', serif;
       font-size: 1.5rem;
     }
   }

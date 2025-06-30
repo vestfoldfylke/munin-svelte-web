@@ -147,9 +147,9 @@
       isError = true;
       errorMessage = error;
       userParams.messageHistory.push({
-      role: "assistant",
-      content: "Noe gikk galt. Prøv igjen.",
-      model: modelinfoModell
+        role: "assistant",
+        content: "Noe gikk galt. Prøv igjen.",
+        model: modelinfoModell
       });
     } finally {
       isWaiting = false;
@@ -158,8 +158,8 @@
 
 
   // Håndterer tastetrykk i textarea
-  const onKeyPress = async (e, callback) => {
-    if (e.charCode === 13 && !e.shiftKey) {
+  const onKeyDown = async (e, callback) => {
+    if (e.keyCode === 13 && !e.shiftKey) { // 13 is Enter key
       e.preventDefault()
       callback()
     }
@@ -180,7 +180,7 @@
     <p>Oi, du har ikke tilgang. Prøver du deg på noe lurt? 🤓</p>
   {:else}
 
-    <!-- For-each som itererer over modell-configfila og populerer selectmenmyen -->
+    <!-- For-each som itererer over modell-configfila og populerer select menyen -->
     <div class="modelTampering">
       <h2>Modellvelger</h2>
       <div class="boxyHeader">
@@ -223,7 +223,7 @@
         autocomplete="off" 
         placeholder="Skriv inn ledetekst (Shift + Enter for flere linjer)" 
         bind:value={inputMessage}
-        onkeypress={(e) => onKeyPress(e, brukervalg)}></textarea>
+        onkeydown={(e) => onKeyDown(e, brukervalg)}></textarea>
 
       {#if token.roles.some( (r) => [`${appName.toLowerCase()}.admin`].includes(r))}
         {#if isError}
@@ -448,11 +448,11 @@ textarea {
     }
 
     #modelinfoButton {
-      padding: 5px 9px 0px 9px;
+      padding: 5px 9px 0 9px;
     }
     #modelinfoButton::before {
       content: "\e8b8"; /* Unicode for cog wheel icon */
-      font-family: 'Material Icons';
+      font-family: 'Material Icons', serif;
       font-size: 1.5rem;
     }
   }

@@ -60,7 +60,7 @@
   });
 </script>
 
-<!-- Overwrite the title fraom app.html file -->
+<!-- Overwrite the title from app.html file -->
 <svelte:head>
   <title>{appName}</title>
 </svelte:head>
@@ -98,9 +98,9 @@
 {/if}
 
 <style>
-* {
-  /* user-select:none; */
-}
+/* {
+   user-select:none; 
+}*/
   .appTitle {
     color: black;
     text-decoration: none;
@@ -110,7 +110,7 @@
   .topbar {
     width: 100%;
     background-color: var(--gress-10);
-    padding: 0px 0px;
+    padding: 0;
   }
   .toptop {
     width: 100%;
@@ -148,7 +148,7 @@
   @media only screen and (max-width: 768px) {
     /* For mobile phones: */
     .topbar {
-      padding: 5px 0px;
+      padding: 5px 0;
       height: 50px;
     }
     .toptop {

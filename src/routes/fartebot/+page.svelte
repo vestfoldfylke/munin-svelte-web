@@ -117,8 +117,7 @@
     })
 
     try {
-      let response;
-      response = await openAiAssistant(userParams);
+      const response = await openAiAssistant(userParams);
       userParams.messageHistory.push({ role: "assistant", content: response[0].messages[0].content[0].text.value, model: modelinfoModell }); 
       userParams.new_thread = false
       userParams.thread_id = response[0].thread_id
@@ -126,9 +125,9 @@
       isError = true;
       errorMessage = error;
       userParams.messageHistory.push({
-      role: "assistant",
-      content: "Noe gikk galt. Prøv igjen.",
-      model: modelinfoModell
+        role: "assistant",
+        content: "Noe gikk galt. Prøv igjen.",
+        model: modelinfoModell
       });
     } finally {
       isWaiting = false;
@@ -137,8 +136,8 @@
 
 
   // Håndterer tastetrykk i textarea
-  const onKeyPress = async (e, callback) => {
-    if (e.charCode === 13 && !e.shiftKey) {
+  const onKeyDown = async (e, callback) => {
+    if (e.keyCode === 13 && !e.shiftKey) { // 13 is Enter key
       e.preventDefault()
       callback()
     }
@@ -191,7 +190,7 @@
         autocomplete="off" 
         placeholder="Skriv inn ledetekst (Shift + Enter for flere linjer)" 
         bind:value={inputMessage}
-        onkeypress={(e) => onKeyPress(e, brukervalg)}></textarea>
+        onkeydown={(e) => onKeyDown(e, brukervalg)}></textarea>
 
       {#if token.roles.some( (r) => [`${appName.toLowerCase()}.admin`].includes(r))}
         {#if isError}

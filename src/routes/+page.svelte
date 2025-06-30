@@ -77,9 +77,9 @@
   
   
   <style>
-  * {
-    /* user-select:none; */
-    }
+  /* {
+     user-select:none; 
+    }*/
     main {
       display: flex;
       flex-direction: column;

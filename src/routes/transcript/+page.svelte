@@ -129,7 +129,7 @@ let mediaRecorder;
       <br>
     {/if}
     <br />
-    Modell: Nasjonalbibliotektets nb-whisper-medium
+    Modell: Nasjonalbibliotekets nb-whisper-medium
     <!-- Download button -->
      <br />
      <br />

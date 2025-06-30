@@ -85,8 +85,8 @@
   // Logikk og funksjoner for håndtering av brukerinput og valg av modell
 
   // Håndterer tastetrykk i textarea
-  const onKeyPress = async (e, callback) => {
-    if (e.charCode === 13 && !e.shiftKey) {
+  const onKeyDown = async (e, callback) => {
+    if (e.keyCode === 13 && !e.shiftKey) { // 13 is Enter key
       e.preventDefault()
       callback()
     }
@@ -120,11 +120,11 @@ function handleDokFilesChange() {
     userParams.message = inputMessage
     inputMessage = ""
     userParams.messageHistory.push({
-          role: "user",
-          content: userParams.message
-        })
+      role: "user",
+      content: userParams.message
+    })
     try {
-      let respons = await docQueryOpenAi(userParams);
+      const respons = await docQueryOpenAi(userParams);
       userParams.response_id = respons.id
       userParams.vectorStore_id = respons.tools[0].vector_store_ids[0]
       userParams.new_thread = false
@@ -186,7 +186,7 @@ function handleDokFilesChange() {
         autocomplete="off" 
         placeholder="Skriv inn ledetekst (Shift + Enter for flere linjer)" 
         bind:value={inputMessage}
-        onkeypress={(e) => onKeyPress(e, sporDokument)}></textarea>
+        onkeydown={(e) => onKeyDown(e, sporDokument)}></textarea>
         <label for="fileButton"><span class="material-symbols-outlined inputButton">cloud_upload</span>
           <input style="display:none;" bind:files={dokFiles} id="fileButton" multiple type="file" accept=".xls, .xlsx, .docx, .pdf, .txt, .json, .md, .pptx" />
         </label>

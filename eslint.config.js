@@ -17,14 +17,16 @@ export default [
       globals: { ...globals.browser, ...globals.node }
     },
     rules: {
-      "no-unused-vars": ["warn", { argsIgnorePattern: "^_" }]
+      "no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
+      "prefer-const": "error"
     }
   },
   {
     files: ['**/*.svelte', '**/*.svelte.js'],
     languageOptions: { parserOptions: { svelteConfig } },
     rules: {
-      "no-unused-vars": ["warn", { argsIgnorePattern: "^_" }]
+      "no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
+      "prefer-const": "error"
     }
   }
 ];
