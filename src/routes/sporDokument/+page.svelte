@@ -103,13 +103,13 @@
 })
 
 function handleDokFilesChange() {
-  let dokNames = "<br>"
+  let dokNames = ""
   for (const dokFile of dokFiles) {
-    dokNames += dokFile.name + "<br>"
+    dokNames += `<br />${dokFile.name}`
   }
   userParams.messageHistory.push({
     role: "user",
-    content: "<b>Du har lastet opp:</b> " + dokNames,
+    content: "**Du har lastet opp:** " + dokNames,
     uniqueId: generateUniqueId()
   })
 }

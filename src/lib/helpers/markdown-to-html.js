@@ -18,6 +18,7 @@ const converter = markdownIt({
     }
     return preCodeHtml + converter.utils.escapeHtml(str) + '</code></pre>';
   },
+  html: true,
   linkify: true
 })
 
