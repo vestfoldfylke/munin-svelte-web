@@ -10,6 +10,7 @@
   import ModelChooser from "$lib/components/ModelChooser.svelte"; // Komponent for modellvelger
   import { checkRoles } from '$lib/helpers/checkRoles';
   import { markdownToHtml } from '$lib/helpers/markdown-to-html.js'
+  import { generateUniqueId } from '$lib/helpers/unique-id.js'
   
   const getStartModelConfig = () => {
     const model = models.filter(model => model.metadata.tile === "labs")[0]
@@ -52,7 +53,8 @@
   userParams.messageHistory.push({
     role: "assistant",
     content: `Velkommen til ${appName}! Hva kan jeg hjelpe deg med i dag?`,
-    model: `${appName}`
+    model: `${appName}`,
+    uniqueId: generateUniqueId()
   })
 
   onMount(async () => {
@@ -129,7 +131,8 @@
     userParams.messageHistory.push({
       role: "user",
       content: userParams.message,
-      model: modelinfoModell
+      model: modelinfoModell,
+      uniqueId: generateUniqueId()
     })
 
     try {
@@ -139,7 +142,7 @@
         responseText += `\n\n${article}`;
       }
 
-      userParams.messageHistory.push({ role: "assistant", content: responseText, model: modelinfoModell });
+      userParams.messageHistory.push({ role: "assistant", content: responseText, model: modelinfoModell, uniqueId: generateUniqueId() });
       userParams.new_thread = false
       userParams.thread_id = response.thread_id
     } catch (error) {
@@ -149,7 +152,8 @@
       userParams.messageHistory.push({
         role: "assistant",
         content: "Noe gikk galt. Prøv igjen.",
-        model: modelinfoModell
+        model: modelinfoModell,
+        uniqueId: generateUniqueId()
       });
     } finally {
       isWaiting = false;
@@ -198,12 +202,12 @@
           content={userParams.messageHistory[0].content}
           assistant={`${appName}`}  />
       {:else if isWaiting}
-        {#each userParams.messageHistory as chatMessage (chatMessage.content)}
+        {#each userParams.messageHistory as chatMessage (chatMessage.uniqueId)}
           <ChatBlobs role={chatMessage.role} content={chatMessage.content} {...(chatMessage.role === "assistant" ? { assistant: chatMessage.model } : {})} />
         {/each}
         <ChatBlobs role="assistant" content="..." />
       {:else}
-        {#each userParams.messageHistory as chatMessage (chatMessage.content)}
+        {#each userParams.messageHistory as chatMessage (chatMessage.uniqueId)}
           {#if typeof chatMessage.content === "string"}
             <ChatBlobs 
               role={chatMessage.role} 

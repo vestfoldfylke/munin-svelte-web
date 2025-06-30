@@ -1,3 +1,5 @@
+import { generateUniqueId } from './unique-id.js'
+
 /**
  * Handles file selection for image and PDF uploads in the chat interface.
  * Converts selected files to base64 format and updates the message history and file arrays.
@@ -71,7 +73,8 @@ export const handleFileSelect = async (event, {
     validResults.forEach(result => {
       newMessageHistory.push({
         role: 'user',
-        content: result
+        content: result,
+        uniqueId: generateUniqueId()
       })
     })
     // Sjekker så om filer er dokumenter
@@ -120,7 +123,8 @@ export const handleFileSelect = async (event, {
     validResults.forEach(result => {
       newMessageHistory.push({
         role: 'user',
-        content: result.name
+        content: result.name,
+        uniqueId: generateUniqueId()
       })
       newDokFiles.push(result.dataUrl)
       newFilArray.push({

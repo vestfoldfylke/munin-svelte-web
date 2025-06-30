@@ -50,7 +50,8 @@
   messageHistory = [{
     role: "assistant",
     content: `Velkommen til ${appName}! Hva kan jeg hjelpe deg med i dag?`,
-    model: `${appName}`
+    model: `${appName}`,
+    uniqueId: generateUniqueId()
   }];
 
   // Oppdaterer modellinformasjon basert på valgt modell med $effect
@@ -138,22 +139,22 @@
     message = inputMessage;
     inputMessage = "";
     
-    messageHistory = [...messageHistory, { role: "user", content: message, model: modelinfoModell }];
+    messageHistory = [...messageHistory, { role: "user", content: message, model: modelinfoModell, uniqueId: generateUniqueId() }];
 
     try {
       const params = getRequestParams();
       if (valgtModell === "0") {
         const response = await responseOpenAi(params);
         response_id = response.data.id; // Til bruk i api-kallet for å oppdatere historikken i samtalen
-        messageHistory = [...messageHistory, { role: "assistant", content: response.data.output_text, model: modelinfoModell }];
+        messageHistory = [...messageHistory, { role: "assistant", content: response.data.output_text, model: modelinfoModell, uniqueId: generateUniqueId() }];
         return;
       } else if (valgtModell === "1") {
         const response = await noraChat(params);
-        messageHistory = [...messageHistory, { role: "assistant", content: response, model: modelinfoModell }];
+        messageHistory = [...messageHistory, { role: "assistant", content: response, model: modelinfoModell, uniqueId: generateUniqueId() }];
         return;
       } else if (valgtModell === "13" || valgtModell === "20") {
         const response = await multimodalMistral(params);
-        messageHistory = [...messageHistory, { role: "assistant", content: response.choices[0].message.content, model: modelinfoModell }];
+        messageHistory = [...messageHistory, { role: "assistant", content: response.choices[0].message.content, model: modelinfoModell, uniqueId: generateUniqueId() }];
         return;
       }
 
@@ -165,7 +166,8 @@
       messageHistory = [...messageHistory, {
         role: "assistant",
         content: "Noe gikk galt. Prøv igjen.",
-        model: modelinfoModell
+        model: modelinfoModell,
+        uniqueId: generateUniqueId()
       }];
     } finally {
       isWaiting = false;
@@ -237,12 +239,12 @@
           content={messageHistory[0].content}
           assistant={`${appName}`}  />
       {:else if isWaiting}
-        {#each messageHistory as chatMessage (generateUniqueId())}
+        {#each messageHistory as chatMessage (chatMessage.uniqueId)}
           <ChatBlobs role={chatMessage.role} content={chatMessage.content} {...(chatMessage.role === "assistant" ? { assistant: chatMessage.model } : {})} />
         {/each}
         <ChatBlobs role="assistant" content="..." />
       {:else}
-        {#each messageHistory as chatMessage (generateUniqueId())}
+        {#each messageHistory as chatMessage (chatMessage.uniqueId)}
           {#if typeof chatMessage.content === "string"}
             <ChatBlobs 
               role={chatMessage.role} 

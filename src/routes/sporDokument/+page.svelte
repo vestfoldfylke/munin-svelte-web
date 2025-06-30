@@ -6,6 +6,7 @@
   import IconSpinner from "$lib/components/IconSpinner.svelte";
   import autosize from "svelte-autosize";
   import { checkRoles } from '$lib/helpers/checkRoles';
+  import { generateUniqueId } from '$lib/helpers/unique-id.js'
 
   // Init state - Modell-parametere og payload
   const userParams = $state({
@@ -37,7 +38,8 @@
   userParams.messageHistory.push({
     role: "assistant",
     content: `Velkommen til ${appName}! Hva kan jeg hjelpe deg med i dag?`,
-    model: `${appName}`
+    model: `${appName}`,
+    uniqueId: generateUniqueId()
   })
 
   onMount(async () => {
@@ -107,7 +109,8 @@ function handleDokFilesChange() {
   }
   userParams.messageHistory.push({
     role: "user",
-    content: "<b>Du har lastet opp:</b> " + dokNames
+    content: "<b>Du har lastet opp:</b> " + dokNames,
+    uniqueId: generateUniqueId()
   })
 }
 
@@ -121,7 +124,8 @@ function handleDokFilesChange() {
     inputMessage = ""
     userParams.messageHistory.push({
       role: "user",
-      content: userParams.message
+      content: userParams.message,
+      uniqueId: generateUniqueId()
     })
     try {
       const respons = await docQueryOpenAi(userParams);
@@ -131,7 +135,8 @@ function handleDokFilesChange() {
       userParams.messageHistory.push({
         role: "assistant",
         content: respons.output_text,
-        model: `${appName}`
+        model: `${appName}`,
+        uniqueId: generateUniqueId()
       })
       isWaiting = false
     } catch (e) {
@@ -161,12 +166,12 @@ function handleDokFilesChange() {
           content={userParams.messageHistory[0].content}
           assistant={`${appName}`}  />
       {:else if isWaiting}
-        {#each userParams.messageHistory as chatMessage (chatMessage.content)}
+        {#each userParams.messageHistory as chatMessage (chatMessage.uniqueId)}
           <ChatBlobs role={chatMessage.role} content={chatMessage.content} {...(chatMessage.role === "assistant" ? { assistant: chatMessage.model } : {})} />
         {/each}
         <ChatBlobs role="assistant" content="..." />
       {:else}
-        {#each userParams.messageHistory as chatMessage (chatMessage.content)}
+        {#each userParams.messageHistory as chatMessage (chatMessage.uniqueId)}
           {#if typeof chatMessage.content === "string"}
             <ChatBlobs 
               role={chatMessage.role} 
