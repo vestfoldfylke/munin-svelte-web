@@ -5,9 +5,9 @@
 	"scripts": {
 		"test": "eslint .",
 		"fix": "eslint . --fix",
-		"dev": "vite dev",
-		"build": "vite build",
-		"preview": "vite preview"
+		"dev": "npm run test && vite dev",
+		"build": "npm run test && vite build",
+		"preview": "npm run test && vite preview"
 	},
 	"devDependencies": {
 		"@eslint/compat": "^1.3.1",
