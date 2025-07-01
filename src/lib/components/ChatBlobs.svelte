@@ -51,10 +51,14 @@
         border-radius: 10px 10px 0 10px;
     }
 
+    .assistant:first-child {
+        margin: 0.5rem 0.5rem 0.5rem 0.5rem;
+    }
+
     .assistant {
         display: flex;
         flex-direction: row;
-        margin: 0.5rem;
+        margin: 1.5rem 0.5rem 0.5rem 0.5rem;
     }
 
     .assistantInfo {
