@@ -11,11 +11,13 @@
   import Modal from "$lib/components/Modal.svelte";
   import ModelChooser from "$lib/components/ModelChooser.svelte"; // Komponent for modellvelger
   import { handleFileSelect } from "$lib/helpers/fileHandler.js"; // Import the file handler
+  import { markdownToHtml } from '$lib/helpers/markdown-to-html.js'
+  import { generateUniqueId } from "$lib/helpers/unique-id.js"
 
   // Variabler for håndtering av data og innhold i frontend
   let imageFiles = $state(null);
   let dokFileInput = $state(null);
-  let fileSelect = $state(false);
+  /*let fileSelect = $state(false);*/
   let modelinfoModell = $state("");
   let modelinfoBeskrivelse = $state("");
   let modelTampering = $state(false); // Viser modellinformasjon
@@ -28,7 +30,10 @@
   let inputMessage = $state("");
   let viewportWidth = $state(window.innerWidth);
   let filArray = $state([]);
-  const appName = import.meta.env.VITE_APP_NAME;
+  
+  const modelTile = 'chat'
+
+  const { VITE_APP_NAME: appName, VITE_MOCK_API: mockApi, VITE_COUNTY: county } = import.meta.env
 
   // Initiell state - Modell-parametere og payload som sendes til proxy-api
   let message = $state("");
@@ -38,7 +43,7 @@
   let model = $state("gpt-4.1");
   let messageHistory = $state([]);
   let kontekst = $state("");
-  let valgtModell = $state("0");
+  let valgtModell = $state(county === 'Telemark' ? models.filter(m => m.metadata.tile === modelTile)[0].id : "13");
   let temperatur = $state(0.7); // Default temperatur
   let synligKontekst = $state(true);
 
@@ -47,7 +52,8 @@
   messageHistory = [{
     role: "assistant",
     content: `Velkommen til ${appName}! Hva kan jeg hjelpe deg med i dag?`,
-    model: `${appName}`
+    model: `${appName}`,
+    uniqueId: generateUniqueId()
   }];
 
   // Oppdaterer modellinformasjon basert på valgt modell med $effect
@@ -63,7 +69,7 @@
 
   // Henter token og setter opp event listeners
   onMount(async () => {
-    if (import.meta.env.VITE_MOCK_API && import.meta.env.VITE_MOCK_API === "true") {
+    if (mockApi && mockApi === "true") {
       // Pretend to wait for api call
       await new Promise((resolve) => setTimeout(resolve, 2000));
     }
@@ -135,31 +141,35 @@
     message = inputMessage;
     inputMessage = "";
     
-    messageHistory = [...messageHistory, { role: "user", content: message, model: modelinfoModell }];
+    messageHistory = [...messageHistory, { role: "user", content: message, model: modelinfoModell, uniqueId: generateUniqueId() }];
 
     try {
-      let response;
       const params = getRequestParams();
       if (valgtModell === "0") {
-        response = await responseOpenAi(params);
+        const response = await responseOpenAi(params);
         response_id = response.data.id; // Til bruk i api-kallet for å oppdatere historikken i samtalen
-        messageHistory = [...messageHistory, { role: "assistant", content: response.data.output_text, model: modelinfoModell }];
+        messageHistory = [...messageHistory, { role: "assistant", content: response.data.output_text, model: modelinfoModell, uniqueId: generateUniqueId() }];
+        return;
       } else if (valgtModell === "1") {
-        response = await noraChat(params);
-        messageHistory = [...messageHistory, { role: "assistant", content: response, model: modelinfoModell }];
+        const response = await noraChat(params);
+        messageHistory = [...messageHistory, { role: "assistant", content: response, model: modelinfoModell, uniqueId: generateUniqueId() }];
+        return;
       } else if (valgtModell === "13" || valgtModell === "20") {
-        response = await multimodalMistral(params);
-        messageHistory = [...messageHistory, { role: "assistant", content: response.choices[0].message.content, model: modelinfoModell }];
-      } else {
-        throw new Error("Ugyldig modellvalg");
+        const response = await multimodalMistral(params);
+        messageHistory = [...messageHistory, { role: "assistant", content: response.choices[0].message.content, model: modelinfoModell, uniqueId: generateUniqueId() }];
+        return;
       }
+
+      // noinspection ExceptionCaughtLocallyJS
+      throw new Error("Ugyldig modellvalg");
     } catch (error) {
       isError = true;
       errorMessage = error;
       messageHistory = [...messageHistory, {
         role: "assistant",
         content: "Noe gikk galt. Prøv igjen.",
-        model: modelinfoModell
+        model: modelinfoModell,
+        uniqueId: generateUniqueId()
       }];
     } finally {
       isWaiting = false;
@@ -182,12 +192,12 @@
     imageB64 = result.imageB64;
     dokFiles = result.dokFiles;
     filArray = result.filArray;
-    fileSelect = result.fileSelect;
+    /*fileSelect = result.fileSelect;*/
   }
 
   // Håndterer tastetrykk i textarea
-  const onKeyPress = (e, callback) => {
-    if (e.key === "Enter" && !e.shiftKey) {
+  const onKeyDown = (e, callback) => {
+    if (e.keyCode === 13 && !e.shiftKey) { // 13 is Enter key
       e.preventDefault();
       callback();
     }
@@ -207,7 +217,7 @@
 <main>
   {#if !token}
     <div class="loading">
-      <IconSpinner width={"32px"} />
+      <IconSpinner width="32px" />
     </div>
   {:else if !token.roles.some( (r) => [`${appName.toLowerCase()}.basic`, `${appName.toLowerCase()}.admin`].includes(r) )}
     <p>Oi, du har ikke tilgang. Prøver du deg på noe lurt? 🤓</p>
@@ -217,7 +227,7 @@
     <div class="modelTampering">
       <h2>Modellvelger</h2>
       <div class="boxyHeader">
-        <ModelChooser handleModelChange={handleModelChange} models={models} tile="chat" useModelId={true} />
+        <ModelChooser handleModelChange={handleModelChange} models={models} tile={modelTile} selectedModelId={valgtModell} useModelId={true} />
         <button id="modelinfoButton" class="link" onclick={toggleModelInfo}>
           <span class="button-text">Innstillinger</span>
         </button>
@@ -231,12 +241,12 @@
           content={messageHistory[0].content}
           assistant={`${appName}`}  />
       {:else if isWaiting}
-        {#each messageHistory as chatMessage}
+        {#each messageHistory as chatMessage (chatMessage.uniqueId)}
           <ChatBlobs role={chatMessage.role} content={chatMessage.content} {...(chatMessage.role === "assistant" ? { assistant: chatMessage.model } : {})} />
         {/each}
-        <ChatBlobs role={"assistant"} content={"..."} />
+        <ChatBlobs role="assistant" content="..." />
       {:else}
-        {#each messageHistory as chatMessage}
+        {#each messageHistory as chatMessage (chatMessage.uniqueId)}
           {#if typeof chatMessage.content === "string"}
             <ChatBlobs 
               role={chatMessage.role} 
@@ -254,9 +264,9 @@
         use:autosize 
         name="askHugin" 
         autocomplete="off" 
-        placeholder={`Skriv inn ledetekst (Shift + Enter for flere linjer)`} 
+        placeholder="Skriv inn ledetekst (Shift + Enter for flere linjer)" 
         bind:value={inputMessage}
-        onkeypress={(e) => onKeyPress(e, brukervalg)}></textarea>
+        onkeydown={(e) => onKeyDown(e, brukervalg)}></textarea>
 
       {#if token.roles.some( (r) => [`${appName.toLowerCase()}.admin`].includes(r))}
         {#if valgtModell === "0" }
@@ -318,7 +328,8 @@
       <h2>{modelinfoModell}</h2>
     {/snippet}
     {#snippet mainContent()}
-      <p>{@html modelinfoBeskrivelse}</p>
+      <!-- eslint-disable svelte/no-at-html-tags -->
+      <p>{@html markdownToHtml(modelinfoBeskrivelse)}</p>
     {/snippet}
     {#if synligKontekst}
       <textarea 
@@ -490,11 +501,11 @@
     }
 
     #modelinfoButton {
-      padding: 5px 9px 0px 9px;
+      padding: 5px 9px 0 9px;
     }
     #modelinfoButton::before {
       content: "\e8b8"; /* Unicode for cog wheel icon */
-      font-family: 'Material Icons';
+      font-family: 'Material Icons', serif;
       font-size: 1.5rem;
     }
   }

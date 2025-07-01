@@ -3,6 +3,8 @@ import axios from 'axios'
 import { models } from '$lib/data/models' // Modellkonfigurasjon
 import { getHuginToken } from '../useApi'
 
+const { VITE_AI_API_URI: aiApiUri } = import.meta.env
+
 export const multimodalMistral = async (userParams) => {
   // Henter basis-konfigurasjon fra models.js og supplerer med brukerens parametre
   console.log('multimodalMistral', userParams.model)
@@ -22,7 +24,7 @@ export const multimodalMistral = async (userParams) => {
 
   const accessToken = await getHuginToken()
 
-  const response = await axios.post(`${import.meta.env.VITE_AI_API_URI}/multimodalMistral`, payload, {
+  const response = await axios.post(`${aiApiUri}/multimodalMistral`, payload, {
     headers: {
       authorization: `Bearer ${accessToken}`
     }

@@ -3,6 +3,8 @@ import { getHuginToken } from '../useApi'
 import { z } from 'zod'
 import { zodResponseFormat } from 'openai/helpers/zod'
 
+const { VITE_AI_API_URI: aiApiUri } = import.meta.env
+
 // Importere skjemaer fra eget bibliotek etterhvert
 const penRespons = z.object({
   tema: z.string(),
@@ -19,10 +21,12 @@ export const getArticlesFromNDLA = async (searchString) => {
     'grep-codes': ['KE234', 'KE235', 'KM2652', 'KM2651', 'KM2627', 'KM2649', 'KM2648', 'KM2647', 'KM2646', 'KM2645'],
     'resource-type': 'urn:resourcetype:academicArticle'
   }
-  const response = await axios.get('https://api.ndla.no/search-api/v1/search', {
+  const { data } = await axios.get('https://api.ndla.no/search-api/v1/search', {
     params
   })
-  return [response.data.results[0], response.data.results[1], response.data.results[2]]
+
+  // returns (up to) the three highest rated articles (highest score)
+  return data.results.slice(0, 3)
 }
 
 export const generateKeywords = async (message) => {
@@ -35,7 +39,7 @@ export const generateKeywords = async (message) => {
     dokFiles: '',
     model: 'gpt-4.1'
   }
-  const keyWords = await axios.post(`${import.meta.env.VITE_AI_API_URI}/responseOpenAi`, payload, {
+  const keyWords = await axios.post(`${aiApiUri}/responseOpenAi`, payload, {
     headers: {
       authorization: `Bearer ${accessToken}`
     }
@@ -55,7 +59,7 @@ export const structureResponse = async (userParams) => {
 
   const accessToken = await getHuginToken()
   // Call AZF-funksjon with payload
-  const response = await axios.post(`${import.meta.env.VITE_AI_API_URI}/structuredOpenAi`, payload, {
+  const response = await axios.post(`${aiApiUri}/structuredOpenAi`, payload, {
     headers: {
       authorization: `Bearer ${accessToken}`
     }

@@ -6,30 +6,29 @@
   import { goto } from "$app/navigation";
   import { page } from "$app/stores";
   import { onMount } from "svelte";
-  import { getMsalClient, login, logout } from "../lib/auth/msal-auth";
+  import { getMsalClient, login/*, logout*/ } from "../lib/auth/msal-auth";
   import { getHuginToken } from "../lib/useApi";
   import IconSpinner from "../lib/components/IconSpinner.svelte";
+
+  const { VITE_APP_NAME: appName, VITE_COUNTY: county } = import.meta.env
+  
   /**
    * @typedef {Object} Props
    * @property {import('svelte').Snippet} [children]
    */
 
   /** @type {Props} */
-  let { children } = $props();
+  const { children } = $props();
 
   let logo = $state("");
   let logo_mobile = $state("");
-  if (import.meta.env.VITE_COUNTY === 'Telemark') {
+  if (county === 'Telemark') {
     logo = logoTFK;
     logo_mobile = logoTFK_mobile;
   } else {
     logo = logoVFK;
     logo_mobile = logoVFK;
   }
-
-
-
-  const appName = import.meta.env.VITE_APP_NAME
 
   // Variabel som får "kontoobjektet" fra innlogget bruker fra MSAL
   let account = $state(null);
@@ -61,7 +60,7 @@
   });
 </script>
 
-<!-- Overwrite the title fraom app.html file -->
+<!-- Overwrite the title from app.html file -->
 <svelte:head>
   <title>{appName}</title>
 </svelte:head>
@@ -69,18 +68,18 @@
 <!-- If the account is not loaded, show a loading message. -->
 {#if !account}
   <div class="loading">
-    <IconSpinner width={"32px"} />
+    <IconSpinner width="32px" />
   </div>
 {:else}
   {#await getHuginToken(true)}
     <div class="loading">
-      <IconSpinner width={"32px"} />
+      <IconSpinner width="32px" />
     </div> 
-  {:then}
+  {:then _}
     <div class="topbar">
       <div class="toptop">
         <div>
-            <a href="/"><img class="logo" src={logo} alt="Hugin og Munin" style="margin-right: 50px;" srcset="{logo_mobile} 768w, {logo} 769w"/></a>
+            <a href="/"><img class="logo" src={logo} alt="{appName}" style="margin-right: 50px;" srcset="{logo_mobile} 768w, {logo} 769w"/></a>
         </div>
         <a href="/" title="Gå til forsiden" class="appTitle"><h1>{ appName }</h1></a>
         <div class="topbarOptions">
@@ -99,9 +98,9 @@
 {/if}
 
 <style>
-* {
-  /* user-select:none; */
-}
+/* {
+   user-select:none; 
+}*/
   .appTitle {
     color: black;
     text-decoration: none;
@@ -111,7 +110,7 @@
   .topbar {
     width: 100%;
     background-color: var(--gress-10);
-    padding: 0px 0px;
+    padding: 0;
   }
   .toptop {
     width: 100%;
@@ -149,7 +148,7 @@
   @media only screen and (max-width: 768px) {
     /* For mobile phones: */
     .topbar {
-      padding: 5px 0px;
+      padding: 5px 0;
       height: 50px;
     }
     .toptop {
