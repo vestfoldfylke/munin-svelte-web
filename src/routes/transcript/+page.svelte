@@ -1,6 +1,7 @@
 <script>
-  import { nbTranscript } from "$lib/services/openaiToolsLabs";
-  import { getHuginToken } from "../../lib/useApi"
+  // disabled as this seems to not be fully implemented yet
+  /*import { nbTranscript } from "$lib/services/openaiToolsLabs";*/
+  import { getHuginToken } from "$lib/useApi.js"
   import { onMount, } from "svelte"
   import IconSpinner from "../../lib/components/IconSpinner.svelte"
   import InfoBox from "$lib/components/InfoBox.svelte";
@@ -13,19 +14,20 @@ let mediaRecorder;
   let audioBlob;
   let audioUrl = $state();
   let token = $state(null)
-  let ferdigTranskript = $state("Her kommer transkripsjonen");
+  // disabled as this seems to not be fully implemented yet
+  /*let ferdigTranskript = $state("Her kommer transkripsjonen");*/
   let recording = $state(false);
   let timer = $state(0);
   let timerInterval;
-  const appName=import.meta.env.VITE_APP_NAME
-  let metadata = $state({
-    "filnavn": "",
-    "spraak": "",
-    "format": ""
-  });
+
+  const { VITE_APP_NAME: appName, VITE_MOCK_API: mockApi } = import.meta.env
+
+
+  /* eslint-disable-next-line prefer-const */
+  let metadata = $state({ "filnavn": "", "spraak": "", "format": "" });
 
   onMount(async () => {
-    if ( import.meta.env.VITE_MOCK_API && import.meta.env.VITE_MOCK_API === "true" ) {
+    if (mockApi && mockApi === "true") {
       // Pretend to wait for api call
       await new Promise((resolve) => setTimeout(resolve, 2000))
     }
@@ -78,13 +80,14 @@ let mediaRecorder;
     const transButton = document.getElementById('transButton');
     transButton.textContent = "epost på vei";
     transButton.disabled = true;
-    ferdigTranskript = await nbTranscript(audioBlob, metadata);
+    // disabled as this seems to not be fully implemented yet
+    /*ferdigTranskript = await nbTranscript(audioBlob, metadata);*/
   };
 </script>
 
 {#if !token}
       <div class="loading">
-        <IconSpinner width={"32px"} />
+        <IconSpinner width="32px" />
       </div>
     {:else if !checkRoles(token, [`${appName.toLowerCase()}.admin`, `${appName.toLowerCase()}.transkripsjon`])}
       <p>Oi, du har ikke tilgang. Prøver du deg på noe lurt? 🤓</p>
@@ -124,7 +127,7 @@ let mediaRecorder;
       <br>
     {/if}
     <br />
-    Modell: Nasjonalbibliotektets nb-whisper-medium
+    Modell: Nasjonalbibliotekets nb-whisper-medium
     <!-- Download button -->
      <br />
      <br />

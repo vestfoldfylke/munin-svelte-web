@@ -5,7 +5,7 @@
    */
 
   /** @type {Props} */
-  let { width = '100px' } = $props();
+  const { width = '100px' } = $props();
   </script>
   
   <div class="spinnerContainer" style="width: {width}">

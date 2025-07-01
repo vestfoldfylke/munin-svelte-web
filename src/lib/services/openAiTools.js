@@ -4,6 +4,29 @@ import axios from 'axios'
 import { getHuginToken } from '../useApi'
 import { getArticlesFromNDLA, generateKeywords } from './kildekallTools'
 
+const { VITE_AI_API_URI: aiApiUri } = import.meta.env
+
+const getNDLAArticleUrls = (articles) => {
+  let articleUrls = 'Les mer på NDLA om: '
+  for (let i= 0; i < articles.length; i++) {
+    const text = `[${articles[i].title.title}](https://ndla.no/article-iframe/nb/article/${articles[i].id})`
+
+    if (i === 0) {
+      articleUrls += `${text}`
+      continue;
+    }
+
+    if (i < (articles.length - 1)) {
+      articleUrls += `, ${text}`
+      continue;
+    }
+
+    articleUrls += `, og ${text}`
+  }
+
+  return articleUrls
+}
+
 export const responseOpenAi = async (userParams) => {
   const accessToken = await getHuginToken()
   const payload = {
@@ -14,7 +37,7 @@ export const responseOpenAi = async (userParams) => {
     model: userParams.model
   }
 
-  const response = await axios.post(`${import.meta.env.VITE_AI_API_URI}/responseOpenAi`, payload, {
+  const response = await axios.post(`${aiApiUri}/responseOpenAi`, payload, {
     headers: {
       authorization: `Bearer ${accessToken}`
     }
@@ -31,20 +54,23 @@ export const openAiAssistant = async (userParams) => {
     tile: userParams.tile
   }
   const accessToken = await getHuginToken()
-  const response = await axios.post(`${import.meta.env.VITE_AI_API_URI}/assistantOpenAi`, payload, {
+  const { data } = await axios.post(`${aiApiUri}/assistantOpenAi`, payload, {
     headers: {
       authorization: `Bearer ${accessToken}`
     }
   })
+
   if (userParams.tools === 'NDLA') {
-    const keyWords = await generateKeywords(response.data.messages[0].content[0].text.value)
+    console.log('Assistant - Using NDLA tool')
+    const keyWords = await generateKeywords(data.messages[0].content[0].text.value)
     const articles = await getArticlesFromNDLA(keyWords)
-    const articleurl = `Les mer på NDLA om: <a href="https://ndla.no/article-iframe/nb/article/${articles[0].id}" target="_blank">${articles[0].title.title}</a>, <a href="https://ndla.no/article-iframe/nb/article/${articles[1].id}" target="_blank">${articles[1].title.title}</a>, og <a href="https://ndla.no/article-iframe/nb/article/${articles[2].id}" target="_blank">${articles[2].title.title}</a><br>Lisens: ${articles[0].license}`
-    return [response.data, articleurl]
-  } else {
-    console.log('Assistant - No tool')
-    return [response.data, false]
+    const articleUrls = getNDLAArticleUrls(articles)
+
+    return [data, articleUrls]
   }
+
+  console.log('Assistant - No tool')
+  return [data, false]
 }
 
 export const docQueryOpenAi = async (userParams) => {
@@ -67,7 +93,7 @@ export const docQueryOpenAi = async (userParams) => {
 
   const payload = formData
 
-  const response = await axios.post(`${import.meta.env.VITE_AI_API_URI}/docQueryOpenAiV2`, payload, {
+  const response = await axios.post(`${aiApiUri}/docQueryOpenAiV2`, payload, {
     headers: {
       authorization: `Bearer ${accessToken}`
     }

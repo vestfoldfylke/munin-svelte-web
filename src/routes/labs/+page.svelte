@@ -7,19 +7,15 @@
   import IconSpinner from "$lib/components/IconSpinner.svelte";
   import autosize from "svelte-autosize";
   import Modal from "$lib/components/Modal.svelte";
+  import ModelChooser from "$lib/components/ModelChooser.svelte"; // Komponent for modellvelger
   import { checkRoles } from '$lib/helpers/checkRoles';
+  import { markdownToHtml } from '$lib/helpers/markdown-to-html.js'
+  import { generateUniqueId } from '$lib/helpers/unique-id.js'
 
-  // Init state - Modell-parametere og payload
-  const userParams = $state({
-    message: "",
-    messageHistory: [],
-    assistant_id: models.filter(model => model.metadata.tile === "labs")[0].params.assistant_id,
-    new_thread: true,
-    thread_id: '',
-    tile: "labs",
-  })
+  const modelTile = "labs";
 
   // Variabler for håndtering av data og innhold i frontend
+  let modelId = $state(models.filter(m => m.metadata.tile === modelTile)[0].id);
   let modelinfoModell = $state(null) // $state(modelinfo[userParams.valgtModell].navn)
   let modelinfoBeskrivelse = $state("") // $state(modelinfo[userParams.valgtModell].beskrivelse)
   let modelTampering = $state(false) // Viser modellinformasjon
@@ -31,17 +27,44 @@
   let errorMessage = $state("")
   let inputMessage = $state("")
   let viewportWidth = $state(window.innerWidth)
-  const appName = import.meta.env.VITE_APP_NAME
+
+  const getStartModelConfig = () => {
+    const model = models.filter(model => model.metadata.tile === modelTile)[0]
+
+    const config = {
+      message: "",
+      messageHistory: [],
+      assistant_id: model.params.assistant_id,
+      new_thread: true,
+      thread_id: '',
+      tile: modelTile
+    }
+
+    if (model.metadata.tools) {
+      config.tools = model.metadata.tools
+    }
+
+    modelinfoModell = model.metadata.navn
+    modelinfoBeskrivelse = model.metadata.description
+
+    return config
+  }
+
+  // Init state - Modell-parametere og payload
+  const userParams = $state(getStartModelConfig())
+
+  const { VITE_APP_NAME: appName, VITE_MOCK_API: mockApi } = import.meta.env
 
   // Starter med en velkomstmelding
   userParams.messageHistory.push({
     role: "assistant",
     content: `Velkommen til ${appName}! Hva kan jeg hjelpe deg med i dag?`,
-    model: `${appName}`
+    model: `${appName}`,
+    uniqueId: generateUniqueId()
   })
 
   onMount(async () => {
-    if ( import.meta.env.VITE_MOCK_API && import.meta.env.VITE_MOCK_API === "true" ) {
+    if (mockApi && mockApi === "true") {
       // Pretend to wait for api call
       await new Promise((resolve) => setTimeout(resolve, 2000))
     }
@@ -81,16 +104,27 @@
     };
   });
 
-
   // Logikk og funksjoner for håndtering av brukerinput og valg av modell
 
   // Håndterer valg av modell og oppdaterere modellinformasjon på siden
   function valgtModell(event) {
+    const model = models.find(model => model.params.assistant_id === event.target.value)
+    if (!model) {
+      throw new Error("Modellen finnes ikke i konfigurasjonen.");
+    }
+
     userParams.new_thread = true
     userParams.assistant_id = event.target.value
-    modelinfoModell = models.find(model => model.params.assistant_id === userParams.assistant_id).metadata.navn
-    modelinfoBeskrivelse = models.find(model => model.params.assistant_id === userParams.assistant_id).metadata.description
-    userParams.synligKontekst = models.find(model => model.params.assistant_id === userParams.assistant_id).metadata.synligKontekst
+    modelId = model.id
+    modelinfoModell = model.metadata.navn
+    modelinfoBeskrivelse = model.metadata.description
+    userParams.synligKontekst = model.metadata.synligKontekst
+    if (model.metadata.tools) {
+      userParams.tools = model.metadata.tools
+      return
+    }
+
+    delete userParams.tools
   }
 
   // Kaller på valgt modell med tilhørende parametre basert på brukerens valg 
@@ -105,22 +139,29 @@
     userParams.messageHistory.push({
       role: "user",
       content: userParams.message,
-      model: modelinfoModell
+      model: modelinfoModell,
+      uniqueId: generateUniqueId()
     })
 
     try {
-      let response;
-      response = await openAiAssistant(userParams);
-      userParams.messageHistory.push({ role: "assistant", content: response[0].messages[0].content[0].text.value, model: modelinfoModell }); 
+      const [response, article] = await openAiAssistant(userParams);
+      let responseText = response.messages[0].content[0].text.value;
+      if (article) {
+        responseText += `\n\n${article}`;
+      }
+
+      userParams.messageHistory.push({ role: "assistant", content: responseText, model: modelinfoModell, uniqueId: generateUniqueId() });
       userParams.new_thread = false
-      userParams.thread_id = response[0].thread_id
+      userParams.thread_id = response.thread_id
     } catch (error) {
+      console.error("Error calling OpenAI Assistant:", error);
       isError = true;
       errorMessage = error;
       userParams.messageHistory.push({
-      role: "assistant",
-      content: "Noe gikk galt. Prøv igjen.",
-      model: modelinfoModell
+        role: "assistant",
+        content: "Noe gikk galt. Prøv igjen.",
+        model: modelinfoModell,
+        uniqueId: generateUniqueId()
       });
     } finally {
       isWaiting = false;
@@ -129,8 +170,8 @@
 
 
   // Håndterer tastetrykk i textarea
-  const onKeyPress = async (e, callback) => {
-    if (e.charCode === 13 && !e.shiftKey) {
+  const onKeyDown = async (e, callback) => {
+    if (e.keyCode === 13 && !e.shiftKey) { // 13 is Enter key
       e.preventDefault()
       callback()
     }
@@ -145,23 +186,17 @@
 <main>
   {#if !token}
     <div class="loading">
-      <IconSpinner width={"32px"} />
+      <IconSpinner width="32px" />
     </div>
-    {:else if !checkRoles(token, [`${appName.toLowerCase()}.admin`, `${appName.toLowerCase()}.labs`])}
+    {:else if !checkRoles(token, [`${appName.toLowerCase()}.admin`, `${appName.toLowerCase()}.${modelTile}`])}
     <p>Oi, du har ikke tilgang. Prøver du deg på noe lurt? 🤓</p>
   {:else}
 
-    <!-- For-each som itererer over modell-confogfila og populerer selectmenmyen -->
+    <!-- For-each som itererer over modell-configfila og populerer select menyen -->
     <div class="modelTampering">
       <h2>Modellvelger</h2>
       <div class="boxyHeader">
-        <select class="modellSelect" onchange={valgtModell}>
-          {#each models as model}
-            {#if model.metadata.tile === "labs"}
-              <option value={model.params.assistant_id}>{model.metadata.navn}</option>
-            {/if}
-          {/each}
-        </select>
+        <ModelChooser handleModelChange={valgtModell} models={models} tile={modelTile} selectedModelId={modelId} useAssistantId={true} />
         <button id="modelinfoButton" class="link" onclick={() => { modelTampering = !modelTampering; showModal = true }}>
           <span class="button-text">Innstillinger</span>
         </button>
@@ -175,12 +210,12 @@
           content={userParams.messageHistory[0].content}
           assistant={`${appName}`}  />
       {:else if isWaiting}
-        {#each userParams.messageHistory as chatMessage}
+        {#each userParams.messageHistory as chatMessage (chatMessage.uniqueId)}
           <ChatBlobs role={chatMessage.role} content={chatMessage.content} {...(chatMessage.role === "assistant" ? { assistant: chatMessage.model } : {})} />
         {/each}
-        <ChatBlobs role={"assistant"} content={"..."} />
+        <ChatBlobs role="assistant" content="..." />
       {:else}
-        {#each userParams.messageHistory as chatMessage}
+        {#each userParams.messageHistory as chatMessage (chatMessage.uniqueId)}
           {#if typeof chatMessage.content === "string"}
             <ChatBlobs 
               role={chatMessage.role} 
@@ -198,9 +233,9 @@
         use:autosize 
         name="askHugin" 
         autocomplete="off" 
-        placeholder={`Skriv inn ledetekst (Shift + Enter for flere linjer)`} 
+        placeholder="Skriv inn ledetekst (Shift + Enter for flere linjer)" 
         bind:value={inputMessage}
-        onkeypress={(e) => onKeyPress(e, brukervalg)}></textarea>
+        onkeydown={(e) => onKeyDown(e, brukervalg)}></textarea>
 
       {#if token.roles.some( (r) => [`${appName.toLowerCase()}.admin`].includes(r))}
         {#if isError}
@@ -251,7 +286,8 @@
         <h2 >{modelinfoModell}</h2>
       {/snippet}
     {#snippet mainContent()}
-        <p >{@html modelinfoBeskrivelse}</p>
+        <!-- eslint-disable svelte/no-at-html-tags -->
+        <p>{@html markdownToHtml(modelinfoBeskrivelse)}</p>
       {/snippet}
     {#if userParams.synligKontekst}
     <textarea 
@@ -381,14 +417,6 @@ textarea {
     }
   }
 
-  .modellSelect {
-    padding: 10px;
-    border-radius: 1rem;
-    border: 1px solid #ccc;
-    background-color: #f5f5f5;
-    width: 26rem;
-  }
-
   textarea#inputKontekst {
     padding: 10px;
     margin-top: 30px;
@@ -423,11 +451,6 @@ textarea {
       font-size: 12px;
     }
 
-    .modellSelect {
-      width: 320px;
-      margin-right: 5px;
-    }
-
     .modelTampering > h2 {
       font-size: 1rem;
     }
@@ -437,11 +460,11 @@ textarea {
     }
 
     #modelinfoButton {
-      padding: 5px 9px 0px 9px;
+      padding: 5px 9px 0 9px;
     }
     #modelinfoButton::before {
       content: "\e8b8"; /* Unicode for cog wheel icon */
-      font-family: 'Material Icons';
+      font-family: 'Material Icons', serif;
       font-size: 1.5rem;
     }
   }

@@ -18,7 +18,7 @@
      */
 
     /** @type {Props} */
-    let {
+    const {
         header = 'header',
         imgPath = 'path',
         imgAlt = 'alt',
@@ -106,7 +106,6 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        margin-top: bottom;
         padding: 20px;
     }
 
