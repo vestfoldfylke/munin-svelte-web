@@ -30,8 +30,10 @@
   let inputMessage = $state("");
   let viewportWidth = $state(window.innerWidth);
   let filArray = $state([]);
+  
+  const modelTile = 'chat'
 
-  const { VITE_APP_NAME: appName, VITE_MOCK_API: mockApi } = import.meta.env
+  const { VITE_APP_NAME: appName, VITE_MOCK_API: mockApi, VITE_COUNTY: county } = import.meta.env
 
   // Initiell state - Modell-parametere og payload som sendes til proxy-api
   let message = $state("");
@@ -41,7 +43,7 @@
   let model = $state("gpt-4.1");
   let messageHistory = $state([]);
   let kontekst = $state("");
-  let valgtModell = $state("0");
+  let valgtModell = $state(county === 'Telemark' ? models.filter(m => m.metadata.tile === modelTile)[0].id : "13");
   let temperatur = $state(0.7); // Default temperatur
   let synligKontekst = $state(true);
 
@@ -225,7 +227,7 @@
     <div class="modelTampering">
       <h2>Modellvelger</h2>
       <div class="boxyHeader">
-        <ModelChooser handleModelChange={handleModelChange} models={models} tile="chat" useModelId={true} />
+        <ModelChooser handleModelChange={handleModelChange} models={models} tile={modelTile} selectedModelId={valgtModell} useModelId={true} />
         <button id="modelinfoButton" class="link" onclick={toggleModelInfo}>
           <span class="button-text">Innstillinger</span>
         </button>

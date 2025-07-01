@@ -5,12 +5,14 @@
      * @property {function} handleModelChange - Function to handle model change
      * @property {Array<{id: string, metadata: {tile: string, navn: string}}>} models - Array of model objects
      * @property {string} tile - Filter models by this tile
+     * @property {string} selectedModelId - The id of the currently selected model
      * @property {boolean} useModelId - Whether to use model.id or model.params.assistant_id (if both is true then model.id is used, if none is true then model.id is used)
      * @property {boolean} useAssistantId - Whether to use model.params.assistant_id or model.id (if both is true then model.id is used, if none is true then model.id is used)
      */
 
     /** @type {Props} */
-    const { handleModelChange, models, tile, useModelId = false, useAssistantId = false } = $props();
+    const { handleModelChange, models, tile, selectedModelId = '0', useModelId = false, useAssistantId = false } = $props();
+    
     const _useModelId = useModelId || (!useModelId && !useAssistantId)
 </script>
 
@@ -18,7 +20,12 @@
     <select name="modelSelect" onchange={handleModelChange}>
         {#each models as model (model.id)}
             {#if model.metadata.tile === tile}
-                <option value={_useModelId ? model.id : model.params.assistant_id}>{model.metadata.navn}</option>
+                {@const value = _useModelId ? model.id : model.params.assistant_id}
+                {#if model.id === selectedModelId}
+                    <option value={value} selected>{model.metadata.navn}</option>
+                {:else}
+                    <option value={value}>{model.metadata.navn}</option>
+                {/if}
             {/if}
         {/each}
     </select>

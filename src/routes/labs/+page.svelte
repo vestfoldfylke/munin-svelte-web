@@ -10,9 +10,12 @@
   import ModelChooser from "$lib/components/ModelChooser.svelte"; // Komponent for modellvelger
   import { checkRoles } from '$lib/helpers/checkRoles';
   import { markdownToHtml } from '$lib/helpers/markdown-to-html.js'
-  import { generateUniqueId } from '$lib/helpers/unique-id.js'  
+  import { generateUniqueId } from '$lib/helpers/unique-id.js'
+
+  const modelTile = "labs";
 
   // Variabler for håndtering av data og innhold i frontend
+  let modelId = $state(models.filter(m => m.metadata.tile === modelTile)[0].id);
   let modelinfoModell = $state(null) // $state(modelinfo[userParams.valgtModell].navn)
   let modelinfoBeskrivelse = $state("") // $state(modelinfo[userParams.valgtModell].beskrivelse)
   let modelTampering = $state(false) // Viser modellinformasjon
@@ -26,7 +29,7 @@
   let viewportWidth = $state(window.innerWidth)
 
   const getStartModelConfig = () => {
-    const model = models.filter(model => model.metadata.tile === "labs")[0]
+    const model = models.filter(model => model.metadata.tile === modelTile)[0]
 
     const config = {
       message: "",
@@ -34,7 +37,7 @@
       assistant_id: model.params.assistant_id,
       new_thread: true,
       thread_id: '',
-      tile: "labs"
+      tile: modelTile
     }
 
     if (model.metadata.tools) {
@@ -112,14 +115,16 @@
 
     userParams.new_thread = true
     userParams.assistant_id = event.target.value
+    modelId = model.id
     modelinfoModell = model.metadata.navn
     modelinfoBeskrivelse = model.metadata.description
     userParams.synligKontekst = model.metadata.synligKontekst
     if (model.metadata.tools) {
       userParams.tools = model.metadata.tools
-    } else {
-      delete userParams.tools
+      return
     }
+
+    delete userParams.tools
   }
 
   // Kaller på valgt modell med tilhørende parametre basert på brukerens valg 
@@ -183,7 +188,7 @@
     <div class="loading">
       <IconSpinner width="32px" />
     </div>
-    {:else if !checkRoles(token, [`${appName.toLowerCase()}.admin`, `${appName.toLowerCase()}.labs`])}
+    {:else if !checkRoles(token, [`${appName.toLowerCase()}.admin`, `${appName.toLowerCase()}.${modelTile}`])}
     <p>Oi, du har ikke tilgang. Prøver du deg på noe lurt? 🤓</p>
   {:else}
 
@@ -191,7 +196,7 @@
     <div class="modelTampering">
       <h2>Modellvelger</h2>
       <div class="boxyHeader">
-        <ModelChooser handleModelChange={valgtModell} models={models} tile="labs" useAssistantId={true} />
+        <ModelChooser handleModelChange={valgtModell} models={models} tile={modelTile} selectedModelId={modelId} useAssistantId={true} />
         <button id="modelinfoButton" class="link" onclick={() => { modelTampering = !modelTampering; showModal = true }}>
           <span class="button-text">Innstillinger</span>
         </button>

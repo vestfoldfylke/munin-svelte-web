@@ -12,17 +12,20 @@
   import { markdownToHtml } from '$lib/helpers/markdown-to-html.js'
   import { generateUniqueId } from '$lib/helpers/unique-id.js'
 
+  const modelTile = "orgbotter";
+
   // Init state - Modell-parametere og payload
   const userParams = $state({
     message: "",
     messageHistory: [],
-    assistant_id: models.filter(model => model.metadata.tile === "orgbotter")[0].params.assistant_id,
+    assistant_id: models.filter(model => model.metadata.tile === modelTile)[0].params.assistant_id,
     new_thread: true,
     thread_id: '',
-    tile: "orgbotter",
+    tile: modelTile
   })
 
   // Variabler for håndtering av data og innhold i frontend
+  let modelId = $state(models.filter(m => m.metadata.tile === modelTile)[0].id);
   let modelinfoModell = $state(null) // $state(modelinfo[userParams.valgtModell].navn)
   let modelinfoBeskrivelse = $state("") // $state(modelinfo[userParams.valgtModell].beskrivelse)
   let modelTampering = $state(false) // Viser modellinformasjon
@@ -40,7 +43,7 @@
   // Kjører ved oppstart for å sette opp initial state
   valgtModell({
       target: {
-        value: models.filter(model => model.metadata.tile === "orgbotter")[0].params.assistant_id
+        value: models.filter(model => model.metadata.tile === modelTile)[0].params.assistant_id
       }
     })
 
@@ -98,11 +101,17 @@
 
   // Håndterer valg av modell og oppdaterere modellinformasjon på siden
   function valgtModell(event) {
+    const model = models.find(model => model.params.assistant_id === event.target.value)
+    if (!model) {
+      throw new Error("Modellen finnes ikke i konfigurasjonen.");
+    }
+
     userParams.new_thread = true
     userParams.assistant_id = event.target.value
-    modelinfoModell = models.find(model => model.params.assistant_id === userParams.assistant_id).metadata.navn
-    modelinfoBeskrivelse = models.find(model => model.params.assistant_id === userParams.assistant_id).metadata.description
-    userParams.synligKontekst = models.find(model => model.params.assistant_id === userParams.assistant_id).metadata.synligKontekst
+    modelId = model.id
+    modelinfoModell = model.metadata.navn
+    modelinfoBeskrivelse = model.metadata.description
+    userParams.synligKontekst = model.metadata.synligKontekst
   }
 
   // Kaller på valgt modell med tilhørende parametre basert på brukerens valg 
@@ -160,7 +169,7 @@
     <div class="loading">
       <IconSpinner width="32px" />
     </div>
-    {:else if !checkRoles(token, [`${appName.toLowerCase()}.admin`, `${appName.toLowerCase()}.orgbotter`])}
+    {:else if !checkRoles(token, [`${appName.toLowerCase()}.admin`, `${appName.toLowerCase()}.${modelTile}`])}
     <p>Oi, du har ikke tilgang. Prøver du deg på noe lurt? 🤓</p>
   {:else}
 
@@ -168,7 +177,7 @@
     <div class="modelTampering">
       <h2>Modellvelger</h2>
       <div class="boxyHeader">
-        <ModelChooser handleModelChange={valgtModell} models={models} tile="orgbotter" useAssistantId={true} />
+        <ModelChooser handleModelChange={valgtModell} models={models} tile={modelTile} selectedModelId={modelId} useAssistantId={true} />
         <button id="modelinfoButton" class="link" onclick={() => { modelTampering = !modelTampering; showModal = true }}>
           <span class="button-text">Innstillinger</span>
         </button>
