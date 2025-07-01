@@ -301,15 +301,15 @@ main {
   align-items: center;
   height: calc(85vh);
   margin: 10px;
-  gap: 15px;
+  gap: 8px;
 }
 
 .page-header {
   width: 100%;
   background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
   border-radius: 12px;
-  padding: 20px;
-  margin-bottom: 10px;
+  padding: 15px;
+  margin-bottom: 0;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
@@ -362,9 +362,9 @@ main {
 .quick-actions {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 12px;
+  gap: 8px;
   width: 100%;
-  margin-bottom: 15px;
+  margin-bottom: 8px;
 }
 
 .quick-action-btn {
@@ -452,10 +452,10 @@ textarea {
   }
 
   .output {
-    padding: 15px;
+    padding: 12px;
     border: 1px solid #fde68a;
     border-radius: 12px;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
     height: 100vw;
     max-height: 1440px;
     width: 100%;
@@ -504,12 +504,12 @@ textarea {
       height: 100%; /*calc(80vh - 100px);*/
       margin: 2px;
       margin-bottom: 0; /* reduce bottom whitespace */
-      gap: 10px;
+      gap: 6px;
     }
     
     .page-header {
-      padding: 15px;
-      margin-bottom: 5px;
+      padding: 12px;
+      margin-bottom: 0;
     }
     
     .header-content {
@@ -528,18 +528,10 @@ textarea {
       font-size: 0.9rem;
     }
     
-    .quick-actions-section {
-      margin-bottom: 10px;
-    }
-    
-    .quick-actions-title {
-      font-size: 1rem;
-      margin-bottom: 8px;
-    }
-    
     .quick-actions {
       grid-template-columns: repeat(2, 1fr);
-      gap: 8px;
+      gap: 6px;
+      margin-bottom: 6px;
     }
     
     .quick-action-btn {
