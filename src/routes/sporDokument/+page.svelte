@@ -1,12 +1,12 @@
 <script>
   import { docQueryOpenAi } from "$lib/services/openAiTools"
-  import { models } from "$lib/data/models"; // Modellkonfigurasjon
   import ChatBlobs from "$lib/components/ChatBlobs.svelte"; // Komponent for å vise chatmeldinger
   import { onMount, tick } from "svelte";
   import { getHuginToken } from "$lib/useApi";
   import IconSpinner from "$lib/components/IconSpinner.svelte";
   import autosize from "svelte-autosize";
   import { checkRoles } from '$lib/helpers/checkRoles';
+  import { generateUniqueId } from '$lib/helpers/unique-id.js'
 
   // Init state - Modell-parametere og payload
   const userParams = $state({
@@ -28,20 +28,22 @@
   let token = $state(null)
   let chatWindow = $state()
   let isWaiting = $state(false) // Venter på svar fra modell
-  let isError = $state(false)
+  const isError = $state(false)
   let inputMessage = $state("")
   let viewportWidth = $state(window.innerWidth)
-  const appName = import.meta.env.VITE_APP_NAME
+
+  const { VITE_APP_NAME: appName, VITE_MOCK_API: mockApi } = import.meta.env
 
   // Starter med en velkomstmelding
   userParams.messageHistory.push({
     role: "assistant",
     content: `Velkommen til ${appName}! Hva kan jeg hjelpe deg med i dag?`,
-    model: `${appName}`
+    model: `${appName}`,
+    uniqueId: generateUniqueId()
   })
 
   onMount(async () => {
-    if ( import.meta.env.VITE_MOCK_API && import.meta.env.VITE_MOCK_API === "true" ) {
+    if (mockApi && mockApi === "true") {
       // Pretend to wait for api call
       await new Promise((resolve) => setTimeout(resolve, 2000))
     }
@@ -85,8 +87,8 @@
   // Logikk og funksjoner for håndtering av brukerinput og valg av modell
 
   // Håndterer tastetrykk i textarea
-  const onKeyPress = async (e, callback) => {
-    if (e.charCode === 13 && !e.shiftKey) {
+  const onKeyDown = async (e, callback) => {
+    if (e.keyCode === 13 && !e.shiftKey) { // 13 is Enter key
       e.preventDefault()
       callback()
     }
@@ -101,13 +103,14 @@
 })
 
 function handleDokFilesChange() {
-  let dokNames = "<br>"
-  for (let dokFile of dokFiles) {
-    dokNames += dokFile.name + "<br>"
+  let dokNames = ""
+  for (const dokFile of dokFiles) {
+    dokNames += `<br />${dokFile.name}`
   }
   userParams.messageHistory.push({
     role: "user",
-    content: "<b>Du har lastet opp:</b> " + dokNames
+    content: "**Du har lastet opp:** " + dokNames,
+    uniqueId: generateUniqueId()
   })
 }
 
@@ -120,22 +123,24 @@ function handleDokFilesChange() {
     userParams.message = inputMessage
     inputMessage = ""
     userParams.messageHistory.push({
-          role: "user",
-          content: userParams.message
-        })
+      role: "user",
+      content: userParams.message,
+      uniqueId: generateUniqueId()
+    })
     try {
-      let respons = await docQueryOpenAi(userParams);
+      const respons = await docQueryOpenAi(userParams);
       userParams.response_id = respons.id
       userParams.vectorStore_id = respons.tools[0].vector_store_ids[0]
       userParams.new_thread = false
       userParams.messageHistory.push({
         role: "assistant",
         content: respons.output_text,
-        model: `${appName}`
+        model: `${appName}`,
+        uniqueId: generateUniqueId()
       })
       isWaiting = false
     } catch (e) {
-      console.log("Oj, noe gikk galt!");
+      console.log("Oj, noe gikk galt!", e);
     }
   }
 
@@ -148,7 +153,7 @@ function handleDokFilesChange() {
 <main>
   {#if !token}
     <div class="loading">
-      <IconSpinner width={"32px"} />
+      <IconSpinner width="32px" />
     </div>
   {:else if !checkRoles(token, [`${appName.toLowerCase()}.admin`, `${appName.toLowerCase()}.dokumentchat`])}
     <p>Oi, du har ikke tilgang. Prøver du deg på noe lurt? 🤓</p>
@@ -161,12 +166,12 @@ function handleDokFilesChange() {
           content={userParams.messageHistory[0].content}
           assistant={`${appName}`}  />
       {:else if isWaiting}
-        {#each userParams.messageHistory as chatMessage}
+        {#each userParams.messageHistory as chatMessage (chatMessage.uniqueId)}
           <ChatBlobs role={chatMessage.role} content={chatMessage.content} {...(chatMessage.role === "assistant" ? { assistant: chatMessage.model } : {})} />
         {/each}
-        <ChatBlobs role={"assistant"} content={"..."} />
+        <ChatBlobs role="assistant" content="..." />
       {:else}
-        {#each userParams.messageHistory as chatMessage}
+        {#each userParams.messageHistory as chatMessage (chatMessage.uniqueId)}
           {#if typeof chatMessage.content === "string"}
             <ChatBlobs 
               role={chatMessage.role} 
@@ -184,9 +189,9 @@ function handleDokFilesChange() {
         use:autosize 
         name="askHugin" 
         autocomplete="off" 
-        placeholder={`Skriv inn ledetekst (Shift + Enter for flere linjer)`} 
+        placeholder="Skriv inn ledetekst (Shift + Enter for flere linjer)" 
         bind:value={inputMessage}
-        onkeypress={(e) => onKeyPress(e, sporDokument)}></textarea>
+        onkeydown={(e) => onKeyDown(e, sporDokument)}></textarea>
         <label for="fileButton"><span class="material-symbols-outlined inputButton">cloud_upload</span>
           <input style="display:none;" bind:files={dokFiles} id="fileButton" multiple type="file" accept=".xls, .xlsx, .docx, .pdf, .txt, .json, .md, .pptx" />
         </label>

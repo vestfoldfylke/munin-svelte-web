@@ -8,6 +8,8 @@
   import autosize from "svelte-autosize";
   import Modal from "$lib/components/Modal.svelte";
   import { checkRoles } from '$lib/helpers/checkRoles';
+  import { markdownToHtml } from '$lib/helpers/markdown-to-html.js'
+  import { generateUniqueId } from '$lib/helpers/unique-id.js'
   import logoFarte from "$lib/images/logo_farte.png";
 
   // Init state - Modell-parametere og payload
@@ -31,7 +33,8 @@
   let errorMessage = $state("")
   let inputMessage = $state("")
   let viewportWidth = $state(window.innerWidth)
-  const appName = import.meta.env.VITE_APP_NAME
+
+  const { VITE_APP_NAME: appName, VITE_MOCK_API: mockApi } = import.meta.env
 
     // Kjører ved oppstart for å sette opp initial state
     valgtModell({
@@ -44,11 +47,12 @@
   userParams.messageHistory.push({
     role: "assistant",
     content: `Hei! Jeg er din digitale reiseassistent for kollektivtransport. Jeg kan hjelpe deg med rutetider, billettprdiser, reiseruter og annen informasjon om buss, tog og andre transportmidler. Hva kan jeg hjelpe deg med i dag?`,
-    model: `${appName}`
+    model: `${appName}`,
+    uniqueId: generateUniqueId()
   })
 
   onMount(async () => {
-    if ( import.meta.env.VITE_MOCK_API && import.meta.env.VITE_MOCK_API === "true" ) {
+    if (mockApi && mockApi === "true") {
       // Pretend to wait for api call
       await new Promise((resolve) => setTimeout(resolve, 2000))
     }
@@ -112,22 +116,23 @@
     userParams.messageHistory.push({
       role: "user",
       content: userParams.message,
-      model: modelinfoModell
+      model: modelinfoModell,
+      uniqueId: generateUniqueId()
     })
 
     try {
-      let response;
-      response = await openAiAssistant(userParams);
-      userParams.messageHistory.push({ role: "assistant", content: response[0].messages[0].content[0].text.value, model: modelinfoModell }); 
+      const response = await openAiAssistant(userParams);
+      userParams.messageHistory.push({ role: "assistant", content: response[0].messages[0].content[0].text.value, model: modelinfoModell, uniqueId: generateUniqueId() }); 
       userParams.new_thread = false
       userParams.thread_id = response[0].thread_id
     } catch (error) {
       isError = true;
       errorMessage = error;
       userParams.messageHistory.push({
-      role: "assistant",
-      content: "Noe gikk galt. Prøv igjen.",
-      model: modelinfoModell
+        role: "assistant",
+        content: "Noe gikk galt. Prøv igjen.",
+        model: modelinfoModell,
+        uniqueId: generateUniqueId()
       });
     } finally {
       isWaiting = false;
@@ -136,8 +141,8 @@
 
 
   // Håndterer tastetrykk i textarea
-  const onKeyPress = async (e, callback) => {
-    if (e.charCode === 13 && !e.shiftKey) {
+  const onKeyDown = async (e, callback) => {
+    if (e.keyCode === 13 && !e.shiftKey) { // 13 is Enter key
       e.preventDefault()
       callback()
     }
@@ -152,7 +157,7 @@
 <main>
   {#if !token}
     <div class="loading">
-      <IconSpinner width={"32px"} />
+      <IconSpinner width="32px" />
     </div>
     {:else if !checkRoles(token, [`${appName.toLowerCase()}.admin`])}
     <p>Oi, du har ikke tilgang. Prøver du deg på noe lurt? 🤓</p>
@@ -196,12 +201,12 @@
           content={userParams.messageHistory[0].content}
           assistant={`${appName}`}  />
       {:else if isWaiting}
-        {#each userParams.messageHistory as chatMessage}
+        {#each userParams.messageHistory as chatMessage (chatMessage.uniqueId)}
           <ChatBlobs role={chatMessage.role} content={chatMessage.content} {...(chatMessage.role === "assistant" ? { assistant: chatMessage.model } : {})} />
         {/each}
-        <ChatBlobs role={"assistant"} content={"..."} />
+        <ChatBlobs role="assistant" content="..." />
       {:else}
-        {#each userParams.messageHistory as chatMessage}
+        {#each userParams.messageHistory as chatMessage (chatMessage.uniqueId)}
           {#if typeof chatMessage.content === "string"}
             <ChatBlobs 
               role={chatMessage.role} 
@@ -219,9 +224,9 @@
         use:autosize 
         name="askHugin" 
         autocomplete="off" 
-        placeholder={`Spør om rutetider, billettpris eller reiseruter... (Shift + Enter for flere linjer)`} 
+        placeholder="Spør om rutetider, billettpris eller reiseruter... (Shift + Enter for flere linjer)" 
         bind:value={inputMessage}
-        onkeypress={(e) => onKeyPress(e, brukervalg)}></textarea>
+        onkeydown={(e) => onKeyDown(e, brukervalg)}></textarea>
 
       {#if token.roles.some( (r) => [`${appName.toLowerCase()}.admin`].includes(r))}
         {#if isError}
@@ -272,7 +277,8 @@
         <h2 >{modelinfoModell}</h2>
       {/snippet}
     {#snippet mainContent()}
-        <p >{@html modelinfoBeskrivelse}</p>
+        <!-- eslint-disable svelte/no-at-html-tags -->
+        <p>{@html markdownToHtml(modelinfoBeskrivelse)}</p>
       {/snippet}
     {#if userParams.synligKontekst}
     <textarea 
