@@ -3,6 +3,7 @@ import axios from 'axios'
 // import { models } from "$lib/data/models"; // Modellkonfigurasjon
 import { getHuginToken } from '../useApi'
 import { getArticlesFromNDLA, generateKeywords } from './kildekallTools'
+import { studieledetekst } from '$lib/data/systemprompts' // Importer studiemodus fra data/systemprompts.js
 
 const { VITE_AI_API_URI: aiApiUri } = import.meta.env
 
@@ -34,7 +35,13 @@ export const responseOpenAi = async (userParams) => {
     response_id: userParams.response_id,
     imageBase64: userParams.imageB64,
     dokFiles: userParams.dokFiles,
-    model: userParams.model
+    model: userParams.model,
+    studiemodus: userParams.studiemodus, // Legg til studiemodus i payload
+  }
+
+  // Hvis studiemodus legg til ledetekst to payload brukerinputten
+  if (payload.studiemodus) {
+    payload.userMessage = `${studieledetekst.ledetekst}\n\n${payload.userMessage}`
   }
 
   const response = await axios.post(`${aiApiUri}/responseOpenAi`, payload, {

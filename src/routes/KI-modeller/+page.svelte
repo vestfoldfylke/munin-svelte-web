@@ -20,6 +20,7 @@
   /*let fileSelect = $state(false);*/
   let modelinfoModell = $state("");
   let modelinfoBeskrivelse = $state("");
+  let studiemodus = $state(false); // For å aktivere studiemodus
   let modelTampering = $state(false); // Viser modellinformasjon
   let token = $state(null);
   let chatWindow = $state();
@@ -122,6 +123,7 @@
       model,
       messageHistory,
       kontekst,
+      studiemodus,
       valgtModell,
       temperatur,
       synligKontekst,
@@ -228,11 +230,19 @@
       <h2>Modellvelger</h2>
       <div class="boxyHeader">
         <ModelChooser handleModelChange={handleModelChange} models={models} tile={modelTile} selectedModelId={valgtModell} useModelId={true} />
+        <!-- Hvis valgtModell er 0, vis sjekkboks for "studiemodus" -->
+         {#if valgtModell === "0"}
+         <label>
+          <input type="checkbox" bind:checked={studiemodus} />
+          Aktiver studiemodus
+        </label>
+        {/if}
         <button id="modelinfoButton" class="link" onclick={toggleModelInfo}>
           <span class="button-text">Innstillinger</span>
         </button>
       </div>
     </div>
+
 
     <div class="output" bind:this={chatWindow}>
       {#if messageHistory.length === 1}
