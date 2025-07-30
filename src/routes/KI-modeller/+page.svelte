@@ -40,10 +40,10 @@
   let response_id = $state(null);
   let imageB64 = $state([]);
   let dokFiles = $state([]);
-  let model = $state("gpt-4.1");
+  let model = $state("gpt-4.1"); // Brukes kun på OpenAI-modellen
   let messageHistory = $state([]);
   let kontekst = $state("");
-  let valgtModell = $state(county === 'Telemark' ? models.filter(m => m.metadata.tile === modelTile)[0].id : "13");
+  let valgtModell = $state("13") ; // Standard valgt modell, kan endres til "0" for OpenAI eller "13" for Mistral
   let temperatur = $state(0.7); // Default temperatur
   let synligKontekst = $state(true);
 
