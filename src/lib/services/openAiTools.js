@@ -37,12 +37,15 @@ export const responseOpenAi = async (userParams) => {
     dokFiles: userParams.dokFiles,
     model: userParams.model,
     studiemodus: userParams.studiemodus, // Legg til studiemodus i payload
+    isFirstPrompt: userParams.isFirstPrompt, // Legg til isFirstPrompt i payload
   }
 
   // Hvis studiemodus legg til ledetekst to payload brukerinputten
-  if (payload.studiemodus) {
+  if (payload.studiemodus && payload.isFirstPrompt) {
     payload.userMessage = `${studieledetekst.ledetekst}\n\n${payload.userMessage}`
   }
+
+  console.log('Response OpenAI - Payload:', payload.userMessage)
 
   const response = await axios.post(`${aiApiUri}/responseOpenAi`, payload, {
     headers: {

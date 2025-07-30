@@ -44,6 +44,7 @@
   let model = $state("gpt-4.1"); // Brukes kun på OpenAI-modellen
   let messageHistory = $state([]);
   let kontekst = $state("");
+  let isFirstPrompt = $state(true); // For å sjekke om det er første prompt
   let valgtModell = $state("13") ; // Standard valgt modell, kan endres til "0" for OpenAI eller "13" for Mistral
   let temperatur = $state(0.7); // Default temperatur
   let synligKontekst = $state(true);
@@ -124,6 +125,7 @@
       messageHistory,
       kontekst,
       studiemodus,
+      isFirstPrompt,
       valgtModell,
       temperatur,
       synligKontekst,
@@ -151,6 +153,7 @@
         const response = await responseOpenAi(params);
         response_id = response.data.id; // Til bruk i api-kallet for å oppdatere historikken i samtalen
         messageHistory = [...messageHistory, { role: "assistant", content: response.data.output_text, model: modelinfoModell, uniqueId: generateUniqueId() }];
+        isFirstPrompt = false; // Etter første prompt er det ikke lenger første prompt
         return;
       } else if (valgtModell === "1") {
         const response = await noraChat(params);
