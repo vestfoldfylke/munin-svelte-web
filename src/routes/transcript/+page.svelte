@@ -1,6 +1,6 @@
 <script>
   // disabled as this seems to not be fully implemented yet
-  /*import { nbTranscript } from "$lib/services/openaiToolsLabs";*/
+  import { nbTranscript } from "$lib/services/openaiToolsLabs"
   import { getHuginToken } from "$lib/useApi.js"
   import { onMount, } from "svelte"
   import IconSpinner from "../../lib/components/IconSpinner.svelte"
@@ -15,7 +15,7 @@ let mediaRecorder;
   let audioUrl = $state();
   let token = $state(null)
   // disabled as this seems to not be fully implemented yet
-  /*let ferdigTranskript = $state("Her kommer transkripsjonen");*/
+  let ferdigTranskript = $state("Her kommer transkripsjonen");
   let recording = $state(false);
   let timer = $state(0);
   let timerInterval;
@@ -81,7 +81,7 @@ let mediaRecorder;
     transButton.textContent = "epost på vei";
     transButton.disabled = true;
     // disabled as this seems to not be fully implemented yet
-    /*ferdigTranskript = await nbTranscript(audioBlob, metadata);*/
+    ferdigTranskript = await nbTranscript(audioBlob, metadata);
   };
 </script>
 
