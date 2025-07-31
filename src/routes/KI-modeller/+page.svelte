@@ -231,18 +231,23 @@
     <!-- Modellvelger som itererer over modell-configfila -->
     <div class="modelTampering">
       <h2>Modellvelger</h2>
-      <div class="boxyHeader">
-        <ModelChooser handleModelChange={handleModelChange} models={models} tile={modelTile} selectedModelId={valgtModell} useModelId={true} />
-        <!-- Hvis valgtModell er 0, vis sjekkboks for "studiemodus" -->
-         {#if valgtModell === "0"}
-         <label>
-          <input type="checkbox" bind:checked={studiemodus} />
-          Aktiver studiemodus
-        </label>
-        {/if}
-        <button id="modelinfoButton" class="link" onclick={toggleModelInfo}>
-          <span class="button-text">Innstillinger</span>
-        </button>
+      <div class="modelSection">
+        <div class="modelButtonRow">
+          <div class="modelButtons">
+            <ModelChooser handleModelChange={handleModelChange} models={models} tile={modelTile} selectedModelId={valgtModell} useModelId={true} />
+          </div>
+          <div class="rightControls">
+            {#if valgtModell === "0"}
+              <label class="checkboxLabel">
+                <input type="checkbox" bind:checked={studiemodus} />
+                <span class="checkboxText">Aktiver studiemodus</span>
+              </label>
+            {/if}
+            <button id="modelinfoButton" class="link" onclick={toggleModelInfo}>
+              <span class="button-text">Innstillinger</span>
+            </button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -416,11 +421,49 @@
     color: transparent;
   }
 
-  .boxyHeader {
+  .modelSection {
     display: flex;
-    flex-direction: row;
-    justify-content: space-between;
+    flex-direction: column;
+    gap: 1rem;
     padding: 5px 10px 10px 8px;
+  }
+
+  .modelButtonRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .modelButtons {
+    display: flex;
+    justify-content: flex-start;
+  }
+
+  .rightControls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .checkboxLabel {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: #333;
+  }
+
+  .checkboxLabel input[type="checkbox"] {
+    width: 1.2rem;
+    height: 1.2rem;
+    cursor: pointer;
+    accent-color: #007acc;
+  }
+
+  .checkboxText {
+    user-select: none;
   }
 
   .material-symbols-outlined {
@@ -507,6 +550,27 @@
 
     .modelTampering > h2 {
       font-size: 1rem;
+    }
+
+    .modelSection {
+      gap: 0.75rem;
+      padding: 5px 8px 8px 8px;
+    }
+
+    .modelButtonRow {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.75rem;
+    }
+
+    .rightControls {
+      flex-direction: row;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
+    .checkboxLabel {
+      font-size: 0.85rem;
     }
 
     .button-text {

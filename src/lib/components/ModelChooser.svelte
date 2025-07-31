@@ -14,60 +14,96 @@
     const { handleModelChange, models, tile, selectedModelId = '0', useModelId = false, useAssistantId = false } = $props();
     
     const _useModelId = useModelId || (!useModelId && !useAssistantId)
+
+    const handleButtonClick = (model) => {
+        const value = _useModelId ? model.id : model.params.assistant_id;
+        const mockEvent = {
+            target: { value }
+        };
+        handleModelChange(mockEvent);
+    };
 </script>
 
-<div class="modelSelectWrapper svg-arrow">
-    <select name="modelSelect" onchange={handleModelChange}>
-        {#each models as model (model.id)}
-            {#if model.metadata.tile === tile}
-                {@const value = _useModelId ? model.id : model.params.assistant_id}
-                {#if model.id === selectedModelId}
-                    <option value={value} selected>{model.metadata.navn}</option>
-                {:else}
-                    <option value={value}>{model.metadata.navn}</option>
-                {/if}
-            {/if}
-        {/each}
-    </select>
+<div class="modelButtonGroup">
+    {#each models as model (model.id)}
+        {#if model.metadata.tile === tile}
+            {@const isSelected = model.id === selectedModelId}
+            <button 
+                class="modelButton" 
+                class:selected={isSelected}
+                onclick={() => handleButtonClick(model)}
+                type="button"
+            >
+                {model.metadata.navn}
+            </button>
+        {/if}
+    {/each}
 </div>
 
 <style>
-    .modelSelectWrapper {
-        position: relative;
+    .modelButtonGroup {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        align-items: center;
     }
 
-    .modelSelectWrapper select {
-        width: 26rem;
-        padding: 10px;
-        border-radius: 1rem;
-        border: 1px solid #ccc;
-        background-color: #f5f5f5;
-        background-image: none;
-
-        appearance: none;
-        -webkit-appearance: none;
-        -moz-appearance: none;
+    .modelButton {
+        background: #f5f5f5;
+        border: 1px solid #ddd;
+        border-radius: 0.5rem;
+        padding: 0.5rem 0.75rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: #333;
+        white-space: nowrap;
     }
 
-    .modelSelectWrapper.svg-arrow::after {
-        content: "";
-        position: absolute;
-        right: 1rem;
-        top: 50%;
-        transform: translateY(-50%);
-        pointer-events: none; /* Prevents the arrow from blocking clicks */
-        width: 1rem;
-        height: 1rem;
-        background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23555' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
-        background-repeat: no-repeat;
-        background-position: center;
+    .modelButton:hover {
+        background: #e8e8e8;
+        border-color: #ccc;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .modelButton.selected {
+        background: #007acc;
+        border-color: #005fa3;
+        color: white;
+        box-shadow: 0 2px 6px rgba(0,122,204,0.3);
+    }
+
+    .modelButton.selected:hover {
+        background: #0066cc;
+        transform: translateY(-1px);
     }
 
     @media only screen and (max-width: 768px) {
-        /* For mobile phones: */
-        .modelSelectWrapper select {
-            width: 320px;
-            margin-right: 5px;
+        .modelButtonGroup {
+            gap: 0.25rem;
+            justify-content: flex-start;
         }
-    }  
+        
+        .modelButton {
+            padding: 0.4rem 0.6rem;
+            font-size: 0.8rem;
+            flex: 1;
+            min-width: 0;
+        }
+    }
+
+    @media only screen and (max-width: 480px) {
+        .modelButtonGroup {
+            flex-direction: column;
+            width: 100%;
+        }
+        
+        .modelButton {
+            width: 100%;
+            flex: none;
+            text-align: center;
+        }
+    }
 </style>

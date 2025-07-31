@@ -25,7 +25,7 @@ export const tfkModels =
       {
         id: '13',
         metadata: {
-          navn: 'Mistral Large',
+          navn: 'Mistral - Europeisk modell',
           description: 'Dennne modellen bruker [Mistral](https://mistral.ai/news/pixtral-large). Mistral Large og Pixtral Large, er avanserte multimodal språkmodeller utviklet for å håndtere komplekse oppgaver som kombinerer tekst og bildeanalyse. Modellen er trent på en omfattende mengde data og er optimalisert for å generere tekst basert på en gitt kontekst, melding eller visuelle input. Mistral Large kan brukes til en rekke oppgaver som tekstgenerering, bildeanalyse og multimodal forståelse. For å bruke modellens bildeanalysefunksjon, kan du laste opp et bilde via opplastingsknappen. Modellen vil analysere bildet og generere tekst basert på innholdet. Dette gjør Mistral Large til et kraftig verktøy for både kreative og analytiske oppgaver.',
           synligKontekst: true,
           illustrasjon: '',
@@ -45,7 +45,7 @@ export const tfkModels =
       {
         id: '1',
         metadata: {
-          navn: 'NoraLLM',
+          navn: 'NoraLLM - Norsk modell',
           description: 'Nora er en familie med norske språkmodeller utviklet av språkteknologigruppen ved Universitet i Oslo (UiO), i samarbeid med blant annet Nasjonalbiblioteket, og er trent på norske tekster (bokmål og nynorsk). Til forskjell fra store språkmodelleer som GPT-4o, så er ikke Nora-modellen i Hugin en ferdigutviklet samtalerobot, som er laget for chat. Nora-modellen har som formål å vise hvordan en språkmodell som er trent på norske data kan skape tekst som bedre representerer norsk språk og kultur. I tillegg er mindre, åpne og spesialiserte modeller mer bærekraftige enn de virkelig store språkmodellene, fra de store multinasjonale teknologiselskapene.',
           synligKontekst: false,
           illustrasjon: '',
