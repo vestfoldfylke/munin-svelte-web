@@ -237,12 +237,10 @@
             <ModelChooser handleModelChange={handleModelChange} models={models} tile={modelTile} selectedModelId={valgtModell} useModelId={true} />
           </div>
           <div class="rightControls">
-            {#if valgtModell === "0"}
-              <label class="checkboxLabel">
-                <input type="checkbox" bind:checked={studiemodus} />
-                <span class="checkboxText">Aktiver studiemodus</span>
-              </label>
-            {/if}
+            <label class="checkboxLabel" class:disabled={valgtModell !== "0"}>
+              <input type="checkbox" bind:checked={studiemodus} disabled={valgtModell !== "0"} />
+              <span class="checkboxText">Aktiver studiemodus</span>
+            </label>
             <button id="modelinfoButton" class="link" onclick={toggleModelInfo}>
               <span class="button-text">Innstillinger</span>
             </button>
@@ -464,6 +462,15 @@
 
   .checkboxText {
     user-select: none;
+  }
+
+  .checkboxLabel.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .checkboxLabel.disabled input[type="checkbox"] {
+    cursor: not-allowed;
   }
 
   .material-symbols-outlined {
