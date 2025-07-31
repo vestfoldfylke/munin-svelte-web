@@ -69,14 +69,14 @@
     }
 
     .modelButton.selected {
-        background: #007acc;
-        border-color: #005fa3;
-        color: white;
-        box-shadow: 0 2px 6px rgba(0,122,204,0.3);
+        background: var(--himmel-20);
+        border-color: var(--himmel-40);
+        color: #333;
+        box-shadow: 0 2px 6px rgba(204,235,243,0.5);
     }
 
     .modelButton.selected:hover {
-        background: #0066cc;
+        background: var(--himmel-30);
         transform: translateY(-1px);
     }
 
