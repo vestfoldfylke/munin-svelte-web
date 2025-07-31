@@ -13,14 +13,10 @@ export const noraChat = async (userParams) => {
   if (!isWeekday() || !isDaytime()) {
     return 'Nora er tilgjengelig på hverdager mellom 08:00 og 16:00. Prøv igjen senere.'
   }
-
-  const modelIndex = models.findIndex((model) => model.metadata.navn === 'NoraLLM')
-
+  const modelIndex = models.findIndex((model) => model.metadata.navn === 'NoraLLM - 🇳🇴')
   const payload = models[modelIndex].params
   payload.question = userParams.message
-
   const accessToken = await getHuginToken()
-
   const response = await axios.post(`${aiApiUri}/noraChat`, payload, {
     headers: {
       authorization: `Bearer ${accessToken}`

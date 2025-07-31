@@ -20,6 +20,7 @@
   /*let fileSelect = $state(false);*/
   let modelinfoModell = $state("");
   let modelinfoBeskrivelse = $state("");
+  let studiemodus = $state(false); // For å aktivere studiemodus
   let modelTampering = $state(false); // Viser modellinformasjon
   let token = $state(null);
   let chatWindow = $state();
@@ -43,6 +44,7 @@
   let model = $state("gpt-4.1"); // Brukes kun på OpenAI-modellen
   let messageHistory = $state([]);
   let kontekst = $state("");
+  let isFirstPrompt = $state(true); // For å sjekke om det er første prompt
   let valgtModell = $state("13") ; // Standard valgt modell, kan endres til "0" for OpenAI eller "13" for Mistral
   let temperatur = $state(0.7); // Default temperatur
   let synligKontekst = $state(true);
@@ -122,6 +124,8 @@
       model,
       messageHistory,
       kontekst,
+      studiemodus,
+      isFirstPrompt,
       valgtModell,
       temperatur,
       synligKontekst,
@@ -149,6 +153,7 @@
         const response = await responseOpenAi(params);
         response_id = response.data.id; // Til bruk i api-kallet for å oppdatere historikken i samtalen
         messageHistory = [...messageHistory, { role: "assistant", content: response.data.output_text, model: modelinfoModell, uniqueId: generateUniqueId() }];
+        isFirstPrompt = false; // Etter første prompt er det ikke lenger første prompt
         return;
       } else if (valgtModell === "1") {
         const response = await noraChat(params);
@@ -226,13 +231,24 @@
     <!-- Modellvelger som itererer over modell-configfila -->
     <div class="modelTampering">
       <h2>Modellvelger</h2>
-      <div class="boxyHeader">
-        <ModelChooser handleModelChange={handleModelChange} models={models} tile={modelTile} selectedModelId={valgtModell} useModelId={true} />
-        <button id="modelinfoButton" class="link" onclick={toggleModelInfo}>
-          <span class="button-text">Innstillinger</span>
-        </button>
+      <div class="modelSection">
+        <div class="modelButtonRow">
+          <div class="modelButtons">
+            <ModelChooser handleModelChange={handleModelChange} models={models} tile={modelTile} selectedModelId={valgtModell} useModelId={true} />
+          </div>
+          <div class="rightControls">
+            <label class="checkboxLabel" class:disabled={valgtModell !== "0"}>
+              <input type="checkbox" bind:checked={studiemodus} disabled={valgtModell !== "0"} />
+              <span class="checkboxText">Aktiver studiemodus</span>
+            </label>
+            <button id="modelinfoButton" class="link" onclick={toggleModelInfo}>
+              <span class="button-text">Innstillinger</span>
+            </button>
+          </div>
+        </div>
       </div>
     </div>
+
 
     <div class="output" bind:this={chatWindow}>
       {#if messageHistory.length === 1}
@@ -403,11 +419,58 @@
     color: transparent;
   }
 
-  .boxyHeader {
+  .modelSection {
     display: flex;
-    flex-direction: row;
-    justify-content: space-between;
+    flex-direction: column;
+    gap: 1rem;
     padding: 5px 10px 10px 8px;
+  }
+
+  .modelButtonRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .modelButtons {
+    display: flex;
+    justify-content: flex-start;
+  }
+
+  .rightControls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .checkboxLabel {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: #333;
+  }
+
+  .checkboxLabel input[type="checkbox"] {
+    width: 1.2rem;
+    height: 1.2rem;
+    cursor: pointer;
+    accent-color: #007acc;
+  }
+
+  .checkboxText {
+    user-select: none;
+  }
+
+  .checkboxLabel.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .checkboxLabel.disabled input[type="checkbox"] {
+    cursor: not-allowed;
   }
 
   .material-symbols-outlined {
@@ -494,6 +557,27 @@
 
     .modelTampering > h2 {
       font-size: 1rem;
+    }
+
+    .modelSection {
+      gap: 0.75rem;
+      padding: 5px 8px 8px 8px;
+    }
+
+    .modelButtonRow {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.75rem;
+    }
+
+    .rightControls {
+      flex-direction: row;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
+    .checkboxLabel {
+      font-size: 0.85rem;
     }
 
     .button-text {
