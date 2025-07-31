@@ -213,7 +213,7 @@ export const tfkModels =
       {
         id: '20',
         metadata: {
-          navn: 'Magistral - Ressonering',
+          navn: 'Magistral - Resonnering',
           description: 'En språkmodell som er godt egnet til mer kompliserte oppgaver som koding og problemløsing. Den løser oppgaver i flere trinn.',
           synligKontekst: false,
           illustrasjon: '',
