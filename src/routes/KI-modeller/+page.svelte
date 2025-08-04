@@ -213,6 +213,26 @@
     modelTampering = !modelTampering;
     showModal = true;
   };
+
+  // Tilbakestill samtalen til initial state
+  const resetConversation = () => {
+    messageHistory = [{
+      role: "assistant",
+      content: `Velkommen til ${appName}! Hva kan jeg hjelpe deg med i dag?`,
+      model: `${appName}`,
+      uniqueId: generateUniqueId()
+    }];
+    inputMessage = "";
+    imageFiles = null;
+    dokFileInput = null;
+    imageB64 = [];
+    dokFiles = [];
+    filArray = [];
+    response_id = null;
+    isFirstPrompt = true;
+    isError = false;
+    errorMessage = "";
+  };
 </script>
 
 <svelte:head>
@@ -275,6 +295,9 @@
     </div>
     
     <div class="brukerInputWrapper">
+      <label for="resetButton" title="Tilbakestill samtalen og start på nytt"><span class="material-symbols-outlined inputButton">refresh</span>
+        <input id="resetButton" type="button" onclick={resetConversation} value="Ny samtale" style="display: none;"/>
+      </label>
       <textarea 
         id="brukerInput" 
         use:autosize 
@@ -286,14 +309,14 @@
 
       {#if token.roles.some( (r) => [`${appName.toLowerCase()}.admin`].includes(r))}
         {#if valgtModell === "0" }
-        <label for="fileButton"><span class="material-symbols-outlined inputButton">picture_as_pdf</span>
+        <label for="fileButton" title="Last opp PDF-dokumenter for analyse"><span class="material-symbols-outlined inputButton">picture_as_pdf</span>
           <input id="fileButton" type="file" bind:files={dokFileInput} onchange={onFileSelect} accept=".pdf" multiple style="display:none;" />
         </label>
-        <label for="imageButton"><span class="material-symbols-outlined inputButton">add_photo_alternate</span>
+        <label for="imageButton" title="Last opp bilder for analyse"><span class="material-symbols-outlined inputButton">add_photo_alternate</span>
           <input id="imageButton" type="file" bind:files={imageFiles} onchange={onFileSelect} accept="image/*" multiple style="display: none;"/></label>
         {/if}
         {#if valgtModell === "13" }
-          <label for="imageButton"><span class="material-symbols-outlined inputButton">add_photo_alternate</span>
+          <label for="imageButton" title="Last opp JPEG-bilder for analyse"><span class="material-symbols-outlined inputButton">add_photo_alternate</span>
             <input id="imageButton" type="file" bind:files={imageFiles} onchange={onFileSelect} accept="image/jpeg" multiple style="display: none;"/></label>
         {/if}
         {#if isError}
@@ -314,7 +337,7 @@
           </Modal>
         {/if}
       {/if}
-      <label for="sendButton"><span class="material-symbols-outlined inputButton">send</span>
+      <label for="sendButton" title="Send melding til AI-modellen"><span class="material-symbols-outlined inputButton">send</span>
         <input id="sendButton" type="button" onclick={brukervalg} value={`Spør ${appName}`} style="display: none;"/>
       </label>
     </div>
