@@ -34,6 +34,9 @@
                 onclick={() => handleButtonClick(model)}
                 type="button"
             >
+                {#if model.metadata.flagClass}
+                    <span class={model.metadata.flagClass} style="margin-right: 0.5rem;"></span>
+                {/if}
                 {model.metadata.navn}
             </button>
         {/if}
@@ -78,6 +81,13 @@
     .modelButton.selected:hover {
         background: var(--himmel-30);
         transform: translateY(-1px);
+    }
+
+    .modelButton :global(.fi) {
+        width: 1.2em;
+        height: 0.9em;
+        display: inline-block;
+        vertical-align: middle;
     }
 
     @media only screen and (max-width: 768px) {
