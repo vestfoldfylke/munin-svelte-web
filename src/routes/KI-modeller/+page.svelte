@@ -149,7 +149,7 @@
 
     try {
       const params = getRequestParams();
-      if (valgtModell === "0") {
+      if (valgtModell === "0" || valgtModell === "6") {
         const response = await responseOpenAi(params);
         response_id = response.data.id; // Til bruk i api-kallet for å oppdatere historikken i samtalen
         messageHistory = [...messageHistory, { role: "assistant", content: response.data.output_text, model: modelinfoModell, uniqueId: generateUniqueId() }];
@@ -257,8 +257,8 @@
             <ModelChooser handleModelChange={handleModelChange} models={models} tile={modelTile} selectedModelId={valgtModell} useModelId={true} />
           </div>
           <div class="rightControls">
-            <label class="checkboxLabel" class:disabled={valgtModell !== "0"}>
-              <input type="checkbox" bind:checked={studiemodus} disabled={valgtModell !== "0"} />
+            <label class="checkboxLabel" class:disabled={valgtModell !== "0" && valgtModell !== "6"}>
+              <input type="checkbox" bind:checked={studiemodus} disabled={valgtModell !== "0" && valgtModell !== "6"} />
               <span class="checkboxText">Aktiver studiemodus</span>
             </label>
             <button id="modelinfoButton" class="link" onclick={toggleModelInfo}>

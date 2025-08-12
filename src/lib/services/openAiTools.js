@@ -38,6 +38,12 @@ export const responseOpenAi = async (userParams) => {
     model: userParams.model,
     studiemodus: userParams.studiemodus, // Legg til studiemodus i payload
     isFirstPrompt: userParams.isFirstPrompt, // Legg til isFirstPrompt i payload
+    kontekst: userParams.kontekst
+  }
+
+  // Legg til kontekst før første prompt
+  if (payload.kontekst && payload.isFirstPrompt) {
+    payload.userMessage = `${payload.kontekst}\n\n${payload.userMessage}`
   }
 
   // Hvis studiemodus legg til ledetekst to payload brukerinputten
