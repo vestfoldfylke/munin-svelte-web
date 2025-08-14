@@ -273,5 +273,25 @@ export const tfkModels =
           new_thread: true,
           thread_id: ''
         }
+      },
+                  {
+        id: '22',
+        metadata: {
+          navn: 'PPT-botten',
+          description: 'Eksperimentell bot til bruk for PPT.',
+          synligKontekst: false,
+          illustrasjon: '',
+          tile: 'labs',
+          endpoint: 'assistantOpenAi',
+          assistant: true
+        },
+        params: {
+          message: '',
+          kontekst: '',
+          model: 'gpt-4.1',
+          assistant_id: import.meta.env.VITE_ASSISTANT_PPT_LOV,
+          new_thread: true,
+          thread_id: ''
+        }
       }
     ]
