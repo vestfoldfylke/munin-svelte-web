@@ -5,10 +5,24 @@
      * @typedef {Object} Props
      * @property {string} [role] - Props
      * @property {string} [content]
+     * @property {boolean} [isStreaming] - Whether content is still being streamed
      */
 
     /** @type {Props} */
-    const { role = 'user', content = 'content', assistant = '' } = $props();
+    const { role = 'user', content = 'content', assistant = '', isStreaming = false } = $props();
+    
+    // Process markdown only when content is complete (not streaming)
+    let processedContent = $state('');
+    
+    $effect(() => {
+        if (isStreaming) {
+            // During streaming, don't process markdown to avoid broken math/code
+            processedContent = content;
+        } else {
+            // When streaming is complete, process the full content
+            processedContent = markdownToHtml(content);
+        }
+    });
 </script>
 <svelte:head>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
@@ -29,8 +43,14 @@
                 {#if content === "..."}
                     <div class="loader"></div>
                 {:else}
-                    <!-- eslint-disable svelte/no-at-html-tags -->
-                    {@html markdownToHtml(content)}
+                    {#if isStreaming}
+                        <!-- Show raw text during streaming to preserve formatting -->
+                        <pre class="streaming-content">{content}</pre>
+                    {:else}
+                        <!-- Show processed markdown when streaming is complete -->
+                        <!-- eslint-disable svelte/no-at-html-tags -->
+                        {@html processedContent}
+                    {/if}
                     {#if role !== 'user'}
                         <div class="assistantInfo">
                             {assistant}
@@ -110,5 +130,17 @@
         40%{background-position:0% 100%, 50%   0%,100%  50%}
         60%{background-position:0%  50%, 50% 100%,100%   0%}
         80%{background-position:0%  50%, 50%  50%,100% 100%}
+    }
+
+    .streaming-content {
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        margin: 0;
+        padding: 0;
+        font-family: inherit;
+        line-height: 1.4;
+        background: none;
+        border: none;
+        overflow-wrap: break-word;
     }
 </style>

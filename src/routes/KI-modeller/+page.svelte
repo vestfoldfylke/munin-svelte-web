@@ -422,7 +422,11 @@
           assistant={`${appName}`}  />
       {:else if isWaiting}
         {#each messageHistory as chatMessage (chatMessage.uniqueId)}
-          <ChatBlobs role={chatMessage.role} content={chatMessage.content} {...(chatMessage.role === "assistant" ? { assistant: chatMessage.model } : {})} />
+          <ChatBlobs 
+            role={chatMessage.role} 
+            content={chatMessage.content} 
+            isStreaming={chatMessage.isStreaming || false}
+            {...(chatMessage.role === "assistant" ? { assistant: chatMessage.model } : {})} />
         {/each}
         {#if !isStreaming}
           <div class="streaming-waiting">
@@ -438,6 +442,7 @@
             <ChatBlobs 
               role={chatMessage.role} 
               content={chatMessage.content} 
+              isStreaming={chatMessage.isStreaming || false}
               {...(chatMessage.role === "assistant" ? { assistant: chatMessage.model } : {})}
               />
           {/if}
