@@ -1,5 +1,5 @@
 <script>
-  import { responseOpenAi } from "$lib/services/openAiTools";
+  import { streamResponseOpenAi } from "$lib/services/openAiTools";
   import { multimodalMistral } from "$lib/services/mistralTools";
   import { noraChat } from "$lib/services/huggingFaceTools";
   import { models } from "$lib/data/models"; // Modellkonfigurasjon
@@ -13,6 +13,7 @@
   import { handleFileSelect } from "$lib/helpers/fileHandler.js"; // Import the file handler
   import { markdownToHtml } from '$lib/helpers/markdown-to-html.js'
   import { generateUniqueId } from "$lib/helpers/unique-id.js"
+  import { studieledetekst } from '$lib/data/systemprompts'
 
   // Variabler for håndtering av data og innhold i frontend
   let imageFiles = $state(null);
@@ -45,9 +46,11 @@
   let messageHistory = $state([]);
   let kontekst = $state("");
   let isFirstPrompt = $state(true); // For å sjekke om det er første prompt
-  let valgtModell = $state("13") ; // Standard valgt modell, kan endres til "0" for OpenAI eller "13" for Mistral
+  let valgtModell = $state("0") ; // Standard valgt modell, "0" for ChatGPT-5 (gpt-5)
   let temperatur = $state(0.7); // Default temperatur
   let synligKontekst = $state(true);
+  let isStreaming = $state(false); // For å håndtere streaming state
+  let currentStreamingMessage = $state(""); // For å samle streamed innhold
 
 
   // Starter med en velkomstmelding
@@ -137,6 +140,13 @@
   const brukervalg = async () => {
     if (!inputMessage.trim()) return; // Fix for å unngå tom input
     
+    if (valgtModell === "0" || valgtModell === "6") {
+      // Use streaming for OpenAI models
+      await streamingBrukervalg();
+      return;
+    }
+    
+    // Non-streaming path for other models
     isWaiting = true;
     // Get the textarea and set the height
     const textarea = document.querySelector("textarea");
@@ -149,13 +159,7 @@
 
     try {
       const params = getRequestParams();
-      if (valgtModell === "0" || valgtModell === "6") {
-        const response = await responseOpenAi(params);
-        response_id = response.data.id; // Til bruk i api-kallet for å oppdatere historikken i samtalen
-        messageHistory = [...messageHistory, { role: "assistant", content: response.data.output_text, model: modelinfoModell, uniqueId: generateUniqueId() }];
-        isFirstPrompt = false; // Etter første prompt er det ikke lenger første prompt
-        return;
-      } else if (valgtModell === "1") {
+      if (valgtModell === "1") {
         const response = await noraChat(params);
         messageHistory = [...messageHistory, { role: "assistant", content: response, model: modelinfoModell, uniqueId: generateUniqueId() }];
         return;
@@ -178,6 +182,144 @@
       }];
     } finally {
       isWaiting = false;
+    }
+  }
+
+  // Streaming version for OpenAI models
+  const streamingBrukervalg = async () => {
+    if (!inputMessage.trim()) return;
+    
+    isWaiting = true;
+    isStreaming = false; // Start with spinner showing
+    currentStreamingMessage = "";
+    
+    // Get the textarea and set the height
+    const textarea = document.querySelector("textarea");
+    textarea.style.height = "60px";
+    
+    message = inputMessage;
+    inputMessage = "";
+    
+    // Add user message to history
+    messageHistory = [...messageHistory, { role: "user", content: message, model: modelinfoModell, uniqueId: generateUniqueId() }];
+    
+    // Add empty assistant message that will be filled with streaming content
+    const assistantMessageId = generateUniqueId();
+    messageHistory = [...messageHistory, { role: "assistant", content: "", model: modelinfoModell, uniqueId: assistantMessageId, isStreaming: true }];
+
+    try {
+      // Build conversation history for streaming
+      const messages = [];
+      
+      // Add previous conversation history (excluding welcome message and current user message)
+      if (messageHistory.length > 1) {
+        const relevantHistory = messageHistory.slice(1, -1); // Skip welcome and just-added user message
+        for (const msg of relevantHistory) {
+          if (msg.role === 'user' || msg.role === 'assistant') {
+            messages.push({
+              role: msg.role,
+              content: msg.content
+            });
+          }
+        }
+      }
+      
+      // Handle context and studiemodus before adding current message
+      let finalMessage = message;
+      
+      if (kontekst && isFirstPrompt) {
+        finalMessage = `${kontekst}\n\n${finalMessage}`;
+      }
+      
+      if (studiemodus && isFirstPrompt) {
+        finalMessage = `${studieledetekst.ledetekst}\n\n${finalMessage}`;
+      }
+      
+      // Add current user message with images if present
+      if (imageB64 && imageB64.length > 0) {
+        const content = [{ type: 'text', text: finalMessage }];
+        for (const imageBase64 of imageB64) {
+          content.push({
+            type: 'image_url',
+            image_url: { url: imageBase64 }
+          });
+        }
+        messages.push({ role: 'user', content });
+      } else {
+        messages.push({ role: "user", content: finalMessage });
+      }
+      
+      const streamParams = { 
+        messages,
+        model: model
+      };
+      
+      // Only add temperature if not using gpt-5 (gpt-5 doesn't support temperature)
+      if (model !== 'gpt-5') {
+        streamParams.temperature = temperatur;
+      }
+      const response = await streamResponseOpenAi(streamParams);
+      
+      // Stream connection established, hide spinner and start streaming
+      isStreaming = true;
+      
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder("utf-8");
+      let buffer = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const parts = buffer.split("\n\n");
+        buffer = parts.pop();
+
+        for (const part of parts) {
+          if (part.startsWith("data: ")) {
+            const data = part.replace("data: ", "").trim();
+            if (data === "[DONE]") {
+              isStreaming = false;
+              // Update final message without streaming flag
+              messageHistory = messageHistory.map(msg => 
+                msg.uniqueId === assistantMessageId 
+                  ? { ...msg, content: currentStreamingMessage, isStreaming: false }
+                  : msg
+              );
+              isFirstPrompt = false;
+              return;
+            }
+            try {
+              const json = JSON.parse(data);
+              const token = json.choices[0]?.delta?.content || "";
+              if (token) {
+                currentStreamingMessage += token;
+                // Update the streaming message in real-time
+                messageHistory = messageHistory.map(msg => 
+                  msg.uniqueId === assistantMessageId 
+                    ? { ...msg, content: currentStreamingMessage }
+                    : msg
+                );
+              }
+            } catch (err) {
+              console.error("Bad chunk:", data, err);
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Streaming error:", error);
+      isError = true;
+      errorMessage = error;
+      // Update the assistant message with error
+      messageHistory = messageHistory.map(msg => 
+        msg.uniqueId === assistantMessageId 
+          ? { ...msg, content: "Noe gikk galt. Prøv igjen.", isStreaming: false }
+          : msg
+      );
+    } finally {
+      isWaiting = false;
+      isStreaming = false;
     }
   }
 
@@ -232,6 +374,8 @@
     isFirstPrompt = true;
     isError = false;
     errorMessage = "";
+    isStreaming = false;
+    currentStreamingMessage = "";
   };
 </script>
 
@@ -280,7 +424,14 @@
         {#each messageHistory as chatMessage (chatMessage.uniqueId)}
           <ChatBlobs role={chatMessage.role} content={chatMessage.content} {...(chatMessage.role === "assistant" ? { assistant: chatMessage.model } : {})} />
         {/each}
-        <ChatBlobs role="assistant" content="..." />
+        {#if !isStreaming}
+          <div class="streaming-waiting">
+            <div class="streaming-spinner">
+              <IconSpinner width="20px" />
+              <span>Venter på respons...</span>
+            </div>
+          </div>
+        {/if}
       {:else}
         {#each messageHistory as chatMessage (chatMessage.uniqueId)}
           {#if typeof chatMessage.content === "string"}
@@ -555,6 +706,25 @@
     display: flex;
     justify-content: center;
     align-items: center;
+  }
+
+  .streaming-waiting {
+    padding: 20px;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+  }
+
+  .streaming-spinner {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #1976d2;
+    font-size: 0.9rem;
+    padding: 15px 20px;
+    background-color: #f8f9fa;
+    border-radius: 12px;
+    border: 1px solid #e9ecef;
   }
   
   .inputButton {
