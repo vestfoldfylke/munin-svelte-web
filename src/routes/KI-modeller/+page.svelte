@@ -155,9 +155,35 @@
     message = inputMessage;
     inputMessage = "";
     
-    messageHistory = [...messageHistory, { role: "user", content: message, model: modelinfoModell, uniqueId: generateUniqueId() }];
+    // Handle context and studiemodus for first prompt
+    let messageToStore = message; // For API calls
+    const displayMessage = message; // For UI display
+    
+    if (isFirstPrompt) {
+      if (kontekst) {
+        messageToStore = `${kontekst}\n\n${messageToStore}`;
+      }
+      if (studiemodus) {
+        messageToStore = `${studieledetekst.ledetekst}\n\n${messageToStore}`;
+      }
+    }
+    
+    messageHistory = [...messageHistory, { 
+      role: "user", 
+      content: displayMessage, // Show only user's message in UI
+      fullContent: messageToStore, // Keep full content for API calls
+      model: modelinfoModell, 
+      uniqueId: generateUniqueId() 
+    }];
 
     try {
+      // Set isFirstPrompt to false after first use
+      if (isFirstPrompt) {
+        isFirstPrompt = false;
+      }
+      
+      // Update message parameter to use the stored message
+      message = messageToStore;
       const params = getRequestParams();
       if (valgtModell === "1") {
         const response = await noraChat(params);
@@ -200,8 +226,27 @@
     message = inputMessage;
     inputMessage = "";
     
-    // Add user message to history
-    messageHistory = [...messageHistory, { role: "user", content: message, model: modelinfoModell, uniqueId: generateUniqueId() }];
+    // Handle context and studiemodus for first prompt
+    let messageToStore = message; // For API calls
+    const displayMessage = message; // For UI display
+    
+    if (isFirstPrompt) {
+      if (kontekst) {
+        messageToStore = `${kontekst}\n\n${messageToStore}`;
+      }
+      if (studiemodus) {
+        messageToStore = `${studieledetekst.ledetekst}\n\n${messageToStore}`;
+      }
+    }
+    
+    // Add user message to history with both display and full content
+    messageHistory = [...messageHistory, { 
+      role: "user", 
+      content: displayMessage, // Show only user's message in UI
+      fullContent: messageToStore, // Keep full content for API calls
+      model: modelinfoModell, 
+      uniqueId: generateUniqueId() 
+    }];
     
     // Add empty assistant message that will be filled with streaming content
     const assistantMessageId = generateUniqueId();
@@ -218,22 +263,14 @@
           if (msg.role === 'user' || msg.role === 'assistant') {
             messages.push({
               role: msg.role,
-              content: msg.content
+              content: msg.fullContent || msg.content // Use fullContent for user messages if available
             });
           }
         }
       }
       
-      // Handle context and studiemodus before adding current message
-      let finalMessage = message;
-      
-      if (kontekst && isFirstPrompt) {
-        finalMessage = `${kontekst}\n\n${finalMessage}`;
-      }
-      
-      if (studiemodus && isFirstPrompt) {
-        finalMessage = `${studieledetekst.ledetekst}\n\n${finalMessage}`;
-      }
+      // Use the stored message (which already includes context/studiemodus if needed)
+      const finalMessage = messageToStore;
       
       // Add current user message with images if present
       if (imageB64 && imageB64.length > 0) {
@@ -263,6 +300,11 @@
       // Stream connection established, hide spinner and start streaming
       isStreaming = true;
       
+      // Set isFirstPrompt to false after first use (for streaming)
+      if (isFirstPrompt) {
+        isFirstPrompt = false;
+      }
+      
       const reader = response.body.getReader();
       const decoder = new TextDecoder("utf-8");
       let buffer = "";
@@ -286,7 +328,6 @@
                   ? { ...msg, content: currentStreamingMessage, isStreaming: false }
                   : msg
               );
-              isFirstPrompt = false;
               return;
             }
             try {
