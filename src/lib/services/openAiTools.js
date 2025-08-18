@@ -116,3 +116,33 @@ export const docQueryOpenAi = async (userParams) => {
   })
   return response.data
 }
+
+export const streamResponseOpenAi = async (userParams) => {
+  const accessToken = await getHuginToken()
+  
+  const payload = {
+    messages: userParams.messages,
+    model: userParams.model || "gpt-4.1",
+    stream: true
+  }
+  
+  // Only add temperature if not using gpt-5 (gpt-5 doesn't support temperature)
+  if (payload.model !== 'gpt-5') {
+    payload.temperature = userParams.temperature || 0.7;
+  }
+
+  const response = await fetch(`${aiApiUri}/streamResponseOpenAi`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${accessToken}`
+    },
+    body: JSON.stringify(payload)
+  })
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`)
+  }
+
+  return response
+}
