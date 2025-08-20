@@ -3,6 +3,7 @@ import axios from 'axios'
 // import { models } from "$lib/data/models"; // Modellkonfigurasjon
 import { getHuginToken } from '../useApi'
 import { getArticlesFromNDLA, generateKeywords } from './kildekallTools'
+import { studieledetekst } from '$lib/data/systemprompts' // Importer studiemodus fra data/systemprompts.js
 
 const { VITE_AI_API_URI: aiApiUri } = import.meta.env
 
@@ -34,8 +35,23 @@ export const responseOpenAi = async (userParams) => {
     response_id: userParams.response_id,
     imageBase64: userParams.imageB64,
     dokFiles: userParams.dokFiles,
-    model: userParams.model
+    model: userParams.model,
+    studiemodus: userParams.studiemodus, // Legg til studiemodus i payload
+    isFirstPrompt: userParams.isFirstPrompt, // Legg til isFirstPrompt i payload
+    kontekst: userParams.kontekst
   }
+
+  // Legg til kontekst før første prompt
+  if (payload.kontekst && payload.isFirstPrompt) {
+    payload.userMessage = `${payload.kontekst}\n\n${payload.userMessage}`
+  }
+
+  // Hvis studiemodus legg til ledetekst to payload brukerinputten
+  if (payload.studiemodus && payload.isFirstPrompt) {
+    payload.userMessage = `${studieledetekst.ledetekst}\n\n${payload.userMessage}`
+  }
+
+  console.log('Response OpenAI - Payload:', payload.userMessage)
 
   const response = await axios.post(`${aiApiUri}/responseOpenAi`, payload, {
     headers: {
@@ -99,4 +115,34 @@ export const docQueryOpenAi = async (userParams) => {
     }
   })
   return response.data
+}
+
+export const streamResponseOpenAi = async (userParams) => {
+  const accessToken = await getHuginToken()
+  
+  const payload = {
+    messages: userParams.messages,
+    model: userParams.model || "gpt-4.1",
+    stream: true
+  }
+  
+  // Only add temperature if not using gpt-5 (gpt-5 doesn't support temperature)
+  if (payload.model !== 'gpt-5') {
+    payload.temperature = userParams.temperature || 0.7;
+  }
+
+  const response = await fetch(`${aiApiUri}/streamResponseOpenAi`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${accessToken}`
+    },
+    body: JSON.stringify(payload)
+  })
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`)
+  }
+
+  return response
 }

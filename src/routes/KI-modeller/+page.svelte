@@ -1,5 +1,5 @@
 <script>
-  import { responseOpenAi } from "$lib/services/openAiTools";
+  import { streamResponseOpenAi } from "$lib/services/openAiTools";
   import { multimodalMistral } from "$lib/services/mistralTools";
   import { noraChat } from "$lib/services/huggingFaceTools";
   import { models } from "$lib/data/models"; // Modellkonfigurasjon
@@ -13,6 +13,7 @@
   import { handleFileSelect } from "$lib/helpers/fileHandler.js"; // Import the file handler
   import { markdownToHtml } from '$lib/helpers/markdown-to-html.js'
   import { generateUniqueId } from "$lib/helpers/unique-id.js"
+  import { studieledetekst } from '$lib/data/systemprompts'
 
   // Variabler for håndtering av data og innhold i frontend
   let imageFiles = $state(null);
@@ -20,6 +21,7 @@
   /*let fileSelect = $state(false);*/
   let modelinfoModell = $state("");
   let modelinfoBeskrivelse = $state("");
+  let studiemodus = $state(false); // For å aktivere studiemodus
   let modelTampering = $state(false); // Viser modellinformasjon
   let token = $state(null);
   let chatWindow = $state();
@@ -40,12 +42,15 @@
   let response_id = $state(null);
   let imageB64 = $state([]);
   let dokFiles = $state([]);
-  let model = $state("gpt-4.1");
+  let model = $state("gpt-4.1"); // Brukes kun på OpenAI-modellen
   let messageHistory = $state([]);
   let kontekst = $state("");
-  let valgtModell = $state(county === 'Telemark' ? models.filter(m => m.metadata.tile === modelTile)[0].id : "13");
+  let isFirstPrompt = $state(true); // For å sjekke om det er første prompt
+  let valgtModell = $state("0") ; // Standard valgt modell, "0" for ChatGPT-5 (gpt-5)
   let temperatur = $state(0.7); // Default temperatur
   let synligKontekst = $state(true);
+  let isStreaming = $state(false); // For å håndtere streaming state
+  let currentStreamingMessage = $state(""); // For å samle streamed innhold
 
 
   // Starter med en velkomstmelding
@@ -122,6 +127,8 @@
       model,
       messageHistory,
       kontekst,
+      studiemodus,
+      isFirstPrompt,
       valgtModell,
       temperatur,
       synligKontekst,
@@ -133,6 +140,13 @@
   const brukervalg = async () => {
     if (!inputMessage.trim()) return; // Fix for å unngå tom input
     
+    if (valgtModell === "0" || valgtModell === "6") {
+      // Use streaming for OpenAI models
+      await streamingBrukervalg();
+      return;
+    }
+    
+    // Non-streaming path for other models
     isWaiting = true;
     // Get the textarea and set the height
     const textarea = document.querySelector("textarea");
@@ -141,16 +155,37 @@
     message = inputMessage;
     inputMessage = "";
     
-    messageHistory = [...messageHistory, { role: "user", content: message, model: modelinfoModell, uniqueId: generateUniqueId() }];
+    // Handle context and studiemodus for first prompt
+    let messageToStore = message; // For API calls
+    const displayMessage = message; // For UI display
+    
+    if (isFirstPrompt) {
+      if (kontekst) {
+        messageToStore = `${kontekst}\n\n${messageToStore}`;
+      }
+      if (studiemodus) {
+        messageToStore = `${studieledetekst.ledetekst}\n\n${messageToStore}`;
+      }
+    }
+    
+    messageHistory = [...messageHistory, { 
+      role: "user", 
+      content: displayMessage, // Show only user's message in UI
+      fullContent: messageToStore, // Keep full content for API calls
+      model: modelinfoModell, 
+      uniqueId: generateUniqueId() 
+    }];
 
     try {
+      // Set isFirstPrompt to false after first use
+      if (isFirstPrompt) {
+        isFirstPrompt = false;
+      }
+      
+      // Update message parameter to use the stored message
+      message = messageToStore;
       const params = getRequestParams();
-      if (valgtModell === "0") {
-        const response = await responseOpenAi(params);
-        response_id = response.data.id; // Til bruk i api-kallet for å oppdatere historikken i samtalen
-        messageHistory = [...messageHistory, { role: "assistant", content: response.data.output_text, model: modelinfoModell, uniqueId: generateUniqueId() }];
-        return;
-      } else if (valgtModell === "1") {
+      if (valgtModell === "1") {
         const response = await noraChat(params);
         messageHistory = [...messageHistory, { role: "assistant", content: response, model: modelinfoModell, uniqueId: generateUniqueId() }];
         return;
@@ -173,6 +208,159 @@
       }];
     } finally {
       isWaiting = false;
+    }
+  }
+
+  // Streaming version for OpenAI models
+  const streamingBrukervalg = async () => {
+    if (!inputMessage.trim()) return;
+    
+    isWaiting = true;
+    isStreaming = false; // Start with spinner showing
+    currentStreamingMessage = "";
+    
+    // Get the textarea and set the height
+    const textarea = document.querySelector("textarea");
+    textarea.style.height = "60px";
+    
+    message = inputMessage;
+    inputMessage = "";
+    
+    // Handle context and studiemodus for first prompt
+    let messageToStore = message; // For API calls
+    const displayMessage = message; // For UI display
+    
+    if (isFirstPrompt) {
+      if (kontekst) {
+        messageToStore = `${kontekst}\n\n${messageToStore}`;
+      }
+      if (studiemodus) {
+        messageToStore = `${studieledetekst.ledetekst}\n\n${messageToStore}`;
+      }
+    }
+    
+    // Add user message to history with both display and full content
+    messageHistory = [...messageHistory, { 
+      role: "user", 
+      content: displayMessage, // Show only user's message in UI
+      fullContent: messageToStore, // Keep full content for API calls
+      model: modelinfoModell, 
+      uniqueId: generateUniqueId() 
+    }];
+    
+    // Add empty assistant message that will be filled with streaming content
+    const assistantMessageId = generateUniqueId();
+    messageHistory = [...messageHistory, { role: "assistant", content: "", model: modelinfoModell, uniqueId: assistantMessageId, isStreaming: true }];
+
+    try {
+      // Build conversation history for streaming
+      const messages = [];
+      
+      // Add previous conversation history (excluding welcome message and current user message)
+      if (messageHistory.length > 1) {
+        const relevantHistory = messageHistory.slice(1, -1); // Skip welcome and just-added user message
+        for (const msg of relevantHistory) {
+          if (msg.role === 'user' || msg.role === 'assistant') {
+            messages.push({
+              role: msg.role,
+              content: msg.fullContent || msg.content // Use fullContent for user messages if available
+            });
+          }
+        }
+      }
+      
+      // Use the stored message (which already includes context/studiemodus if needed)
+      const finalMessage = messageToStore;
+      
+      // Add current user message with images if present
+      if (imageB64 && imageB64.length > 0) {
+        const content = [{ type: 'text', text: finalMessage }];
+        for (const imageBase64 of imageB64) {
+          content.push({
+            type: 'image_url',
+            image_url: { url: imageBase64 }
+          });
+        }
+        messages.push({ role: 'user', content });
+      } else {
+        messages.push({ role: "user", content: finalMessage });
+      }
+      
+      const streamParams = { 
+        messages,
+        model: model
+      };
+      
+      // Only add temperature if not using gpt-5 (gpt-5 doesn't support temperature)
+      if (model !== 'gpt-5') {
+        streamParams.temperature = temperatur;
+      }
+      const response = await streamResponseOpenAi(streamParams);
+      
+      // Stream connection established, hide spinner and start streaming
+      isStreaming = true;
+      
+      // Set isFirstPrompt to false after first use (for streaming)
+      if (isFirstPrompt) {
+        isFirstPrompt = false;
+      }
+      
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder("utf-8");
+      let buffer = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const parts = buffer.split("\n\n");
+        buffer = parts.pop();
+
+        for (const part of parts) {
+          if (part.startsWith("data: ")) {
+            const data = part.replace("data: ", "").trim();
+            if (data === "[DONE]") {
+              isStreaming = false;
+              // Update final message without streaming flag
+              messageHistory = messageHistory.map(msg => 
+                msg.uniqueId === assistantMessageId 
+                  ? { ...msg, content: currentStreamingMessage, isStreaming: false }
+                  : msg
+              );
+              return;
+            }
+            try {
+              const json = JSON.parse(data);
+              const token = json.choices[0]?.delta?.content || "";
+              if (token) {
+                currentStreamingMessage += token;
+                // Update the streaming message in real-time
+                messageHistory = messageHistory.map(msg => 
+                  msg.uniqueId === assistantMessageId 
+                    ? { ...msg, content: currentStreamingMessage }
+                    : msg
+                );
+              }
+            } catch (err) {
+              console.error("Bad chunk:", data, err);
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Streaming error:", error);
+      isError = true;
+      errorMessage = error;
+      // Update the assistant message with error
+      messageHistory = messageHistory.map(msg => 
+        msg.uniqueId === assistantMessageId 
+          ? { ...msg, content: "Noe gikk galt. Prøv igjen.", isStreaming: false }
+          : msg
+      );
+    } finally {
+      isWaiting = false;
+      isStreaming = false;
     }
   }
 
@@ -208,6 +396,28 @@
     modelTampering = !modelTampering;
     showModal = true;
   };
+
+  // Tilbakestill samtalen til initial state
+  const resetConversation = () => {
+    messageHistory = [{
+      role: "assistant",
+      content: `Velkommen til ${appName}! Hva kan jeg hjelpe deg med i dag?`,
+      model: `${appName}`,
+      uniqueId: generateUniqueId()
+    }];
+    inputMessage = "";
+    imageFiles = null;
+    dokFileInput = null;
+    imageB64 = [];
+    dokFiles = [];
+    filArray = [];
+    response_id = null;
+    isFirstPrompt = true;
+    isError = false;
+    errorMessage = "";
+    isStreaming = false;
+    currentStreamingMessage = "";
+  };
 </script>
 
 <svelte:head>
@@ -226,13 +436,24 @@
     <!-- Modellvelger som itererer over modell-configfila -->
     <div class="modelTampering">
       <h2>Modellvelger</h2>
-      <div class="boxyHeader">
-        <ModelChooser handleModelChange={handleModelChange} models={models} tile={modelTile} selectedModelId={valgtModell} useModelId={true} />
-        <button id="modelinfoButton" class="link" onclick={toggleModelInfo}>
-          <span class="button-text">Innstillinger</span>
-        </button>
+      <div class="modelSection">
+        <div class="modelButtonRow">
+          <div class="modelButtons">
+            <ModelChooser handleModelChange={handleModelChange} models={models} tile={modelTile} selectedModelId={valgtModell} useModelId={true} />
+          </div>
+          <div class="rightControls">
+            <label class="checkboxLabel" class:disabled={valgtModell !== "0" && valgtModell !== "6"}>
+              <input type="checkbox" bind:checked={studiemodus} disabled={valgtModell !== "0" && valgtModell !== "6"} />
+              <span class="checkboxText">Aktiver studiemodus</span>
+            </label>
+            <button id="modelinfoButton" class="link" onclick={toggleModelInfo}>
+              <span class="button-text">Innstillinger</span>
+            </button>
+          </div>
+        </div>
       </div>
     </div>
+
 
     <div class="output" bind:this={chatWindow}>
       {#if messageHistory.length === 1}
@@ -242,15 +463,27 @@
           assistant={`${appName}`}  />
       {:else if isWaiting}
         {#each messageHistory as chatMessage (chatMessage.uniqueId)}
-          <ChatBlobs role={chatMessage.role} content={chatMessage.content} {...(chatMessage.role === "assistant" ? { assistant: chatMessage.model } : {})} />
+          <ChatBlobs 
+            role={chatMessage.role} 
+            content={chatMessage.content} 
+            isStreaming={chatMessage.isStreaming || false}
+            {...(chatMessage.role === "assistant" ? { assistant: chatMessage.model } : {})} />
         {/each}
-        <ChatBlobs role="assistant" content="..." />
+        {#if !isStreaming}
+          <div class="streaming-waiting">
+            <div class="streaming-spinner">
+              <IconSpinner width="20px" />
+              <span>Venter på respons...</span>
+            </div>
+          </div>
+        {/if}
       {:else}
         {#each messageHistory as chatMessage (chatMessage.uniqueId)}
           {#if typeof chatMessage.content === "string"}
             <ChatBlobs 
               role={chatMessage.role} 
               content={chatMessage.content} 
+              isStreaming={chatMessage.isStreaming || false}
               {...(chatMessage.role === "assistant" ? { assistant: chatMessage.model } : {})}
               />
           {/if}
@@ -259,6 +492,9 @@
     </div>
     
     <div class="brukerInputWrapper">
+      <label for="resetButton" title="Tilbakestill samtalen og start på nytt"><span class="material-symbols-outlined inputButton">refresh</span>
+        <input id="resetButton" type="button" onclick={resetConversation} value="Ny samtale" style="display: none;"/>
+      </label>
       <textarea 
         id="brukerInput" 
         use:autosize 
@@ -270,14 +506,14 @@
 
       {#if token.roles.some( (r) => [`${appName.toLowerCase()}.admin`].includes(r))}
         {#if valgtModell === "0" }
-        <label for="fileButton"><span class="material-symbols-outlined inputButton">picture_as_pdf</span>
+        <label for="fileButton" title="Last opp PDF-dokumenter for analyse"><span class="material-symbols-outlined inputButton">picture_as_pdf</span>
           <input id="fileButton" type="file" bind:files={dokFileInput} onchange={onFileSelect} accept=".pdf" multiple style="display:none;" />
         </label>
-        <label for="imageButton"><span class="material-symbols-outlined inputButton">add_photo_alternate</span>
+        <label for="imageButton" title="Last opp bilder for analyse"><span class="material-symbols-outlined inputButton">add_photo_alternate</span>
           <input id="imageButton" type="file" bind:files={imageFiles} onchange={onFileSelect} accept="image/*" multiple style="display: none;"/></label>
         {/if}
         {#if valgtModell === "13" }
-          <label for="imageButton"><span class="material-symbols-outlined inputButton">add_photo_alternate</span>
+          <label for="imageButton" title="Last opp JPEG-bilder for analyse"><span class="material-symbols-outlined inputButton">add_photo_alternate</span>
             <input id="imageButton" type="file" bind:files={imageFiles} onchange={onFileSelect} accept="image/jpeg" multiple style="display: none;"/></label>
         {/if}
         {#if isError}
@@ -298,7 +534,7 @@
           </Modal>
         {/if}
       {/if}
-      <label for="sendButton"><span class="material-symbols-outlined inputButton">send</span>
+      <label for="sendButton" title="Send melding til AI-modellen"><span class="material-symbols-outlined inputButton">send</span>
         <input id="sendButton" type="button" onclick={brukervalg} value={`Spør ${appName}`} style="display: none;"/>
       </label>
     </div>
@@ -403,11 +639,58 @@
     color: transparent;
   }
 
-  .boxyHeader {
+  .modelSection {
     display: flex;
-    flex-direction: row;
-    justify-content: space-between;
+    flex-direction: column;
+    gap: 1rem;
     padding: 5px 10px 10px 8px;
+  }
+
+  .modelButtonRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .modelButtons {
+    display: flex;
+    justify-content: flex-start;
+  }
+
+  .rightControls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .checkboxLabel {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: #333;
+  }
+
+  .checkboxLabel input[type="checkbox"] {
+    width: 1.2rem;
+    height: 1.2rem;
+    cursor: pointer;
+    accent-color: #007acc;
+  }
+
+  .checkboxText {
+    user-select: none;
+  }
+
+  .checkboxLabel.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .checkboxLabel.disabled input[type="checkbox"] {
+    cursor: not-allowed;
   }
 
   .material-symbols-outlined {
@@ -470,6 +753,25 @@
     justify-content: center;
     align-items: center;
   }
+
+  .streaming-waiting {
+    padding: 20px;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+  }
+
+  .streaming-spinner {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #1976d2;
+    font-size: 0.9rem;
+    padding: 15px 20px;
+    background-color: #f8f9fa;
+    border-radius: 12px;
+    border: 1px solid #e9ecef;
+  }
   
   .inputButton {
     margin-bottom: 10px !important;
@@ -494,6 +796,27 @@
 
     .modelTampering > h2 {
       font-size: 1rem;
+    }
+
+    .modelSection {
+      gap: 0.75rem;
+      padding: 5px 8px 8px 8px;
+    }
+
+    .modelButtonRow {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.75rem;
+    }
+
+    .rightControls {
+      flex-direction: row;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
+    .checkboxLabel {
+      font-size: 0.85rem;
     }
 
     .button-text {
