@@ -236,5 +236,26 @@ export const vfkModels =
           new_thread: true,
           thread_id: ''
         }
-      }
+      },
+        {
+        id: '21',
+        metadata: {
+          navn: 'Eksamenseksperten',
+          description: 'Assistent som skal hjelpe elever, privatister og lærere med spørsmål om eksamen.',
+          synligKontekst: false,
+          illustrasjon: '',
+          tile: 'labs',
+          endpoint: 'assistantOpenAi',
+          assistant: true,
+          tools: ''
+        },
+        params: {
+          message: '',
+          kontekst: '',
+          model: 'gpt-4o',
+          assistant_id: import.meta.env.VITE_ASSISTANT_EKSAMEN_EKSPERTEN,
+          new_thread: true,
+          thread_id: ''
+        }
+      },
     ]
