@@ -226,75 +226,61 @@
     message = inputMessage;
     inputMessage = ""; // Tømmer inputfeltet
     
-    // Hvis det er første melding så legg til kontekst og studiemodus
-    let apiMessage = message; // For API calls
-    const displayMessage = message; // For UI display
-    
-    if (isFirstPrompt) {
-      if (kontekst) {
-        apiMessage = `${kontekst}\n\n${apiMessage}`;
-      }
-      if (studiemodus) {
-        apiMessage = `${studieledetekst.ledetekst}\n\n${apiMessage}`;
-      }
-    }
-
-    // Legger til brukermelding i historikken i to versjoner. En med og en uten kontekst
-    messageHistory = [...messageHistory, { 
-      role: "user", 
-      content: displayMessage, // UI
-      fullContent: apiMessage, // Til API
-      model: modelinfoModell, 
-      uniqueId: generateUniqueId() 
-    }];
-    
-    // Lager en "hjelpemedling" som skal fylles med streaminginnhold med egen ID
-    const assistantMessageId = generateUniqueId();
-    messageHistory = [...messageHistory, { role: "assistant", content: "", model: modelinfoModell, uniqueId: assistantMessageId, isStreaming: true }];
-
     try {
       // Bygger opp meldingshistorikk for streaming
-      const alleMeldinger = [];
+      // const alleMeldinger = [];
       
-      if (messageHistory.length > 1) {
-        const relevantHistory = messageHistory.slice(1, -1); // Dropper velkomstmelding og siste melding som blir lagt til senere
-        for (const msg of relevantHistory) {
-          if (msg.role === 'user' || msg.role === 'assistant') {
-            alleMeldinger.push({
-              role: msg.role,
-              content: msg.fullContent || msg.content // Use fullContent for user messages if available
-            });
-          }
-        }
-      }
+      // if (messageHistory.length > 1) {
+      //   const relevantHistory = messageHistory.slice(1, -1); // Dropper velkomstmelding og siste melding som blir lagt til senere
+      //   for (const msg of relevantHistory) {
+      //     if (msg.role === 'user' || msg.role === 'assistant') {
+      //       alleMeldinger.push({
+      //         role: msg.role,
+      //         content: msg.content
+      //       });
+      //     }
+      //   }
+      // }
 
-      // Bygger ferdig melding som skal sendes til API -- Denne kodeblokken må sjekkes!
-      const finalMessage = apiMessage;
-      
-      if (imageB64 && imageB64.length > 0) {
-        const content = [{ type: 'text', text: finalMessage }];
+      if (imageB64.length > 0) {
+        const content = [{ type: 'text', text: message }];
         for (const imageBase64 of imageB64) {
           content.push({
             type: 'image_url',
             image_url: { url: imageBase64 }
           });
         }
-        alleMeldinger.push({ role: 'user', content }); // Multimodal melding
+        messageHistory.push({ role: 'user', content }); // Multimodal melding
       } else {
-        alleMeldinger.push({ role: "user", content: finalMessage }); // Vanlig tekst
+        messageHistory = [...messageHistory, { 
+          role: "user", 
+          content: message,
+          model: modelinfoModell, 
+          uniqueId: generateUniqueId()
+        }];
       }
 
       // console.log("Alle meldinger som skal sendes:", alleMeldinger);
 
+          // Lager en "hjelpemedling" som skal fylles med streaminginnhold med egen ID
+        const assistantMessageId = generateUniqueId();
+        messageHistory = [...messageHistory, { role: "assistant", content: "", model: modelinfoModell, uniqueId: assistantMessageId, isStreaming: true }];
+
+
       const streamParams = {
-        messages: alleMeldinger,  // Sjekk at alleMeldinger er korrekt
-        model: model
+        messages: [...messageHistory],  // Sjekk at alleMeldinger er korrekt
+        model: model,
+        kontekst: kontekst,
+        studiemodus: studiemodus,
+        isFirstPrompt: isFirstPrompt
       };
 
       // Dropp temperatur for gpt-5
       if (model !== 'gpt-5') {
         streamParams.temperature = temperatur;
       }
+
+      console.log("Streaming parametre:", streamParams);
       const response = await streamResponseOpenAi(streamParams);
       
       // Kodeblokken under tar seg av streamingen
