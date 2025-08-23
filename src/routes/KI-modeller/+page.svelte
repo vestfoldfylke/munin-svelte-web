@@ -227,20 +227,6 @@
     inputMessage = ""; // Tømmer inputfeltet
     
     try {
-      // Bygger opp meldingshistorikk for streaming
-      // const alleMeldinger = [];
-      
-      // if (messageHistory.length > 1) {
-      //   const relevantHistory = messageHistory.slice(1, -1); // Dropper velkomstmelding og siste melding som blir lagt til senere
-      //   for (const msg of relevantHistory) {
-      //     if (msg.role === 'user' || msg.role === 'assistant') {
-      //       alleMeldinger.push({
-      //         role: msg.role,
-      //         content: msg.content
-      //       });
-      //     }
-      //   }
-      // }
 
       if (imageB64.length > 0) {
         const content = [{ type: 'text', text: message }];
@@ -250,7 +236,7 @@
             image_url: { url: imageBase64 }
           });
         }
-        messageHistory.push({ role: 'user', content }); // Multimodal melding
+        messageHistory.push({ role: 'user', content:content }); // Multimodal melding
       } else {
         messageHistory = [...messageHistory, { 
           role: "user", 
