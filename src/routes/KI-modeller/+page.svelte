@@ -326,6 +326,7 @@
       isError = true;
       errorMessage = error;
       // Update the assistant message with error
+      const assistantMessageId = generateUniqueId();
       messageHistory = messageHistory.map(msg => 
         msg.uniqueId === assistantMessageId 
           ? { ...msg, content: "Noe gikk galt. Prøv igjen.", isStreaming: false }
