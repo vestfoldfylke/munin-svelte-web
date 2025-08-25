@@ -46,7 +46,7 @@
   let messageHistory = $state([]);
   let kontekst = $state("");
   let isFirstPrompt = $state(true); // For å sjekke om det er første prompt
-  let valgtModell = $state("0") ; // Standard valgt modell, "0" for ChatGPT-5 (gpt-5)
+  let valgtModell = $state("6") ; // Standard valgt modell, "6" for ChatGPT-4.1 (gpt-4.1)
   let temperatur = $state(0.7); // Default temperatur
   let synligKontekst = $state(true);
   let isStreaming = $state(false); // For å håndtere streaming state
