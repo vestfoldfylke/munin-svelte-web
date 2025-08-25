@@ -120,17 +120,31 @@ export const docQueryOpenAi = async (userParams) => {
 export const streamResponseOpenAi = async (userParams) => {
   const accessToken = await getHuginToken()
   
+  console.log(userParams)
+  console.log('Kontekst i streamResponseOpenAi:', userParams.kontekst)
+
   const payload = {
     messages: userParams.messages,
     model: userParams.model || "gpt-4.1",
-    stream: true
-  }
-  
-  // Only add temperature if not using gpt-5 (gpt-5 doesn't support temperature)
-  if (payload.model !== 'gpt-5') {
-    payload.temperature = userParams.temperature || 0.7;
+    stream: true,
+    studiemodus: userParams.studiemodus,
+    isFirstPrompt: userParams.isFirstPrompt,
+    kontekst: userParams.kontekst
   }
 
+    if (userParams.studiemodus) {
+      payload.messages[0] = {
+        role: "developer",
+        content: studieledetekst.ledetekst + "\n\n" + userParams.kontekst
+      }
+    } else {
+      payload.messages[0] = {
+        role: "developer",
+        content: userParams.kontekst,
+      }
+    }
+
+  console.log('Oppdatert melding for streaming:', payload.messages)
   const response = await fetch(`${aiApiUri}/streamResponseOpenAi`, {
     method: 'POST',
     headers: {
