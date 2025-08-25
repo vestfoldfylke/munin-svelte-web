@@ -75,7 +75,7 @@ export const tfkModels =
         description: 'Nora er en familie med norske språkmodeller utviklet av språkteknologigruppen ved Universitet i Oslo (UiO), i samarbeid med blant annet Nasjonalbiblioteket, og er trent på norske tekster (bokmål og nynorsk). Til forskjell fra store språkmodelleer som GPT-4o, så er ikke Nora-modellen i Hugin en ferdigutviklet samtalerobot, som er laget for chat. Nora-modellen har som formål å vise hvordan en språkmodell som er trent på norske data kan skape tekst som bedre representerer norsk språk og kultur. I tillegg er mindre, åpne og spesialiserte modeller mer bærekraftige enn de virkelig store språkmodellene, fra de store multinasjonale teknologiselskapene.',
         synligKontekst: false,
         illustrasjon: '',
-        tile: 'chat',
+        tile: 'labs',
         endpoint: 'noraChat',
         assistant: false
       },
@@ -236,24 +236,24 @@ export const tfkModels =
         thread_id: ''
       }
     },
-    {
-      id: '20',
-      metadata: {
-        navn: 'Magistral - Resonnering',
-        flagClass: 'fi fi-eu',
-        description: 'En språkmodell som er godt egnet til mer kompliserte oppgaver som koding og problemløsing. Den løser oppgaver i flere trinn.',
-        synligKontekst: false,
-        illustrasjon: '',
-        tile: 'chat',
-        endpoint: 'multimodalMistral',
-        assistant: false
-      },
-      params: {
-        message: '',
-        kontekst: '',
-        model: 'magistral-medium-2506',
-      }
-    },
+    // {
+    //   id: '20',
+    //   metadata: {
+    //     navn: 'Magistral - Resonnering',
+    //     flagClass: 'fi fi-eu',
+    //     description: 'En språkmodell som er godt egnet til mer kompliserte oppgaver som koding og problemløsing. Den løser oppgaver i flere trinn.',
+    //     synligKontekst: false,
+    //     illustrasjon: '',
+    //     tile: 'chat',
+    //     endpoint: 'multimodalMistral',
+    //     assistant: false
+    //   },
+    //   params: {
+    //     message: '',
+    //     kontekst: '',
+    //     model: 'magistral-medium-2506',
+    //   }
+    // },
     {
       id: '21',
       metadata: {
