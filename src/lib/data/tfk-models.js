@@ -67,34 +67,34 @@ export const tfkModels =
         model: 'pixtral-large-latest'
       }
     },
-    // {
-    //   id: '1',
-    //   metadata: {
-    //     navn: 'NoraLLM',
-    //     flagClass: 'fi fi-no',
-    //     description: 'Nora er en familie med norske språkmodeller utviklet av språkteknologigruppen ved Universitet i Oslo (UiO), i samarbeid med blant annet Nasjonalbiblioteket, og er trent på norske tekster (bokmål og nynorsk). Til forskjell fra store språkmodelleer som GPT-4o, så er ikke Nora-modellen i Hugin en ferdigutviklet samtalerobot, som er laget for chat. Nora-modellen har som formål å vise hvordan en språkmodell som er trent på norske data kan skape tekst som bedre representerer norsk språk og kultur. I tillegg er mindre, åpne og spesialiserte modeller mer bærekraftige enn de virkelig store språkmodellene, fra de store multinasjonale teknologiselskapene.',
-    //     synligKontekst: false,
-    //     illustrasjon: '',
-    //     tile: 'chat',
-    //     endpoint: 'noraChat',
-    //     assistant: false
-    //   },
-    //   params: {
-    //     question: '',
-    //     parameters: {
-    //       stream: false,
-    //       max_tokens: 500,
-    //       max_new_tokens: 1024,
-    //       top_k: 64,
-    //       top_p: 0.9,
-    //       stop: ['<|im_end|>'],
-    //       temperature: 0.2,
-    //       do_sample: true,
-    //       repetition_penalty: 1.0,
-    //       return_full_text: true
-    //     }
-    //   }
-    // },
+    {
+      id: '1',
+      metadata: {
+        navn: 'NoraLLM',
+        flagClass: 'fi fi-no',
+        description: 'Nora er en familie med norske språkmodeller utviklet av språkteknologigruppen ved Universitet i Oslo (UiO), i samarbeid med blant annet Nasjonalbiblioteket, og er trent på norske tekster (bokmål og nynorsk). Til forskjell fra store språkmodelleer som GPT-4o, så er ikke Nora-modellen i Hugin en ferdigutviklet samtalerobot, som er laget for chat. Nora-modellen har som formål å vise hvordan en språkmodell som er trent på norske data kan skape tekst som bedre representerer norsk språk og kultur. I tillegg er mindre, åpne og spesialiserte modeller mer bærekraftige enn de virkelig store språkmodellene, fra de store multinasjonale teknologiselskapene.',
+        synligKontekst: false,
+        illustrasjon: '',
+        tile: 'labs',
+        endpoint: 'noraChat',
+        assistant: false
+      },
+      params: {
+        question: '',
+        parameters: {
+          stream: false,
+          max_tokens: 500,
+          max_new_tokens: 1024,
+          top_k: 64,
+          top_p: 0.9,
+          stop: ['<|im_end|>'],
+          temperature: 0.2,
+          do_sample: true,
+          repetition_penalty: 1.0,
+          return_full_text: true
+        }
+      }
+    },
     {
       id: '2',
       metadata: {
