@@ -35,7 +35,7 @@
   
   const modelTile = 'chat'
 
-  const { VITE_APP_NAME: appName, VITE_MOCK_API: mockApi, VITE_COUNTY: county } = import.meta.env
+  const { VITE_APP_NAME: appName, VITE_MOCK_API: mockApi } = import.meta.env
 
   // Initiell state - Modell-parametere og payload som sendes til proxy-api
   let message = $state("");

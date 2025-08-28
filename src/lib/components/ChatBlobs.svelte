@@ -43,7 +43,8 @@
                 {#if content === "..."}
                     <div class="loader"></div>
                 {:else}
-                    {@html processedContent}
+                    <!-- eslint-disable svelte/no-at-html-tags -->
+                    {@html processedContent} <!-- @html content is sanitized by markdownToHtml (markdown-it) as long as html property in markdown-it config is set to false, or not set -->
                     {#if role !== 'user'}
                         <div class="assistantInfo">
                             {assistant}
