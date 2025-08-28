@@ -17,7 +17,7 @@
     $effect(() => {
         if (isStreaming) {
             // During streaming, don't process markdown to avoid broken math/code
-            processedContent = content;
+            processedContent = markdownToHtml(content);
         } else {
             // When streaming is complete, process the full content
             processedContent = markdownToHtml(content);
@@ -43,14 +43,8 @@
                 {#if content === "..."}
                     <div class="loader"></div>
                 {:else}
-                    {#if isStreaming}
-                        <!-- Show raw text during streaming to preserve formatting -->
-                        <pre class="streaming-content">{content}</pre>
-                    {:else}
-                        <!-- Show processed markdown when streaming is complete -->
-                        <!-- eslint-disable svelte/no-at-html-tags -->
-                        {@html processedContent}
-                    {/if}
+                    <!-- eslint-disable svelte/no-at-html-tags -->
+                    {@html processedContent} <!-- @html content is sanitized by markdownToHtml (markdown-it) as long as html property in markdown-it config is set to false, or not set -->
                     {#if role !== 'user'}
                         <div class="assistantInfo">
                             {assistant}
