@@ -18,7 +18,7 @@ const converter = markdownIt({
     }
     return preCodeHtml + converter.utils.escapeHtml(str) + '</code></pre>';
   },
-  html: false,
+  html: false, // Important - else can be vulnerable for xss-attacks
   linkify: true
 })
 
