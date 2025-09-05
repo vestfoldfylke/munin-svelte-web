@@ -35,7 +35,7 @@
   
   const modelTile = 'chat'
 
-  const { VITE_APP_NAME: appName, VITE_MOCK_API: mockApi, VITE_COUNTY: county } = import.meta.env
+  const { VITE_APP_NAME: appName, VITE_MOCK_API: mockApi } = import.meta.env
 
   // Initiell state - Modell-parametere og payload som sendes til proxy-api
   let message = $state("");
@@ -46,7 +46,7 @@
   let messageHistory = $state([]);
   let kontekst = $state("");
   let isFirstPrompt = $state(true); // For å sjekke om det er første prompt
-  let valgtModell = $state("0") ; // Standard valgt modell, "0" for ChatGPT-5 (gpt-5)
+  let valgtModell = $state("6") ; // Standard valgt modell, "6" for ChatGPT-4.1 (gpt-4.1)
   let temperatur = $state(0.7); // Default temperatur
   let synligKontekst = $state(true);
   let isStreaming = $state(false); // For å håndtere streaming state
@@ -140,13 +140,13 @@
   const brukervalg = async () => {
     if (!inputMessage.trim()) return; // Fix for å unngå tom input
     
+    // Modeller som bruker streaming ()8Foreløpig kun GPT-5 og GPT-4.1
     if (valgtModell === "0" || valgtModell === "6") {
-      // Use streaming for OpenAI models
       await streamingBrukervalg();
       return;
     }
     
-    // Non-streaming path for other models
+    // Modeller som ikke bruker streaming
     isWaiting = true;
     // Get the textarea and set the height
     const textarea = document.querySelector("textarea");
@@ -154,55 +154,55 @@
     
     message = inputMessage;
     inputMessage = "";
-    
-    // Handle context and studiemodus for first prompt
-    let messageToStore = message; // For API calls
-    const displayMessage = message; // For UI display
+
+    // Håndtering av kontekst og studiemodus for første prompt
+    let apiMessage = message; // Melding som sendes til API (Inkluderer kontekst og studiemodus)
+    const displayMessage = message; // Melding som vises
     
     if (isFirstPrompt) {
       if (kontekst) {
-        messageToStore = `${kontekst}\n\n${messageToStore}`;
+        apiMessage = `${kontekst}\n\n${apiMessage}`;
       }
       if (studiemodus) {
-        messageToStore = `${studieledetekst.ledetekst}\n\n${messageToStore}`;
+        apiMessage = `${studieledetekst.ledetekst}\n\n${apiMessage}`;
       }
     }
     
+    // Legger til brukermelding i historikken i to versjoner. En med og en uten kontekst
     messageHistory = [...messageHistory, { 
       role: "user", 
-      content: displayMessage, // Show only user's message in UI
-      fullContent: messageToStore, // Keep full content for API calls
+      content: displayMessage, // UI
+      fullContent: apiMessage, // API
       model: modelinfoModell, 
       uniqueId: generateUniqueId() 
     }];
 
     try {
-      // Set isFirstPrompt to false after first use
+      // Da er vi ikke på første prompt lenger
       if (isFirstPrompt) {
         isFirstPrompt = false;
       }
-      
-      // Update message parameter to use the stored message
-      message = messageToStore;
-      const params = getRequestParams();
-      if (valgtModell === "1") {
+
+      // Sender inn komplett melding inkludert kontekst til API-et
+      message = apiMessage;
+      const params = getRequestParams(); // Hent alle parametere
+      if (valgtModell === "1") { // Nora
         const response = await noraChat(params);
         messageHistory = [...messageHistory, { role: "assistant", content: response, model: modelinfoModell, uniqueId: generateUniqueId() }];
         return;
-      } else if (valgtModell === "13" || valgtModell === "20") {
+      } else if (valgtModell === "13" || valgtModell === "20") { // Mistral
         const response = await multimodalMistral(params);
         messageHistory = [...messageHistory, { role: "assistant", content: response.choices[0].message.content, model: modelinfoModell, uniqueId: generateUniqueId() }];
         return;
       }
-
-      // noinspection ExceptionCaughtLocallyJS
+      // Hvis et eller annet skjer med modellvalget
       throw new Error("Ugyldig modellvalg");
     } catch (error) {
       isError = true;
       errorMessage = error;
       messageHistory = [...messageHistory, {
         role: "assistant",
-        content: "Noe gikk galt. Prøv igjen.",
+        content: "Noe gikk galt. Prøv igjen.", // Når API-et feiler
         model: modelinfoModell,
         uniqueId: generateUniqueId()
       }];
@@ -211,92 +211,65 @@
     }
   }
 
-  // Streaming version for OpenAI models
+  // Streamingversjon for OpenAI-modellene (Trenger gjennomgang)
   const streamingBrukervalg = async () => {
-    if (!inputMessage.trim()) return;
+    if (!inputMessage.trim()) return; // Hvis bruker bare trykker send uten innhold
     
     isWaiting = true;
-    isStreaming = false; // Start with spinner showing
-    currentStreamingMessage = "";
+    isStreaming = false;
+    currentStreamingMessage = ""; // Buffervariabel til å ta i mot streamen
     
     // Get the textarea and set the height
     const textarea = document.querySelector("textarea");
     textarea.style.height = "60px";
     
     message = inputMessage;
-    inputMessage = "";
+    inputMessage = ""; // Tømmer inputfeltet
     
-    // Handle context and studiemodus for first prompt
-    let messageToStore = message; // For API calls
-    const displayMessage = message; // For UI display
-    
-    if (isFirstPrompt) {
-      if (kontekst) {
-        messageToStore = `${kontekst}\n\n${messageToStore}`;
-      }
-      if (studiemodus) {
-        messageToStore = `${studieledetekst.ledetekst}\n\n${messageToStore}`;
-      }
-    }
-    
-    // Add user message to history with both display and full content
-    messageHistory = [...messageHistory, { 
-      role: "user", 
-      content: displayMessage, // Show only user's message in UI
-      fullContent: messageToStore, // Keep full content for API calls
-      model: modelinfoModell, 
-      uniqueId: generateUniqueId() 
-    }];
-    
-    // Add empty assistant message that will be filled with streaming content
-    const assistantMessageId = generateUniqueId();
-    messageHistory = [...messageHistory, { role: "assistant", content: "", model: modelinfoModell, uniqueId: assistantMessageId, isStreaming: true }];
-
     try {
-      // Build conversation history for streaming
-      const messages = [];
-      
-      // Add previous conversation history (excluding welcome message and current user message)
-      if (messageHistory.length > 1) {
-        const relevantHistory = messageHistory.slice(1, -1); // Skip welcome and just-added user message
-        for (const msg of relevantHistory) {
-          if (msg.role === 'user' || msg.role === 'assistant') {
-            messages.push({
-              role: msg.role,
-              content: msg.fullContent || msg.content // Use fullContent for user messages if available
-            });
-          }
-        }
-      }
-      
-      // Use the stored message (which already includes context/studiemodus if needed)
-      const finalMessage = messageToStore;
-      
-      // Add current user message with images if present
-      if (imageB64 && imageB64.length > 0) {
-        const content = [{ type: 'text', text: finalMessage }];
+
+      if (imageB64.length > 0) {
+        const content = [{ type: 'text', text: message }];
         for (const imageBase64 of imageB64) {
           content.push({
             type: 'image_url',
             image_url: { url: imageBase64 }
           });
         }
-        messages.push({ role: 'user', content });
+        messageHistory.push({ role: 'user', content:content }); // Multimodal melding
       } else {
-        messages.push({ role: "user", content: finalMessage });
+        messageHistory = [...messageHistory, { 
+          role: "user", 
+          content: message,
+          model: modelinfoModell, 
+          uniqueId: generateUniqueId()
+        }];
       }
-      
-      const streamParams = { 
-        messages,
-        model: model
+
+      // console.log("Alle meldinger som skal sendes:", alleMeldinger);
+
+          // Lager en "hjelpemedling" som skal fylles med streaminginnhold med egen ID
+        const assistantMessageId = generateUniqueId();
+        messageHistory = [...messageHistory, { role: "assistant", content: "", model: modelinfoModell, uniqueId: assistantMessageId, isStreaming: true }];
+
+
+      const streamParams = {
+        messages: [...messageHistory],  // Sjekk at alleMeldinger er korrekt
+        model: model,
+        kontekst: kontekst,
+        studiemodus: studiemodus,
+        isFirstPrompt: isFirstPrompt
       };
-      
-      // Only add temperature if not using gpt-5 (gpt-5 doesn't support temperature)
+
+      // Dropp temperatur for gpt-5
       if (model !== 'gpt-5') {
         streamParams.temperature = temperatur;
       }
+
+      console.log("Streaming parametre:", streamParams);
       const response = await streamResponseOpenAi(streamParams);
       
+      // Kodeblokken under tar seg av streamingen
       // Stream connection established, hide spinner and start streaming
       isStreaming = true;
       
@@ -353,6 +326,7 @@
       isError = true;
       errorMessage = error;
       // Update the assistant message with error
+      const assistantMessageId = generateUniqueId();
       messageHistory = messageHistory.map(msg => 
         msg.uniqueId === assistantMessageId 
           ? { ...msg, content: "Noe gikk galt. Prøv igjen.", isStreaming: false }
@@ -456,13 +430,13 @@
 
 
     <div class="output" bind:this={chatWindow}>
-      {#if messageHistory.length === 1}
+      {#if messageHistory.length === 1} <!-- Kun velkomstmelding -->
         <ChatBlobs
           role="assistant"
           content={messageHistory[0].content}
           assistant={`${appName}`}  />
       {:else if isWaiting}
-        {#each messageHistory as chatMessage (chatMessage.uniqueId)}
+        {#each messageHistory as chatMessage (chatMessage.uniqueId)} <!-- Venter på respons -->
           <ChatBlobs 
             role={chatMessage.role} 
             content={chatMessage.content} 
@@ -478,8 +452,8 @@
           </div>
         {/if}
       {:else}
-        {#each messageHistory as chatMessage (chatMessage.uniqueId)}
-          {#if typeof chatMessage.content === "string"}
+        {#each messageHistory as chatMessage (chatMessage.uniqueId)} <!-- Viser hele samtalen -->
+          {#if typeof chatMessage.content === "string"} <!-- Sikre at innholdet er en streng ifm grums når streaming starter opp -->
             <ChatBlobs 
               role={chatMessage.role} 
               content={chatMessage.content} 

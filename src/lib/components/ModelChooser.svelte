@@ -11,7 +11,7 @@
      */
 
     /** @type {Props} */
-    const { handleModelChange, models, tile, selectedModelId = '0', useModelId = false, useAssistantId = false } = $props();
+    const { handleModelChange, models, tile, selectedModelId = '6', useModelId = false, useAssistantId = false } = $props();
     
     const _useModelId = useModelId || (!useModelId && !useAssistantId)
 
