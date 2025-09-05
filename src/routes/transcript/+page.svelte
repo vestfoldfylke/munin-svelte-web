@@ -15,6 +15,7 @@ let mediaRecorder;
   let audioUrl = $state();
   let token = $state(null)
   // disabled as this seems to not be fully implemented yet
+  // eslint-disable-next-line no-unused-vars
   let ferdigTranskript = $state("Her kommer transkripsjonen");
   let recording = $state(false);
   let timer = $state(0);

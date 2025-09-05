@@ -9,17 +9,17 @@ const { VITE_AI_API_URI: aiApiUri } = import.meta.env
 
 const getNDLAArticleUrls = (articles) => {
   let articleUrls = 'Les mer på NDLA om: '
-  for (let i= 0; i < articles.length; i++) {
+  for (let i = 0; i < articles.length; i++) {
     const text = `[${articles[i].title.title}](https://ndla.no/article-iframe/nb/article/${articles[i].id})`
 
     if (i === 0) {
       articleUrls += `${text}`
-      continue;
+      continue
     }
 
     if (i < (articles.length - 1)) {
       articleUrls += `, ${text}`
-      continue;
+      continue
     }
 
     articleUrls += `, og ${text}`
@@ -119,37 +119,37 @@ export const docQueryOpenAi = async (userParams) => {
 
 export const streamResponseOpenAi = async (userParams) => {
   const accessToken = await getHuginToken()
-  
+
   console.log(userParams)
   console.log('Kontekst i streamResponseOpenAi:', userParams.kontekst)
 
   const payload = {
     messages: userParams.messages,
-    model: userParams.model || "gpt-4.1",
+    model: userParams.model || 'gpt-4.1',
     stream: true,
     studiemodus: userParams.studiemodus,
     isFirstPrompt: userParams.isFirstPrompt,
     kontekst: userParams.kontekst
   }
 
-    if (userParams.studiemodus) {
-      payload.messages[0] = {
-        role: "developer",
-        content: studieledetekst.ledetekst + "\n\n" + userParams.kontekst
-      }
-    } else {
-      payload.messages[0] = {
-        role: "developer",
-        content: userParams.kontekst,
-      }
+  if (userParams.studiemodus) {
+    payload.messages[0] = {
+      role: 'developer',
+      content: studieledetekst.ledetekst + '\n\n' + userParams.kontekst
     }
+  } else {
+    payload.messages[0] = {
+      role: 'developer',
+      content: userParams.kontekst
+    }
+  }
 
   console.log('Oppdatert melding for streaming:', payload.messages)
   const response = await fetch(`${aiApiUri}/streamResponseOpenAi`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${accessToken}`
+      Authorization: `Bearer ${accessToken}`
     },
     body: JSON.stringify(payload)
   })
