@@ -1,6 +1,6 @@
 import { katexPlugin } from '../helpers/katex-plugin.js'
-import highlightJs from 'highlight.js';
-import markdownIt from 'markdown-it';
+import highlightJs from 'highlight.js'
+import markdownIt from 'markdown-it'
 
 import 'highlight.js/styles/a11y-light.min.css'
 import 'katex/dist/katex.min.css'
@@ -11,19 +11,19 @@ const converter = markdownIt({
     if (lang && highlightJs.getLanguage(lang)) {
       try {
         return preCodeHtml +
-          highlightJs.highlight(str, { language: lang, ignoreIllegals: true }).value + '</code></pre>';
+          highlightJs.highlight(str, { language: lang, ignoreIllegals: true }).value + '</code></pre>'
       } catch (err) {
-        console.error("Highlighting error:", err)
+        console.error('Highlighting error:', err)
       }
     }
-    return preCodeHtml + converter.utils.escapeHtml(str) + '</code></pre>';
+    return preCodeHtml + converter.utils.escapeHtml(str) + '</code></pre>'
   },
   html: false, // Important - else can be vulnerable for xss-attacks
   linkify: true
 })
 
 const defaultRender = converter.renderer.rules.link_open || function (tokens, idx, options, env, self) {
-  return self.renderToken(tokens, idx, options);
+  return self.renderToken(tokens, idx, options)
 }
 
 const addKatexToMathStrings = (text) => {
@@ -51,11 +51,11 @@ const addKatexToMathStrings = (text) => {
 export const markdownToHtml = (text) => {
   converter.renderer.rules.link_open = function (tokens, idx, options, env, self) {
     // Add a new `target` attribute, or replace the value of the existing one.
-    tokens[idx].attrSet('target', '_blank');
+    tokens[idx].attrSet('target', '_blank')
 
     // Pass the token to the default renderer.
-    return defaultRender(tokens, idx, options, env, self);
-  };
+    return defaultRender(tokens, idx, options, env, self)
+  }
 
   converter.use(katexPlugin)
 
