@@ -190,7 +190,7 @@ export const tfkModels =
       params: {
         message: '',
         kontekst: '',
-        model: 'gpt-4o',
+        model: 'gpt-4.1',
         assistant_id: import.meta.env.VITE_ASSISTANT_ADP,
         new_thread: true,
         thread_id: ''
@@ -257,11 +257,11 @@ export const tfkModels =
     {
       id: '21',
       metadata: {
-        navn: 'Acosbotten',
+        navn: 'Skjemaløsningbotten',
         description: 'Eksperimentell bot til bruk for oppslag i Acosdokumentasjonen.',
         synligKontekst: false,
         illustrasjon: '',
-        tile: 'labs',
+        tile: 'orgbotter',
         endpoint: 'assistantOpenAi',
         assistant: true
       },
@@ -310,6 +310,26 @@ export const tfkModels =
         kontekst: '',
         model: 'gpt-4.1',
         assistant_id: import.meta.env.VITE_ASSISTANT_SKOGMO_HISTORIE,
+        new_thread: true,
+        thread_id: ''
+      }
+    },
+    {
+      id: '24',
+      metadata: {
+        navn: 'Driftsfag-botten',
+        description: 'Eksperimentell bot til bruk for Driftsfag.',
+        synligKontekst: false,
+        illustrasjon: '',
+        tile: 'skolebotter',
+        endpoint: 'assistantOpenAi',
+        assistant: true
+      },
+      params: {
+        message: '',
+        kontekst: '',
+        model: 'gpt-4.1',
+        assistant_id: import.meta.env.VITE_ASSISTANT_DRIFTSFAG,
         new_thread: true,
         thread_id: ''
       }
