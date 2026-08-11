@@ -534,10 +534,12 @@
         <label for="imageButton" title="Last opp bilder for analyse"><span class="material-symbols-outlined inputButton">add_photo_alternate</span>
           <input id="imageButton" type="file" bind:files={imageFiles} onchange={onFileSelect} accept="image/*" multiple style="display: none;"/></label>
         {/if}
+        <!--
         {#if valgtModell === "13" }
           <label for="imageButton" title="Last opp JPEG-bilder for analyse"><span class="material-symbols-outlined inputButton">add_photo_alternate</span>
             <input id="imageButton" type="file" bind:files={imageFiles} onchange={onFileSelect} accept="image/jpeg" multiple style="display: none;"/></label>
         {/if}
+        -->
         {#if isError}
           <Modal bind:showModal>
             {#snippet header()}
