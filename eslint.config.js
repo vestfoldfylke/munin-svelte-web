@@ -18,7 +18,8 @@ export default [
     },
     rules: {
       'no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
-      'prefer-const': 'error'
+      'prefer-const': 'error',
+      "svelte/no-navigation-without-resolve": "off"
     }
   },
   {
@@ -26,7 +27,8 @@ export default [
     languageOptions: { parserOptions: { svelteConfig } },
     rules: {
       'no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
-      'prefer-const': 'error'
+      'prefer-const': 'error',
+      "svelte/no-navigation-without-resolve": "off"
     }
   }
 ]
