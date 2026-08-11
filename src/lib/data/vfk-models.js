@@ -5,7 +5,7 @@ export const vfkModels = [
       navn: 'Mistral',
       default: true,
       flagClass: 'fi fi-eu',
-      description: 'Dennne modellen bruker [Mistral](https://mistral.ai/news/pixtral-large). Mistral Large og Pixtral Large, er avanserte multimodal språkmodeller utviklet for å håndtere komplekse oppgaver som kombinerer tekst og bildeanalyse. Modellen er trent på en omfattende mengde data og er optimalisert for å generere tekst basert på en gitt kontekst, melding eller visuelle input. Mistral Large kan brukes til en rekke oppgaver som tekstgenerering, bildeanalyse og multimodal forståelse. For å bruke modellens bildeanalysefunksjon, kan du laste opp et bilde via opplastingsknappen. Modellen vil analysere bildet og generere tekst basert på innholdet. Dette gjør Mistral Large til et kraftig verktøy for både kreative og analytiske oppgaver.',
+      description: 'Dennne modellen bruker [Mistral](https://docs.mistral.ai/models/model-cards/mistral-large-3-25-12). Mistral Large, er en multimodal språkmodell utviklet for å håndtere komplekse oppgaver som kombinerer tekst og bildeanalyse. Modellen er trent på en omfattende mengde data og er optimalisert for å generere tekst basert på en gitt kontekst, melding eller visuelle input. Mistral Large kan brukes til en rekke oppgaver som tekstgenerering, bildeanalyse og multimodal forståelse. For å bruke modellens bildeanalysefunksjon, kan du laste opp et bilde via opplastingsknappen. Modellen vil analysere bildet og generere tekst basert på innholdet. Dette gjør Mistral Large til et kraftig verktøy for både kreative og analytiske oppgaver.',
       synligKontekst: true,
       illustrasjon: '',
       tile: 'chat',
@@ -18,15 +18,15 @@ export const vfkModels = [
     params: {
       message: '',
       kontekst: '',
-      model: 'pixtral-large-latest'
+      model: 'mistral-large-latest'
     }
   },
   {
     id: '0',
     metadata: {
-      navn: 'ChatGPT-5',
+      navn: 'ChatGPT-5.1',
       flagClass: 'fi fi-us',
-      description: 'Denne modellen bruker [OpenAIs GPT-5](https://openai.com/nb-NO/gpt-5//) til å generere tekst basert på en gitt kontekst og melding. GPT-5 er den nyeste versjonen av GPT, og er trent på en stor mengde data fra internett. Modellen er trent på å generere tekst som ligner på menneskelig skrevet tekst, og kan brukes til en rekke oppgaver som tekstgenerering, oversettelse og spørsmål-svar. Du må selv legge inn kontektst og temperatur slik at modellen får de egenskapene du ønsker. Denne modellen har også mulighet for bilde og dokumentanalyse. Trykk på opplastingsknappene. Modellen vil analysere bildet eller dokumentet og kan generere tekst basert på dette.',
+      description: 'Denne modellen bruker [OpenAIs GPT-5.1](https://openai.com/index/gpt-5-1/) til å generere tekst basert på en gitt kontekst og melding. GPT-5 er den nyeste versjonen av GPT, og er trent på en stor mengde data fra internett. Modellen er trent på å generere tekst som ligner på menneskelig skrevet tekst, og kan brukes til en rekke oppgaver som tekstgenerering, oversettelse og spørsmål-svar. Du må selv legge inn kontektst og temperatur slik at modellen får de egenskapene du ønsker. Denne modellen har også mulighet for bilde og dokumentanalyse. Trykk på opplastingsknappene. Modellen vil analysere bildet eller dokumentet og kan generere tekst basert på dette.',
       synligKontekst: true,
       illustrasjon: '',
       tile: 'chat',
@@ -40,7 +40,7 @@ export const vfkModels = [
       message: '',
       messageHistory: '',
       kontekst: '',
-      model: 'gpt-5',
+      model: 'gpt-5.1',
       base64String: ''
     }
   },

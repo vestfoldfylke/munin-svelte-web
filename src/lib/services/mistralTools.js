@@ -9,7 +9,7 @@ export const multimodalMistral = async (userParams) => {
   // Henter basis-konfigurasjon fra models.js og supplerer med brukerens parametre
   console.log('multimodalMistral', userParams.model)
   let modelIndex
-  if (userParams.model == 'pixtral-large-latest') {
+  if (userParams.model == 'mistral-large-latest') {
     modelIndex = models.findIndex((model) => model.id === '13')
   } else if (userParams.model == 'magistral-medium-2506') {
     modelIndex = models.findIndex((model) => model.id === '20')
